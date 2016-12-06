@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ELECTRE</title>
+  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= csrf_meta_tags %>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <%= favicon_link_tag 'favicon.ico' %>
+</head>
+<body>
+  <%= render 'layouts/navigation' %>
+  <div class="container" style="width: 100%;">
+    <div class="row">
+      <div class="col-lg-12">
+
+        <% if notice %>
+            <div class="alert alert-info fade in">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+              <%= notice %>
+            </div>
+        <% end %>
+
+        <% if alert %>
+            <div class="alert alert-danger fade in">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+              <%= alert %>
+            </div>
+        <% end %>
+
+        <%= yield %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

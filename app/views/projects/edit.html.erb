@@ -1,0 +1,16 @@
+<h1>Edit Project</h1>
+<% if @project.errors.any? %>
+    <div class="alert alert-danger">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <%= @project.errors.full_messages.first %>
+    </div>
+<% end %>
+<%= render 'form', :project => @project, :context => false  %>
+<%= link_to "Back to project overview", projects_path %>
+
+<script>
+  $(document).ready(function() {
+    $("#project_startdate").datepicker({dateFormat: 'dd.mm.yy'});
+    $("#project_enddate").datepicker({dateFormat: 'dd.mm.yy'});
+  });
+</script>

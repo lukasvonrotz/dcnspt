@@ -1,0 +1,46 @@
+<%= form_for employee do |employee| %>
+
+    <div class="field form-group">
+      <%= employee.label :firstname, 'First name' %>
+      <%= employee.text_field :firstname, :class => "form-control", placeholder: 'Enter first name of employee' %>
+    </div>
+
+    <div class="field form-group">
+      <%= employee.label :surname, 'Last name' %>
+      <%= employee.text_field :surname, :class => "form-control", placeholder: 'Enter last name of employee' %>
+    </div>
+
+    <div class="field form-group">
+      <%= employee.label :country, 'Country' %>
+      <%= employee.text_field :country, :class => "form-control", placeholder: 'Enter country of employee' %>
+    </div>
+
+    <div class="field form-group">
+      <%= employee.label :loclat, 'Location (Latitude)' %>
+      <%= employee.text_field :loclat, :class => "form-control", placeholder: 'Enter location (latitude) of employee' %>
+    </div>
+
+    <div class="field form-group">
+      <%= employee.label :loclon, 'Location (Longitude)' %>
+      <%= employee.text_field :loclon, :class => "form-control", placeholder: 'Enter location (longitude) of employee' %>
+    </div>
+
+    <div class="field form-group">
+      <%= employee.label :costrate, 'Cost Rate' %>
+      <%= employee.text_field :costrate, :class => "form-control", placeholder: 'Enter cost rate of employee' %>
+    </div>
+
+    <div class="field form-group">
+      <%= employee.label :jobprofile, 'Job Profile' %>
+      <%= employee.text_field :jobprofile, :class => "form-control", placeholder: 'Enter job profile of employee' %>
+    </div>
+
+    <div class="actions form-group">
+      <% if context %>
+        <%= employee.submit 'Create employee', class: "btn btn-success", data: { disable_with: "Processsing..." }  %>
+      <% else %>
+        <%= employee.submit 'Update employee', class: "btn btn-success", data: { disable_with: "Processsing..." }  %>
+      <% end %>
+    </div>
+
+<% end %>

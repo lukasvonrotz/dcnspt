@@ -1,0 +1,14 @@
+<h1>User Information</h1>
+
+<p><strong>ID</strong></p>
+<%= @user.id %>
+</br></br>
+<p><strong>E-Mail</strong></p>
+<%= @user.email %>
+</br></br>
+<p><strong>Projects</strong></p>
+<ul style="padding-left: 15px;">
+  <% @user.projects.each do |project| %>
+      <li><%= link_to project.name, project_path(project.id) %></li>
+  <% end %>
+</ul>

@@ -1,0 +1,78 @@
+<div class="col-lg-6">
+  <h2>Edit <%= resource_name.to_s.humanize %></h2>
+
+  <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+      <% if devise_error_messages!.to_s != '' %>
+          <div class="alert alert-danger fade in">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <%= devise_error_messages! %>
+          </div>
+      <% end %>
+
+    <div class="field form-group">
+      <%= f.label :email %><br />
+      <%= f.email_field :email, {autofocus: "true", class:"form-control"} %>
+    </div>
+
+    <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+      <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
+    <% end %>
+
+    <div class="field form-group">
+      <%= f.label :password %> <i>(leave blank if you don't want to change it)</i><br />
+      <%= f.password_field :password, {autocomplete: "off", class:"form-control"} %>
+    </div>
+
+    <div class="field form-group">
+      <%= f.label :password_confirmation %><br />
+      <%= f.password_field :password_confirmation, {autocomplete: "off", class:"form-control"} %>
+    </div>
+
+    <div class="field form-group">
+      <%= f.label :current_password %> <i>(we need your current password to confirm your changes)</i><br />
+      <%= f.password_field :current_password, {autocomplete: "off", class:"form-control"} %>
+    </div>
+
+    <div class="actions">
+      <%= f.submit "Update", {class:"btn btn-success"} %>
+    </div>
+  <% end %>
+  </br></br>
+</div>
+
+<div class="col-lg-6">
+  <h2>Cancel my account</h2>
+
+  <p>Unhappy?</p>
+  <p><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#popup_sure"><%= 'Cancel my account' %></button></p>
+</div>
+
+<div class="modal fade" id="popup_sure">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Confirmation</h4>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure?</p>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-success btn-danger" rel="nofollow" data-method="delete" href="<%= registration_path(resource_name) %>">Delete user</a>
+        <button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $('#popup_sure_delete').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget) // Button that triggered the modal
+    var line = button.data('lineid') // Extract info from data-* attributes
+    // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+    // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+    var modal = $(this)
+    modal.find('.btn-yes').attr("href", '/lines/' + line)
+    modal.find('.btn-yes').attr("text", '<%= t('global.confirmYes') %>')
+  });
+</script>

@@ -1,0 +1,9 @@
+<h1>Edit Employee</h1>
+<% if @employee.errors.any? %>
+    <div class="alert alert-danger">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <%= @employee.errors.full_messages.first %>
+    </div>
+<% end %>
+<%= render 'form', :employee => @employee, :context => false  %>
+<%= link_to "Back to employee overview", employees_path %>

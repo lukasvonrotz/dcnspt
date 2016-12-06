@@ -1,0 +1,39 @@
+<h1>All Users</h1>
+<% if @users.nil? %>
+    No users in database.
+<% else %>
+    <div class="table-responsive">
+      <table id="user_table" class="table table-striped table-bordered" cellspacing="0" width="100%">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>E-Mail</th>
+            <th>Projects</th>
+          </tr>
+        </thead>
+        <tfoot>
+          <tr>
+            <th>ID</th>
+            <th>E-Mail</th>
+            <th>Projects</th>
+          </tr>
+        </tfoot>
+        <tbody>
+          <% @users.each do |user| %>
+            <tr>
+              <td><%= user.id %></td>
+              <td><%= link_to user.email, user_path(user.id) %></td>
+              <td>
+                <ul style="padding-left: 15px;">
+                  <% user.projects.each do |project| %>
+                      <li><%= link_to project.name, project_path(project.id) %></li>
+                  <% end %>
+                </ul>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+<% end %>
+

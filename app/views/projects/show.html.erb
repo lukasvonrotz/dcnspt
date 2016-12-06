@@ -1,0 +1,31 @@
+<h1>Project Information</h1>
+
+<p><strong>ID</strong></p>
+<%= @project.id %>
+</br></br>
+<p><strong>Name</strong></p>
+<%= @project.name %>
+</br></br>
+<p><strong>Owner</strong></p>
+<%= link_to @project.user.email, user_path(@project.user.id) %>
+</br></br>
+<p><strong>Employees</strong></p>
+<% @project.employees.each do |employee| %>
+    <%= employee.firstname %> <%= employee.surname %></br>
+    Distance: <%= Location.get_distance(employee.loclat,employee.loclon,@project.loclat,@project.loclon) %> km<br>
+    Margin: <%= Margin.get_margin(@project.hourlyrate,employee.costrate) %> CHF</br></br>
+<% end %>
+</br></br>
+<p><strong>Project parameters</strong></p>
+<%= link_to "Edit project parameters", project_criterionparams_path(@project.id), class: "btn btn-default" %>
+</br></br>
+<% @project.criterionparams.each do |criterionparam| %>
+    <strong><%= criterionparam.criterion.name %></strong><br>
+    Weight: <%= criterionparam.weight %></br>
+    Preference threshold: <%= criterionparam.preferencethreshold %></br>
+    Indifference threshold: <%= criterionparam.indifferencethreshold %></br>
+    Veto threshold: <%= criterionparam.vetothreshold %></br></br>
+<% end %>
+</br>
+<%= link_to "Back to project overview", projects_path %>
+</br></br>

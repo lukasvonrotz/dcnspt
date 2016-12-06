@@ -1,0 +1,34 @@
+<h1>Employee Information</h1>
+
+<p><strong>ID</strong></p>
+<%= @employee.id %>
+</br></br>
+<p><strong>First Name</strong></p>
+<%= @employee.firstname %>
+</br></br>
+<p><strong>First Name</strong></p>
+<%= @employee.surname %>
+</br></br>
+<p><strong>Country</strong></p>
+<%= @employee.country %>
+</br></br>
+<p><strong>Workload</strong></p>
+  <% @employee.workloads.each do |workload| %>
+    workweek: <%= workload.week.workweek %>,
+    free hours: <%= workload.free %>,
+    offered hours: <%= workload.offered %>,
+    sold hours: <%= workload.sold %>,
+    absent hours: <%= workload.absent %>
+    </br>
+  <% end %>
+</br></br>
+<p><strong>Criteria</strong></p>
+<%= link_to "Edit criteria values", employee_criterionvalues_path(@employee.id), class: "btn btn-default" %>
+</br></br>
+  <% @employee.criterionvalues.each do |criterionvalue| %>
+    <%= criterionvalue.criterion.name %>:
+    <%= criterionvalue.value %>
+    </br>
+  <% end %>
+</br></br>
+<%= link_to "Back to employee overview", employees_path %>

@@ -1,0 +1,23 @@
+<%= form_for criterion do |criterion| %>
+
+    <div class="field form-group">
+      <%= criterion.label :name, 'Criterion name' %>
+      <%= criterion.text_field :name, :class => "form-control", placeholder: 'Enter name of the criterion' %>
+    </div>
+
+    <div class="field form-group">
+      <%= criterion.label :criterioncontext, 'Criterion Context' %>
+      <%= criterion.collection_select :criterioncontext_id, Criterioncontext.all,:id,:name, {:selected => @criterioncontext.to_s}, {class:"form-control"} %>
+    </div>
+
+
+
+    <div class="actions form-group">
+      <% if context %>
+        <%= criterion.submit 'Create criterion', class: "btn btn-success", data: { disable_with: "Processsing..." }  %>
+      <% else %>
+        <%= criterion.submit 'Update criterion', class: "btn btn-success", data: { disable_with: "Processsing..." }  %>
+      <% end %>
+    </div>
+
+<% end %>

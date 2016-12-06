@@ -1,0 +1,9 @@
+<h1>Create new Criterion</h1>
+<% if @criterion.errors.any? %>
+    <div class="alert alert-danger">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <%= @criterion.errors.full_messages.first %>
+    </div>
+<% end %>
+<%= render 'form', :criterion => @criterion, :context => true  %>
+<%= link_to "Back to criteria overview", criterions_path %>
