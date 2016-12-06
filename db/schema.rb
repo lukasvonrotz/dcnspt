@@ -13,9 +13,6 @@
 
 ActiveRecord::Schema.define(version: 20161202150103) do
 
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
   create_table "criterioncontexts", force: :cascade do |t|
     t.string   "name"
     t.datetime "created_at", null: false
@@ -33,8 +30,8 @@ ActiveRecord::Schema.define(version: 20161202150103) do
     t.datetime "updated_at"
   end
 
-  add_index "criterionparams", ["criterion_id"], name: "index_criterionparams_on_criterion_id", using: :btree
-  add_index "criterionparams", ["project_id"], name: "index_criterionparams_on_project_id", using: :btree
+  add_index "criterionparams", ["criterion_id"], name: "index_criterionparams_on_criterion_id"
+  add_index "criterionparams", ["project_id"], name: "index_criterionparams_on_project_id"
 
   create_table "criterions", force: :cascade do |t|
     t.integer  "criterioncontext_id"
@@ -43,7 +40,7 @@ ActiveRecord::Schema.define(version: 20161202150103) do
     t.datetime "updated_at",          null: false
   end
 
-  add_index "criterions", ["criterioncontext_id"], name: "index_criterions_on_criterioncontext_id", using: :btree
+  add_index "criterions", ["criterioncontext_id"], name: "index_criterions_on_criterioncontext_id"
 
   create_table "criterionvalues", force: :cascade do |t|
     t.integer  "employee_id"
@@ -53,8 +50,8 @@ ActiveRecord::Schema.define(version: 20161202150103) do
     t.datetime "updated_at"
   end
 
-  add_index "criterionvalues", ["criterion_id"], name: "index_criterionvalues_on_criterion_id", using: :btree
-  add_index "criterionvalues", ["employee_id"], name: "index_criterionvalues_on_employee_id", using: :btree
+  add_index "criterionvalues", ["criterion_id"], name: "index_criterionvalues_on_criterion_id"
+  add_index "criterionvalues", ["employee_id"], name: "index_criterionvalues_on_employee_id"
 
   create_table "employees", force: :cascade do |t|
     t.string   "firstname"
@@ -86,7 +83,7 @@ ActiveRecord::Schema.define(version: 20161202150103) do
     t.integer  "user_id"
   end
 
-  add_index "projects", ["user_id"], name: "index_projects_on_user_id", using: :btree
+  add_index "projects", ["user_id"], name: "index_projects_on_user_id"
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
@@ -103,8 +100,8 @@ ActiveRecord::Schema.define(version: 20161202150103) do
     t.datetime "updated_at",                          null: false
   end
 
-  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
-  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
+  add_index "users", ["email"], name: "index_users_on_email", unique: true
+  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
 
   create_table "weeks", force: :cascade do |t|
     t.integer  "workweek"
@@ -124,8 +121,7 @@ ActiveRecord::Schema.define(version: 20161202150103) do
     t.datetime "updated_at",  null: false
   end
 
-  add_index "workloads", ["employee_id"], name: "index_workloads_on_employee_id", using: :btree
-  add_index "workloads", ["week_id"], name: "index_workloads_on_week_id", using: :btree
+  add_index "workloads", ["employee_id"], name: "index_workloads_on_employee_id"
+  add_index "workloads", ["week_id"], name: "index_workloads_on_week_id"
 
-  add_foreign_key "projects", "users"
 end
