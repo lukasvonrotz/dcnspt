@@ -53,6 +53,7 @@
               <td>
                 <a href="<%= employee_path(employee.id) %>" class="btn btn-xs btn-default">Show</a>
                 <a href="<%= edit_employee_path(employee.id) %>" class="btn btn-xs btn-info">Edit</a>
+                <%= link_to "Edit criteria values", employee_criterionvalues_path(employee.id), class: "btn btn-xs btn-info" %>
                 <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#popup_sure_delete" data-employeeid="<%= employee.id %>">Delete</button>
               </td>
         <% end %>

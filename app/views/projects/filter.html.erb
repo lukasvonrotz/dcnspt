@@ -1,0 +1,94 @@
+<h1>Filter for <%= @project.name %></h1>
+
+<% @project.criterions.each do |criterion| %>
+    <% minimum = Criterionvalue.where(criterion_id: criterion.id).minimum("value") %>
+    <% maximum = Criterionvalue.where(criterion_id: criterion.id).maximum("value") %>
+    <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
+    <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
+    <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
+    <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
+    <div class="row">
+      <div class="col-lg-6">
+        <%= criterion.name %>: [<span id="crit<%= criterion.id %>lowlabel"><%= filterlow %></span>,<span id="crit<%= criterion.id %>highlabel"><%= filterhigh %></span>]</br></br>
+        <div id="slider<%= criterion.id %>"></div></br>
+      </div>
+    </div>
+<% end %>
+</br></br>
+
+
+<%= form_for @project do |project| %>
+
+    <div class="field form-group">
+      <%= project.hidden_field :name, :class => "form-control", placeholder: 'Enter name of the project' %>
+    </div>
+
+    <% @project.criterions.each do |criterion| %>
+      <%= hidden_field_tag "crit" + criterion.id.to_s + "low", "" %>
+      <%= hidden_field_tag "crit" + criterion.id.to_s + "high", "" %>
+    <% end %>
+    <%= hidden_field_tag "numberofcrits", @project.criterions.length.to_s %>
+
+    <div class="actions form-group">
+          <%= project.submit 'Update employees', class: "btn btn-success", data: { disable_with: "Processsing..." }  %>
+    </div>
+
+<% end %>
+
+<input type="hidden" id="refresh" value="no">
+
+<script>
+
+  $(document).ready(function() {
+    <% @project.criterions.each do |criterion| %>
+      <% minimum = Criterionvalue.where(criterion_id: criterion.id).minimum("value") %>
+      <% maximum = Criterionvalue.where(criterion_id: criterion.id).maximum("value") %>
+      <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
+      <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
+      if (!(Number(decimalPlaces(<%=minimum%>)) != Number(decimalPlaces(<%=maximum%>)))) {
+        //alert(Math.max(Number(decimalPlaces(<%=minimum%>)), Number(decimalPlaces(<%=maximum%>))));
+      };
+       <% puts (filterhigh*100)/100.ceil %>
+      <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
+      <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
+      var slider = $("#slider<%=criterion.id%>").slider({
+        range: true,
+        step: 0.01,
+        min: <%= "%.1f" % minimum %>,
+        max: <%= ("%.1f" % maximum).to_f + 0.1 %>,
+        values: [<%= filterlow %>, <%= filterhigh %>],
+        slide: function(event, ui) {
+          $("#crit<%=criterion.id%>low").val(ui.values[0]);
+          $("#crit<%=criterion.id%>high").val(ui.values[1]);
+          $("#crit<%=criterion.id%>lowlabel").html(ui.values[0]);
+          $("#crit<%=criterion.id%>highlabel").html(ui.values[1]);
+        }
+      });
+      $("#crit<%=criterion.id%>low").val(slider.slider("values")[0]);
+      $("#crit<%=criterion.id%>high").val(slider.slider("values")[1]);
+      $("#crit<%=criterion.id%>lowlabel").val(slider.slider("values")[0]);
+      $("#crit<%=criterion.id%>highlabel").val(slider.slider("values")[1]);
+    <% end %>
+  });
+
+
+  $(".chosen-select").chosen({allow_single_deselect: true, placeholder_text_single: "Select options", no_results_text: 'No results matched', width: '500px'});
+  var $input = $('#refresh');
+  if ($input.val() == 'yes') {
+    location.reload(true);
+  }
+  else {
+    $input.val('yes');
+  }
+
+  function decimalPlaces(num) {
+    var match = (''+num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+    if (!match) { return 0; }
+    return Math.max(
+        0,
+        // Number of digits right of decimal point.
+        (match[1] ? match[1].length : 0)
+          // Adjust for scientific notation.
+        - (match[2] ? +match[2] : 0));
+  }
+</script>

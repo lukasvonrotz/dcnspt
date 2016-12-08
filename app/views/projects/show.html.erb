@@ -10,6 +10,7 @@
 <%= link_to @project.user.email, user_path(@project.user.id) %>
 </br></br>
 <p><strong>Employees</strong></p>
+<a class="btn btn-default" href="/projects/<%= @project.id %>/filter">Filter</a></br></br>
 <% @project.employees.each do |employee| %>
     <%= employee.firstname %> <%= employee.surname %></br>
     Distance: <%= Location.get_distance(employee.loclat,employee.loclon,@project.loclat,@project.loclon) %> km<br>
@@ -26,6 +27,6 @@
     Indifference threshold: <%= criterionparam.indifferencethreshold %></br>
     Veto threshold: <%= criterionparam.vetothreshold %></br></br>
 <% end %>
-</br>
+</br></br>
 <%= link_to "Back to project overview", projects_path %>
 </br></br>

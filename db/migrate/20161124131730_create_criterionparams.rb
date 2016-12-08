@@ -8,6 +8,8 @@ class CreateCriterionparams < ActiveRecord::Migration
       t.decimal :preferencethreshold
       t.decimal :indifferencethreshold
       t.decimal :vetothreshold
+      t.decimal :filterlow
+      t.decimal :filterhigh
 
       t.timestamps
     end

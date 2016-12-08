@@ -26,6 +26,8 @@ ActiveRecord::Schema.define(version: 20161202150103) do
     t.decimal  "preferencethreshold"
     t.decimal  "indifferencethreshold"
     t.decimal  "vetothreshold"
+    t.decimal  "filterlow"
+    t.decimal  "filterhigh"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -45,7 +47,7 @@ ActiveRecord::Schema.define(version: 20161202150103) do
   create_table "criterionvalues", force: :cascade do |t|
     t.integer  "employee_id"
     t.integer  "criterion_id"
-    t.decimal  "value"
+    t.decimal  "value",        precision: 5, scale: 2
     t.datetime "created_at"
     t.datetime "updated_at"
   end

@@ -3,4 +3,7 @@ class Project < ActiveRecord::Base
   belongs_to :user
   has_many :criterionparams, dependent: :destroy
   has_many :criterions, through: :criterionparams
+
+
+
 end
