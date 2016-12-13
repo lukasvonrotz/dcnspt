@@ -197,6 +197,7 @@ PLATFORMS
   x86-mingw32
 
 DEPENDENCIES
+  activesupport
   bootstrap-sass (~> 3.2.0)
   byebug
   chosen-rails
