@@ -29,30 +29,33 @@ class ProjectsController < ApplicationController
       @project = Project.find(params[:project_id])
     end
 
-    numberofcrits = params[:numberofcrits].to_i
-    index = 1
-    while index <= numberofcrits
-      @project.criterionparams[index-1].filterlow = params[variablenamelow(index)]
-      @project.criterionparams[index-1].filterhigh = params[variablenamehigh(index)]
-      @project.criterionparams[index-1].save
-      index += 1
-    end
 
-    @project.employees.delete_all
-    fulfilled = 0
-    Employee.all.each do |employee|
-      @project.criterionparams.each do |criterionparam|
-        if !employee.criterionvalues.find_by(criterion_id: criterionparam.criterion.id).nil?
-          criterionvalue = employee.criterionvalues.find_by(criterion_id: criterionparam.criterion.id).value.to_f
-          if criterionparam.filterlow <= criterionvalue && criterionparam.filterhigh >= criterionvalue
-            fulfilled += 1
+    if !params[:numberofcrits].nil?
+      numberofcrits = params[:numberofcrits].to_i
+      index = 1
+      while index <= numberofcrits
+        @project.criterionparams[index-1].filterlow = params[variablenamelow(index)]
+        @project.criterionparams[index-1].filterhigh = params[variablenamehigh(index)]
+        @project.criterionparams[index-1].save
+        index += 1
+      end
+
+      @project.employees.delete_all
+      fulfilled = 0
+      Employee.all.each do |employee|
+        @project.criterionparams.each do |criterionparam|
+          if !employee.criterionvalues.find_by(criterion_id: criterionparam.criterion.id).nil?
+            criterionvalue = employee.criterionvalues.find_by(criterion_id: criterionparam.criterion.id).value.to_f
+            if criterionparam.filterlow <= criterionvalue && criterionparam.filterhigh >= criterionvalue
+              fulfilled += 1
+            end
           end
         end
+        if numberofcrits == fulfilled
+          @project.employees << employee
+        end
+        fulfilled = 0
       end
-      if numberofcrits == fulfilled
-        @project.employees << employee
-      end
-      fulfilled = 0
     end
 
     if @project.update(project_params)
