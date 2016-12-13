@@ -2,6 +2,9 @@ class ProjectsController < ApplicationController
 
   before_filter :authenticate_user!
 
+  require 'net/http'
+  require 'nokogiri'
+
   def new
     # build a 'temporary' post which is written to DB later (create-method)
     @project = Project.new
@@ -68,6 +71,44 @@ class ProjectsController < ApplicationController
 
   def index
     @projects = Project.all
+
+    #@client = Savon.client do
+    #  wsdl "http://webservices.decision-deck.org/soap/ElectreDistillation-PUT.py",
+    #  basic_auth {[ 'username', 'password' ]},
+    #  log "true",
+    #  log_level "debug",
+    #  pretty_print_xml "true"
+    #end
+
+    builder = Nokogiri::XML::Builder.new do |xml|
+      xml.alternatives {
+        xml.alternative  {
+          xml.id_ "x1"
+          xml.value "0"
+        }
+        xml.alternative {
+          xml.id_ "x4"
+          xml.value "1"
+        }
+      }
+    end
+
+    testxml = '<SOAP-ENV:Envelope xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ZSI="http://www.zolera.com/schemas/ZSI/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <SOAP-ENV:Header></SOAP-ENV:Header>
+              <SOAP-ENV:Body>
+                <alternatives>
+                  <alternative id="a01" name="Audi A3" />
+                  <alternative id="a02" name="Audi A4" />
+                  <alternative id="a03" name="BMW 118" />
+                  <alternative id="a04" name="BMW 320" />
+                  <alternative id="a05" name="Volvo C30" />
+                  <alternative id="a06" name="Volvo S40" />
+                </alternatives>
+              </SOAP-ENV:Body>
+              </SOAP-ENV:Envelope>'
+
+    puts post_xml(testxml)
+
   end
 
   def destroy
@@ -99,6 +140,16 @@ class ProjectsController < ApplicationController
   def variablenamehigh (index)
     var = "crit" + index.to_s + "high"
     return var
+  end
+
+  def post_xml(xml)
+    host = "http://webservices.decision-deck.org/soap/ElectreCredibility-PUT.py"
+    uri = URI.parse host
+    request = Net::HTTP::Post.new uri.path
+    request.body = xml
+    request.content_type = 'application/soap+xml'
+    response = Net::HTTP.new(uri.host, uri.port).start { |http| http.request request }
+    return response.body
   end
 
 end
