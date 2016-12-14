@@ -72,62 +72,97 @@ class ProjectsController < ApplicationController
   def index
     @projects = Project.all
 
-    #@client = Savon.client do
-    #  wsdl "http://webservices.decision-deck.org/soap/ElectreDistillation-PUT.py",
-    #  basic_auth {[ 'username', 'password' ]},
-    #  log "true",
-    #  log_level "debug",
-    #  pretty_print_xml "true"
-    #end
-
-    builder = Nokogiri::XML::Builder.new do |xml|
-      xml.alternatives {
-        xml.alternative  {
-          xml.id_ "x1"
-          xml.value "0"
+    builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
+      xml['xmcda'].XMCDA("xmlns:xmcda" => "http://www.decision-deck.org/2009/XMCDA-2.1.0") {
+        xml.projectReference {
+          xml.parent.namespace = nil
+          xml.title 'SixRealCars - Categories profiles'
+          xml.comment_ 'Only the profiles and categories association, from the "SixRealCars" data set'
         }
-        xml.alternative {
-          xml.id_ "x4"
-          xml.value "1"
+        xml.categoriesProfiles{
+          xml.parent.namespace = nil
+          xml.categoryProfile {
+            xml.alternativeID 'pMG'
+            xml.limits {
+              xml.lowerCategory {
+                xml.categoryID 'Medium'
+              }
+              xml.upperCategory {
+                xml.categoryID 'Good'
+              }
+            }
+          }
+          xml.categoryProfile {
+            xml.alternativeID 'pBM'
+            xml.limits {
+              xml.lowerCategory {
+                xml.categoryID 'Bad'
+              }
+              xml.upperCategory {
+                xml.categoryID 'Medium'
+              }
+            }
+          }
         }
       }
     end
+    xml = builder.to_xml
+    xml = xml.gsub! '<', '&lt;'
+    xml_raw = xml.gsub! '>', '&gt;'
 
     soapmessage1 = Soapcreator.new
+    soapmessage1.classes_profiles = xml_raw
 
-    soapmessage1.classes_profiles = '<classes_profiles xsi:type="xsd:string">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;xmcda:XMCDA xmlns:xmcda="http://www.decision-deck.org/2009/XMCDA-2.1.0"&gt;
-	&lt;projectReference&gt;
-		&lt;title&gt;SixRealCars - Categories profiles&lt;/title&gt;
-		&lt;comment&gt;Only the profiles and categories association, from the "SixRealCars" data set.&lt;/comment&gt;
-	&lt;/projectReference&gt;
-	&lt;categoriesProfiles&gt;
-		&lt;categoryProfile&gt;
-			&lt;alternativeID&gt;pMG&lt;/alternativeID&gt;
-			&lt;limits&gt;
-				&lt;lowerCategory&gt;
-					&lt;categoryID&gt;Medium&lt;/categoryID&gt;
-				&lt;/lowerCategory&gt;
-				&lt;upperCategory&gt;
-					&lt;categoryID&gt;Good&lt;/categoryID&gt;
-				&lt;/upperCategory&gt;
-			&lt;/limits&gt;
-		&lt;/categoryProfile&gt;
-		&lt;categoryProfile&gt;
-			&lt;alternativeID&gt;pBM&lt;/alternativeID&gt;
-			&lt;limits&gt;
-				&lt;lowerCategory&gt;
-					&lt;categoryID&gt;Bad&lt;/categoryID&gt;
-				&lt;/lowerCategory&gt;
-				&lt;upperCategory&gt;
-					&lt;categoryID&gt;Medium&lt;/categoryID&gt;
-				&lt;/upperCategory&gt;
-			&lt;/limits&gt;
-		&lt;/categoryProfile&gt;
-	&lt;/categoriesProfiles&gt;
-&lt;/xmcda:XMCDA&gt;</classes_profiles>'
+    numAlternatives = 6
+    numProfiles = 2
+    concordance_alt = Array.new(numAlternatives){Array.new(numProfiles)}
+    concordance_prof = Array.new(numProfiles){Array.new(numAlternatives)}
+    partials = [0.7,0.976,0.3144,0.7549,0.654,1.0,0.5928,0.6453,0.6181,0.9766,0.3504,0.8809,0.7219,1.0 ,0.7891,0.829,1.0,0.874,0.3546,0.476,0.0846,0.49,0.24,0.356]
 
-    soapmessage1.concordance = '<concordance xsi:type="xsd:string">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+    alt_index = 0
+    prof_index = 0
+
+    partials.each_with_index do |pairvalue, index|
+      puts '[' + alt_index.to_s + '][' + (index % 2).to_s + ']'
+      concordance_alt[alt_index][prof_index] = pairvalue
+      if (index % 2) == 0
+        alt_index += 1
+      end
+    end
+    puts concordance
+
+
+
+    builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
+      xml['xmcda'].XMCDA("xmlns:xmcda" => "http://www.decision-deck.org/2009/XMCDA-2.1.0") {
+        xml.alternativesComparisons("mcdaConcept" => "alternativesProfilesComparisons") {
+          xml.parent.namespace = nil
+          xml.pairs {
+            xml.pair {
+              xml.initial {
+                xml.alternativeID 'a01'
+              }
+              xml.terminal {
+                xml.alternativeID 'pMG'
+              }
+              xml.value {
+                xml.real '0.7'
+              }
+            }
+          }
+        }
+      }
+    end
+    xml = builder.to_xml
+    puts xml
+    xml = xml.gsub! '<', '&lt;'
+    xml_raw = xml.gsub! '>', '&gt;'
+
+
+
+
+
+    soapmessage1.concordance = '&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;xmcda:XMCDA xmlns:xmcda="http://www.decision-deck.org/2012/XMCDA-2.2.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.decision-deck.org/2012/XMCDA-2.2.0 http://www.decision-deck.org/xmcda/_downloads/XMCDA-2.2.0.xsd"&gt;
@@ -399,30 +434,34 @@ class ProjectsController < ApplicationController
     &lt;/pair&gt;
   &lt;/pairs&gt;
 &lt;/alternativesComparisons&gt;
-&lt;/xmcda:XMCDA&gt;</concordance>'
+&lt;/xmcda:XMCDA&gt;'
 
-    soapmessage1.alternatives = '<alternatives xsi:type="xsd:string">&lt;xmcda:XMCDA xmlns:xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
-	&lt;projectReference&gt;
-		&lt;comment&gt;"Six real cars" data set. Thanks to Quantin Hayez for having gathered
-		the data (from the manufacturers web sites). Transformed into XMCDA
-		and published with his permission. Note that the weights and thresholds have been
-		arbitrarily fixed.&lt;/comment&gt;
-	&lt;/projectReference&gt;
 
-	&lt;alternatives&gt;
-		&lt;alternative id="a01" name="Audi A3" /&gt;
-		&lt;alternative id="a02" name="Audi A4" /&gt;
-		&lt;alternative id="a03" name="BMW 118" /&gt;
-		&lt;alternative id="a04" name="BMW 320" /&gt;
-		&lt;alternative id="a05" name="Volvo C30" /&gt;
-		&lt;alternative id="a06" name="Volvo S40" /&gt;
-	&lt;/alternatives&gt;
+    builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
+      xml['xmcda'].XMCDA("xmlns:xmcda" => "http://www.decision-deck.org/2009/XMCDA-2.1.0", "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance") {
+        xml.projectReference {
+          xml.parent.namespace = nil
+          xml.comment_ 'Six real cars" data set. Thanks to Quantin Hayez for having gathered the data (from the manufacturers web sites). Transformed into XMCDA and published with his permission. Note that the weights and thresholds have been arbitrarily fixed.'
+        }
+        xml.alternatives {
+          xml.parent.namespace = nil
+          xml.alternative(:id => "a01", :name => "Audi A3")
+          xml.alternative(:id => "a02", :name => "Audi A4")
+          xml.alternative(:id => "a03", :name => "BMW 118")
+          xml.alternative(:id => "a04", :name => "BMW 320")
+          xml.alternative(:id => "a05", :name => "Volvo C30")
+          xml.alternative(:id => "a06", :name => "Volvo S40")
+        }
+      }
+    end
+    xml = builder.to_xml
+    xml = xml.gsub! '<', '&lt;'
+    xml_raw = xml.gsub! '>', '&gt;'
 
-&lt;/xmcda:XMCDA&gt;
-  </alternatives>'
 
-    soapmessage1.discordance = '<discordance xsi:type="xsd:string">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+    soapmessage1.alternatives = xml_raw
+
+    soapmessage1.discordance = '&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;xmcda:XMCDA xmlns:xmcda="http://www.decision-deck.org/2012/XMCDA-2.2.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.decision-deck.org/2012/XMCDA-2.2.0 http://www.decision-deck.org/xmcda/_downloads/XMCDA-2.2.0.xsd"&gt;
@@ -1030,64 +1069,50 @@ class ProjectsController < ApplicationController
     &lt;/pair&gt;
   &lt;/pairs&gt;
 &lt;/alternativesComparisons&gt;
-&lt;/xmcda:XMCDA&gt;
-</discordance>'
-
-    soapmessage1.method_parameters = '<method_parameters xsi:type="xsd:string">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;xmcda:XMCDA xmlns:xmcda="http://www.decision-deck.org/2012/XMCDA-2.2.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.decision-deck.org/2012/XMCDA-2.2.0 http://www.decision-deck.org/xmcda/_downloads/XMCDA-2.2.0.xsd"&gt;
-
-&lt;methodParameters&gt;
-  &lt;parameter name="comparison_with"&gt;
-    &lt;value&gt;
-      &lt;label&gt;boundary_profiles&lt;/label&gt;
-    &lt;/value&gt;
-  &lt;/parameter&gt;
-  &lt;parameter name="with_denominator"&gt;
-    &lt;value&gt;
-      &lt;boolean&gt;true&lt;/boolean&gt;
-    &lt;/value&gt;
-  &lt;/parameter&gt;
-  &lt;parameter name="only_max_discordance"&gt;
-    &lt;value&gt;
-      &lt;boolean&gt;false&lt;/boolean&gt;
-    &lt;/value&gt;
-  &lt;/parameter&gt;
-  &lt;parameter name="use_partials"&gt;
-    &lt;value&gt;
-      &lt;boolean&gt;true&lt;/boolean&gt;
-    &lt;/value&gt;
-  &lt;/parameter&gt;
-&lt;/methodParameters&gt;
-
-&lt;/xmcda:XMCDA&gt;
-</method_parameters>'
+&lt;/xmcda:XMCDA&gt;'
 
 
-    testxml1 = Soapcreator.get_header +
-        soapmessage1.classes_profiles + soapmessage1.concordance + soapmessage1.alternatives + soapmessage1.discordance + soapmessage1.method_parameters +
-        Soapcreator.get_footer
 
+    builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
+      xml['xmcda'].XMCDA("xmlns:xmcda" => "http://www.decision-deck.org/2012/XMCDA-2.2.0",
+                         "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
+                         "xsi:schemaLocation" => "http://www.decision-deck.org/2012/XMCDA-2.2.0 http://www.decision-deck.org/xmcda/_downloads/XMCDA-2.2.0.xsd" ) {
+        xml.methodParameters {
+          xml.parent.namespace = nil
+          xml.parameter(:name => "comparison_with") {
+            xml.value {
+              xml.label 'boundary_profiles'
+            }
+          }
+          xml.parameter(:name => "with_denominator") {
+            xml.value {
+              xml.boolean 'true'
+            }
+          }
+          xml.parameter(:name => "only_max_discordance") {
+            xml.value {
+              xml.boolean 'false'
+            }
+          }
+          xml.parameter(:name => "use_partials") {
+            xml.value {
+              xml.boolean 'true'
+            }
+          }
+        }
+      }
+    end
+    xml = builder.to_xml
+    xml = xml.gsub! '<', '&lt;'
+    xml_raw = xml.gsub! '>', '&gt;'
+
+    soapmessage1.method_parameters = xml_raw
+
+
+
+    testxml1 = soapmessage1.get_soaprequest
     output1 = Nokogiri::XML(post_xml(testxml1))
-    puts output1
-    ticket = output1.xpath("//ticket/text()").to_s
-
-    testxml2 = '<?xml version="1.0" encoding="UTF-8"?>
-<SOAP-ENV:Envelope
-  SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
-  xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance"
-  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
-  xmlns:xsd="http://www.w3.org/1999/XMLSchema"
->
-<SOAP-ENV:Body>
-<requestSolution SOAP-ENC:root="1">
-<ticket xsi:type="xsd:string">' + ticket + '</ticket>
-</requestSolution>
-</SOAP-ENV:Body>
-</SOAP-ENV:Envelope>'
-
+    testxml2 = Soapcreator.get_soaprequest_ticket(output1.xpath("//ticket/text()").to_s)
     output2 = Nokogiri::XML(post_xml(testxml2))
     puts 'results:'
     puts output2
