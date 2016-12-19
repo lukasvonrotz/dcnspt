@@ -72,6 +72,44 @@ class ProjectsController < ApplicationController
   def index
     @projects = Project.all
 
+
+    soapmessage1 = Soapcreator.new
+    numAlternatives = 6
+    numProfiles = 2
+
+
+    categoriesProfiles = Hash.new()
+    categoriesProfiles['prof1'] = Hash.new()
+    categoriesProfiles['prof1']['aid'] = 'pMG'
+    categoriesProfiles['prof1']['lowcat'] = 'Medium'
+    categoriesProfiles['prof1']['upcat'] = 'Good'
+    categoriesProfiles['prof2'] = Hash.new()
+    categoriesProfiles['prof2']['aid'] = 'pBM'
+    categoriesProfiles['prof2']['lowcat'] = 'Bad'
+    categoriesProfiles['prof2']['upcat'] = 'Medium'
+
+    alternatives = Hash.new()
+    alternatives['alt1'] = Hash.new()
+    alternatives['alt1']['id'] = 'a01'
+    alternatives['alt1']['name'] = 'Audi A3'
+    alternatives['alt2'] = Hash.new()
+    alternatives['alt2']['id'] = 'a02'
+    alternatives['alt2']['name'] = 'Audi A4'
+    alternatives['alt3'] = Hash.new()
+    alternatives['alt3']['id'] = 'a03'
+    alternatives['alt3']['name'] = 'BMW 118'
+    alternatives['alt4'] = Hash.new()
+    alternatives['alt4']['id'] = 'a04'
+    alternatives['alt4']['name'] = 'BMW 320'
+    alternatives['alt5'] = Hash.new()
+    alternatives['alt5']['id'] = 'a05'
+    alternatives['alt5']['name'] = 'Volvo C30'
+    alternatives['alt6'] = Hash.new()
+    alternatives['alt6']['id'] = 'a06'
+    alternatives['alt6']['name'] = 'Volvo S40'
+
+
+
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       xml['xmcda'].XMCDA("xmlns:xmcda" => "http://www.decision-deck.org/2009/XMCDA-2.1.0") {
         xml.projectReference {
@@ -81,360 +119,106 @@ class ProjectsController < ApplicationController
         }
         xml.categoriesProfiles{
           xml.parent.namespace = nil
-          xml.categoryProfile {
-            xml.alternativeID 'pMG'
-            xml.limits {
-              xml.lowerCategory {
-                xml.categoryID 'Medium'
-              }
-              xml.upperCategory {
-                xml.categoryID 'Good'
-              }
-            }
-          }
-          xml.categoryProfile {
-            xml.alternativeID 'pBM'
-            xml.limits {
-              xml.lowerCategory {
-                xml.categoryID 'Bad'
-              }
-              xml.upperCategory {
-                xml.categoryID 'Medium'
+          categoriesProfiles.each do |prof|
+            xml.categoryProfile {
+              xml.alternativeID "#{prof[1]['aid']}"
+              xml.limits {
+                xml.lowerCategory {
+                  xml.categoryID "#{prof[1]['lowcat']}"
+                }
+                xml.upperCategory {
+                  xml.categoryID "#{prof[1]['upcat']}"
+                }
               }
             }
-          }
+          end
         }
       }
     end
     xml = builder.to_xml
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
-
-    soapmessage1 = Soapcreator.new
     soapmessage1.classes_profiles = xml_raw
 
-    numAlternatives = 6
-    numProfiles = 2
+
+
+
     concordance_alt = Array.new(numAlternatives){Array.new(numProfiles)}
     concordance_prof = Array.new(numProfiles){Array.new(numAlternatives)}
     partials = [0.7,0.976,0.3144,0.7549,0.654,1.0,0.5928,0.6453,0.6181,0.9766,0.3504,0.8809,0.7219,1.0 ,0.7891,0.829,1.0,0.874,0.3546,0.476,0.0846,0.49,0.24,0.356]
-
     alt_index = 0
-    prof_index = 0
-
+    alt_index2 = 0
+    prof_index2 = 0
+    array = Array.new
     partials.each_with_index do |pairvalue, index|
-      puts '[' + alt_index.to_s + '][' + (index % 2).to_s + ']'
-      concordance_alt[alt_index][prof_index] = pairvalue
-      if (index % 2) == 0
-        alt_index += 1
+      if index < numAlternatives*numProfiles
+        array.push pairvalue
+        if (((index+1)%numProfiles) == 0)
+          concordance_alt[alt_index] = array
+          array = Array.new
+          alt_index += 1
+        end
+      else
+        array.push pairvalue
+        if (((index+1)-(numAlternatives*numProfiles)) % numAlternatives) == 0
+          concordance_prof[prof_index2] = array
+          array = Array.new
+          prof_index2 += 1
+          alt_index2 = 0
+        else
+          alt_index2 += 1
+        end
       end
     end
-    puts concordance
-
-
-
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
-      xml['xmcda'].XMCDA("xmlns:xmcda" => "http://www.decision-deck.org/2009/XMCDA-2.1.0") {
+      xml['xmcda'].XMCDA("xmlns:xmcda" => "http://www.decision-deck.org/2012/XMCDA-2.2.0",
+      "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
+      "xsi:schemaLocation" => "http://www.decision-deck.org/2012/XMCDA-2.2.0 http://www.decision-deck.org/xmcda/_downloads/XMCDA-2.2.0.xsd") {
         xml.alternativesComparisons("mcdaConcept" => "alternativesProfilesComparisons") {
           xml.parent.namespace = nil
           xml.pairs {
-            xml.pair {
-              xml.initial {
-                xml.alternativeID 'a01'
-              }
-              xml.terminal {
-                xml.alternativeID 'pMG'
-              }
-              xml.value {
-                xml.real '0.7'
-              }
-            }
+            alternatives.each_with_index do |alt, index|
+              categoriesProfiles.each_with_index.each_with_index do |cat, index1|
+                xml.pair {
+                  xml.initial {
+                    xml.alternativeID alt[1]['id']
+                  }
+                  xml.terminal {
+                    xml.alternativeID cat[0][1]['aid']
+                  }
+                  xml.value {
+                    xml.real concordance_alt[index][index1]
+                  }
+                }
+              end
+            end
+            categoriesProfiles.each_with_index do |cat, index|
+              alternatives.each_with_index.each_with_index do |alt, index1|
+                xml.pair {
+                  xml.initial {
+                    xml.alternativeID cat[1]['aid']
+                  }
+                  xml.terminal {
+                    xml.alternativeID alt[0][1]['id']
+                  }
+                  xml.value {
+                    xml.real concordance_prof[index][index1]
+                  }
+                }
+              end
+            end
           }
         }
       }
     end
     xml = builder.to_xml
-    puts xml
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
+    soapmessage1.concordance = xml_raw
 
 
 
 
-
-    soapmessage1.concordance = '&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;xmcda:XMCDA xmlns:xmcda="http://www.decision-deck.org/2012/XMCDA-2.2.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.decision-deck.org/2012/XMCDA-2.2.0 http://www.decision-deck.org/xmcda/_downloads/XMCDA-2.2.0.xsd"&gt;
-&lt;alternativesComparisons mcdaConcept="alternativesProfilesComparisons"&gt;
-  &lt;pairs&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;a01&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;pMG&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.7&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;a01&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;pBM&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.976&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;a02&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;pMG&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.3144&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;a02&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;pBM&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.7549&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;a03&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;pMG&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.654&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;a03&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;pBM&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;1.0&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;a04&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;pMG&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.5928&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;a04&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;pBM&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.6453&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;a05&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;pMG&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.6181&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;a05&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;pBM&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.9766&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;a06&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;pMG&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.3504&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;a06&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;pBM&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.8809&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;pMG&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;a01&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.7219&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;pMG&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;a02&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;1.0&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;pMG&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;a03&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.7891&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;pMG&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;a04&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.829&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;pMG&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;a05&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;1.0&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;pMG&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;a06&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.874&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;pBM&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;a01&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.3546&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;pBM&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;a02&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.476&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;pBM&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;a03&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.0846&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;pBM&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;a04&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.49&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;pBM&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;a05&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.24&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-    &lt;pair&gt;
-      &lt;initial&gt;
-        &lt;alternativeID&gt;pBM&lt;/alternativeID&gt;
-      &lt;/initial&gt;
-      &lt;terminal&gt;
-        &lt;alternativeID&gt;a06&lt;/alternativeID&gt;
-      &lt;/terminal&gt;
-      &lt;value&gt;
-        &lt;real&gt;0.356&lt;/real&gt;
-      &lt;/value&gt;
-    &lt;/pair&gt;
-  &lt;/pairs&gt;
-&lt;/alternativesComparisons&gt;
-&lt;/xmcda:XMCDA&gt;'
 
 
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
@@ -445,21 +229,20 @@ class ProjectsController < ApplicationController
         }
         xml.alternatives {
           xml.parent.namespace = nil
-          xml.alternative(:id => "a01", :name => "Audi A3")
-          xml.alternative(:id => "a02", :name => "Audi A4")
-          xml.alternative(:id => "a03", :name => "BMW 118")
-          xml.alternative(:id => "a04", :name => "BMW 320")
-          xml.alternative(:id => "a05", :name => "Volvo C30")
-          xml.alternative(:id => "a06", :name => "Volvo S40")
+          alternatives.each do |alt|
+            xml.alternative(:id => "#{alt[1]['id']}", :name => "#{alt[1]['name']}")
+          end
         }
       }
     end
     xml = builder.to_xml
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
-
-
     soapmessage1.alternatives = xml_raw
+
+
+
+
 
     soapmessage1.discordance = '&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;xmcda:XMCDA xmlns:xmcda="http://www.decision-deck.org/2012/XMCDA-2.2.0"
@@ -1105,7 +888,6 @@ class ProjectsController < ApplicationController
     xml = builder.to_xml
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
-
     soapmessage1.method_parameters = xml_raw
 
 
@@ -1114,9 +896,7 @@ class ProjectsController < ApplicationController
     output1 = Nokogiri::XML(post_xml(testxml1))
     testxml2 = Soapcreator.get_soaprequest_ticket(output1.xpath("//ticket/text()").to_s)
     output2 = Nokogiri::XML(post_xml(testxml2))
-    puts 'results:'
     puts output2
-    puts 'end of results'
 
 
 
