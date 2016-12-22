@@ -13,6 +13,8 @@
             <th>Preference threshold</th>
             <th>Indifference threshold</th>
             <th>Veto threshold</th>
+            <th>Minimal value (filter)</th>
+            <th>Maximal value (filter)</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -23,6 +25,8 @@
             <th>Preference threshold</th>
             <th>Indifference threshold</th>
             <th>Veto threshold</th>
+            <th>Minimal value (filter)</th>
+            <th>Maximal value (filter)</th>
             <th>Actions</th>
           </tr>
         </tfoot>
@@ -37,7 +41,14 @@
     </div>
 <% end %>
 
+<div class="processing">
+  <%= image_tag('spinner.gif') %>
+  <p>Loading Parameters...</p>
+</div>
+
 <%= link_to "Back to project", project_path(@project.id) %>
+
+<input type="hidden" id="refresh" value="no">
 
 <script>
   $(document).ready ( function(){
@@ -49,6 +60,18 @@
         $("input.criterionparam<%=criterionparam.id %>_fld").attr("disabled", false);
       <% end %>
     <% end %>
+
+    $(".processing").hide();
+
+    var $input = $('#refresh');
+    if ($input.val() == 'yes') {
+      location.reload(true);
+      $(".processing").show();
+      $(".table-responsive").hide();
+    }
+    else {
+      $input.val('yes');
+    }
   });
   function editLine(id) {
     $("input.criterionparam_fld").attr("disabled", true);

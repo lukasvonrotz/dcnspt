@@ -28,6 +28,6 @@ class CriterionparamsController < ApplicationController
   private
   # defines which parameters have to be provided by the form when creating a new project
   def criterionparam_params
-    params.require(:criterionparam).permit(:weight,:preferencethreshold,:indifferencethreshold,:vetothreshold)
+    params.require(:criterionparam).permit(:weight,:preferencethreshold,:indifferencethreshold,:vetothreshold,:filterlow,:filterhigh)
   end
 end
