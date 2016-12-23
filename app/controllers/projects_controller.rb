@@ -29,6 +29,9 @@ class ProjectsController < ApplicationController
       @project = Project.find(params[:project_id])
     end
 
+    puts 'lukas'
+    puts project_params[:jobprofile_list]
+
     if !params[:numberofcrits].nil?
       numberofcrits = params[:numberofcrits].to_i
       index = 1
@@ -110,7 +113,7 @@ class ProjectsController < ApplicationController
   private
   # defines which parameters have to be provided by the form when creating a new project
   def project_params
-    params.require(:project).permit(:name, :loclat, :loclon, :startdate, :enddate, :effort, :hourlyrate, {:criterion_ids => []}, {:employee_ids => []})
+    params.require(:project).permit(:name, :loclat, :loclon, :startdate, :enddate, :effort, :hourlyrate, {:criterion_ids => []}, {:employee_ids => []}, :jobprofile_list)
   end
 
   def variablenamelow (index)
