@@ -42,6 +42,9 @@
 
 <%= form_for @project do |project| %>
 
+
+    <%= project.text_field :jobprofile_list, class: 'tokenize' %>
+
     <div class="field form-group">
       <%= project.hidden_field :name, :class => "form-control", placeholder: 'Enter name of the project' %>
     </div>
@@ -132,4 +135,7 @@
           // Adjust for scientific notation.
         - (match[2] ? +match[2] : 0));
   }
+
+  //take values with comma separated
+  document.getElementById('project_jobprofile_list').value = '<%= @project.jobprofile_list%>';
 </script>

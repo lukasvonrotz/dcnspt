@@ -4,6 +4,7 @@ class Project < ActiveRecord::Base
   has_many :criterionparams, dependent: :destroy
   has_many :criterions, through: :criterionparams
 
+  acts_as_taggable_on :jobprofile
 
 
 end

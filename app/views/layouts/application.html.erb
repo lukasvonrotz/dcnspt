@@ -32,5 +32,16 @@
       </div>
     </div>
   </div>
+
+  <script>
+    $('.tokenize').tokenfield({
+      autocomplete: {
+        source: [<% Employee.uniq.pluck(:jobprofile).each do |jobprofile| %>"<%= jobprofile %>",<% end %>],
+        delay: 100,
+        minLength: 2
+      },
+      showAutocompleteOnFocus: false
+    });
+  </script>
 </body>
 </html>
