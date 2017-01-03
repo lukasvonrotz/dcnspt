@@ -29,12 +29,11 @@ class ProjectsController < ApplicationController
       @project = Project.find(params[:project_id])
     end
 
-    puts 'lukas'
-    puts project_params[:jobprofile_list]
-
     if !params[:numberofcrits].nil?
+      jobprofiles = project_params[:jobprofile_list].split(', ')
       numberofcrits = params[:numberofcrits].to_i
       index = 1
+
       while index <= numberofcrits
         @project.criterionparams[index-1].filterlow = params[variablenamelow(index)]
         @project.criterionparams[index-1].filterhigh = params[variablenamehigh(index)]
@@ -71,9 +70,8 @@ class ProjectsController < ApplicationController
           end
         end
 
-
-        #if all criteria are fulfilled
-        if numberofcrits == fulfilled
+        #if all criteria are fulfilled && job profile does also match
+        if ((numberofcrits == fulfilled) && (jobprofiles.include? employee.jobprofile))
           @project.employees << employee
         end
         fulfilled = 0

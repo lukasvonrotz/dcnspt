@@ -5,9 +5,11 @@
     <% case criterion.name.to_s %>
     <% when "location" %>
         <% minimum = 0 %>
-        <% maximum = 500 %>
-        <% filterlow = 0 %>
-        <% filterhigh = 500 %>
+        <% maximum = 1000 %>
+        <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
+        <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
+        <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
+        <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
     <% when "costrate" %>
         <% minimum = Employee.all.minimum("costrate") %>
         <% maximum = Employee.all.maximum("costrate") %>
@@ -32,31 +34,37 @@
     <% end %>
     <div class="row">
       <div class="col-lg-6">
-        <%= criterion.name %>: [<span id="crit<%= (index+1).to_s %>lowlabel"><%= filterlow %></span>,<span id="crit<%= (index+1).to_s %>highlabel"><%= filterhigh %></span>]</br></br>
+        <strong><%= criterion.name.capitalize %></strong>: [<span id="crit<%= (index+1).to_s %>lowlabel"><%= filterlow %></span>,<span id="crit<%= (index+1).to_s %>highlabel"><%= filterhigh %></span>]</br></br>
         <div id="slider<%= (index+1).to_s %>"></div></br>
       </div>
     </div>
 <% end %>
-</br></br>
 
 
 <%= form_for @project do |project| %>
+    <div class="row">
+      <div class="col-lg-6">
 
+        <div class="field form-group" style="width: 100%;">
+          <%= project.label :jobprofile_list, 'Choose relevant job profiles' %></br>
+          <%= project.text_field :jobprofile_list, class: 'tokenize' %></br>
+        </div>
 
-    <%= project.text_field :jobprofile_list, class: 'tokenize' %>
+        <div class="field form-group">
+          <%= project.hidden_field :name, :class => "form-control", placeholder: 'Enter name of the project' %>
+        </div>
 
-    <div class="field form-group">
-      <%= project.hidden_field :name, :class => "form-control", placeholder: 'Enter name of the project' %>
-    </div>
+        <% @project.criterions.each_with_index do |criterion,index| %>
+          <%= hidden_field_tag "crit" + (index+1).to_s + "low", "" %>
+          <%= hidden_field_tag "crit" + (index+1).to_s + "high", "" %>
+        <% end %>
+        <%= hidden_field_tag "numberofcrits", @project.criterions.length.to_s %>
 
-    <% @project.criterions.each_with_index do |criterion,index| %>
-      <%= hidden_field_tag "crit" + (index+1).to_s + "low", "" %>
-      <%= hidden_field_tag "crit" + (index+1).to_s + "high", "" %>
-    <% end %>
-    <%= hidden_field_tag "numberofcrits", @project.criterions.length.to_s %>
+        <div class="actions form-group">
+              <%= project.submit 'Update employees', class: "btn btn-success", data: { disable_with: "Processsing..." }  %>
+        </div>
 
-    <div class="actions form-group">
-          <%= project.submit 'Update employees', class: "btn btn-success", data: { disable_with: "Processsing..." }  %>
+      </div>
     </div>
 
 <% end %>
@@ -70,9 +78,11 @@
         <% case criterion.name.to_s %>
           <% when "location" %>
             <% minimum = 0 %>
-            <% maximum = 500 %>
-            <% filterlow = 0 %>
-            <% filterhigh = 500 %>
+            <% maximum = 1000 %>
+            <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
+            <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
+            <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
+            <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
           <% when "costrate" %>
             <% minimum = Employee.all.minimum("costrate") %>
             <% maximum = Employee.all.maximum("costrate") %>
@@ -112,6 +122,7 @@
       $("#crit<%=(index+1).to_s%>high").val(slider.slider("values")[1]);
       $("#crit<%=(index+1).to_s%>lowlabel").val(slider.slider("values")[0]);
       $("#crit<%=(index+1).to_s%>highlabel").val(slider.slider("values")[1]);
+
     <% end %>
   });
 
