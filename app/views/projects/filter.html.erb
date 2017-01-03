@@ -32,12 +32,23 @@
           <% filterhigh = 100 %>
       <% end %>
     <% end %>
-    <div class="row">
-      <div class="col-lg-6">
-        <strong><%= criterion.name.capitalize %></strong>: [<span id="crit<%= (index+1).to_s %>lowlabel"><%= filterlow %></span>,<span id="crit<%= (index+1).to_s %>highlabel"><%= filterhigh %></span>]</br></br>
-        <div id="slider<%= (index+1).to_s %>"></div></br>
+    <% if index%2 == 0 %>
+      <div class="row">
+        <div class="col-lg-6">
+    <% else %>
+        <div class="col-lg-6">
+    <% end %>
+          <strong><%= criterion.name.capitalize %></strong>: [<span id="crit<%= (index+1).to_s %>lowlabel"><%= filterlow %></span>,<span id="crit<%= (index+1).to_s %>highlabel"><%= filterhigh %></span>]</br></br>
+          <div id="slider<%= (index+1).to_s %>"></div></br>
+    <% if index%2 != 0 %>
+        </div>
       </div>
-    </div>
+    <% else %>
+        </div>
+        <% if index == (@project.criterions.size - 1) %>
+            </div>
+        <% end %>
+    <% end %>
 <% end %>
 
 
