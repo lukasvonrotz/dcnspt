@@ -1,0 +1,19 @@
+<h1>Electre Algorithm</h1>
+<%= label_tag 'Choose project' %>
+<%= select_tag 'projsel', options_from_collection_for_select(Project.all, "id", "name"),
+               :onchange => "if(this.value){
+               url = window.location.protocol + '//' + window.location.host + '/projects/' + this.value + '/electre';
+               window.location = url;}", class: 'form-control' %>
+<br>
+<p>Do algorithm for <%= @project.name %></p>
+
+<h3>Steps</h3>
+
+<style>
+  #projsel {
+    width: 150px;
+  }
+</style>
+<script>
+  $("#projsel").val('<%= params[:project_id] %>');
+</script>

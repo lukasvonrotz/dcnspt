@@ -18,6 +18,8 @@ Rails.application.routes.draw do
   end
   resources :criterions
 
+  get 'projects/:project_id/electre' => "electre#index"
+
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 

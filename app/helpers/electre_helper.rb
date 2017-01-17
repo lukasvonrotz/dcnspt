@@ -1,0 +1,2 @@
+module ElectreHelper
+end
