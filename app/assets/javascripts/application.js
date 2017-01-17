@@ -16,4 +16,5 @@
 //= require bootstrap-sprockets
 //= require chosen-jquery
 //= require jquery-ui
+//= require bootstrap-tokenfield
 //= require_tree .

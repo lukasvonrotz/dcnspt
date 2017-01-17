@@ -59,3 +59,5 @@ gem 'chosen-rails'
 gem 'jquery-ui-rails'
 gem 'rails_12factor', group: :production
 gem 'nokogiri'
+gem 'acts-as-taggable-on'
+gem 'bootstrap_tokenfield_rails'

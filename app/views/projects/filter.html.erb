@@ -1,37 +1,82 @@
 <h1>Filter for <%= @project.name %></h1>
 <%= @output1 %>
 
-<% @project.criterions.each do |criterion| %>
-    <% minimum = Criterionvalue.where(criterion_id: criterion.id).minimum("value") %>
-    <% maximum = Criterionvalue.where(criterion_id: criterion.id).maximum("value") %>
-    <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
-    <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
-    <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
-    <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
-    <div class="row">
-      <div class="col-lg-6">
-        <%= criterion.name %>: [<span id="crit<%= criterion.id %>lowlabel"><%= filterlow %></span>,<span id="crit<%= criterion.id %>highlabel"><%= filterhigh %></span>]</br></br>
-        <div id="slider<%= criterion.id %>"></div></br>
+
+<% @project.criterions.each_with_index do |criterion, index| %>
+    <% case criterion.name.to_s %>
+    <% when "location" %>
+        <% minimum = 0 %>
+        <% maximum = 1000 %>
+        <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
+        <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
+        <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
+        <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
+    <% when "costrate" %>
+        <% minimum = Employee.all.minimum("costrate") %>
+        <% maximum = Employee.all.maximum("costrate") %>
+        <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
+        <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
+        <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
+        <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
+    <% else %>
+      <% if Criterionvalue.where(criterion_id: criterion.id).first && Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first %>
+          <% minimum = Criterionvalue.where(criterion_id: criterion.id).minimum("value") %>
+          <% maximum = Criterionvalue.where(criterion_id: criterion.id).maximum("value") %>
+          <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
+          <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
+          <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
+          <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
+      <% else %>
+          <% minimum = 0 %>
+          <% maximum = 100 %>
+          <% filterlow = 0 %>
+          <% filterhigh = 100 %>
+      <% end %>
+    <% end %>
+    <% if index%2 == 0 %>
+      <div class="row">
+        <div class="col-lg-6">
+    <% else %>
+        <div class="col-lg-6">
+    <% end %>
+          <strong><%= criterion.name.capitalize %></strong>: [<span id="crit<%= (index+1).to_s %>lowlabel"><%= filterlow %></span>,<span id="crit<%= (index+1).to_s %>highlabel"><%= filterhigh %></span>]</br></br>
+          <div id="slider<%= (index+1).to_s %>"></div></br>
+    <% if index%2 != 0 %>
+        </div>
       </div>
-    </div>
+    <% else %>
+        </div>
+        <% if index == (@project.criterions.size - 1) %>
+            </div>
+        <% end %>
+    <% end %>
 <% end %>
-</br></br>
 
 
 <%= form_for @project do |project| %>
+    <div class="row">
+      <div class="col-lg-6">
 
-    <div class="field form-group">
-      <%= project.hidden_field :name, :class => "form-control", placeholder: 'Enter name of the project' %>
-    </div>
+        <div class="field form-group" style="width: 100%;">
+          <%= project.label :jobprofile_list, 'Choose relevant job profiles' %></br>
+          <%= project.text_field :jobprofile_list, class: 'tokenize' %></br>
+        </div>
 
-    <% @project.criterions.each do |criterion| %>
-      <%= hidden_field_tag "crit" + criterion.id.to_s + "low", "" %>
-      <%= hidden_field_tag "crit" + criterion.id.to_s + "high", "" %>
-    <% end %>
-    <%= hidden_field_tag "numberofcrits", @project.criterions.length.to_s %>
+        <div class="field form-group">
+          <%= project.hidden_field :name, :class => "form-control", placeholder: 'Enter name of the project' %>
+        </div>
 
-    <div class="actions form-group">
-          <%= project.submit 'Update employees', class: "btn btn-success", data: { disable_with: "Processsing..." }  %>
+        <% @project.criterions.each_with_index do |criterion,index| %>
+          <%= hidden_field_tag "crit" + (index+1).to_s + "low", "" %>
+          <%= hidden_field_tag "crit" + (index+1).to_s + "high", "" %>
+        <% end %>
+        <%= hidden_field_tag "numberofcrits", @project.criterions.length.to_s %>
+
+        <div class="actions form-group">
+              <%= project.submit 'Update employees', class: "btn btn-success", data: { disable_with: "Processsing..." }  %>
+        </div>
+
+      </div>
     </div>
 
 <% end %>
@@ -41,34 +86,55 @@
 <script>
 
   $(document).ready(function() {
-    <% @project.criterions.each do |criterion| %>
-      <% minimum = Criterionvalue.where(criterion_id: criterion.id).minimum("value") %>
-      <% maximum = Criterionvalue.where(criterion_id: criterion.id).maximum("value") %>
-      <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
-      <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
-      if (!(Number(decimalPlaces(<%=minimum%>)) != Number(decimalPlaces(<%=maximum%>)))) {
-        //alert(Math.max(Number(decimalPlaces(<%=minimum%>)), Number(decimalPlaces(<%=maximum%>))));
-      };
-       <% puts (filterhigh*100)/100.ceil %>
-      <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
-      <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
-      var slider = $("#slider<%=criterion.id%>").slider({
+      <% @project.criterions.each_with_index do |criterion, index| %>
+        <% case criterion.name.to_s %>
+          <% when "location" %>
+            <% minimum = 0 %>
+            <% maximum = 1000 %>
+            <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
+            <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
+            <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
+            <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
+          <% when "costrate" %>
+            <% minimum = Employee.all.minimum("costrate") %>
+            <% maximum = Employee.all.maximum("costrate") %>
+            <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
+            <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
+            <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
+            <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
+          <% else %>
+            <% if Criterionvalue.where(criterion_id: criterion.id).first && Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first %>
+              <% minimum = Criterionvalue.where(criterion_id: criterion.id).minimum("value") %>
+              <% maximum = Criterionvalue.where(criterion_id: criterion.id).maximum("value") %>
+              <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
+              <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
+              <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
+              <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
+            <% else %>
+              <% minimum = 0 %>
+              <% maximum = 100 %>
+              <% filterlow = 0 %>
+              <% filterhigh = 100 %>
+        <% end %>
+      <% end %>
+      var slider = $("#slider<%=(index+1).to_s%>").slider({
         range: true,
         step: 0.01,
         min: <%= "%.1f" % minimum %>,
         max: <%= ("%.1f" % maximum).to_f + 0.1 %>,
         values: [<%= filterlow %>, <%= filterhigh %>],
         slide: function(event, ui) {
-          $("#crit<%=criterion.id%>low").val(ui.values[0]);
-          $("#crit<%=criterion.id%>high").val(ui.values[1]);
-          $("#crit<%=criterion.id%>lowlabel").html(ui.values[0]);
-          $("#crit<%=criterion.id%>highlabel").html(ui.values[1]);
+          $("#crit<%=(index+1).to_s%>low").val(ui.values[0]);
+          $("#crit<%=(index+1).to_s%>high").val(ui.values[1]);
+          $("#crit<%=(index+1).to_s%>lowlabel").html(ui.values[0]);
+          $("#crit<%=(index+1).to_s%>highlabel").html(ui.values[1]);
         }
       });
-      $("#crit<%=criterion.id%>low").val(slider.slider("values")[0]);
-      $("#crit<%=criterion.id%>high").val(slider.slider("values")[1]);
-      $("#crit<%=criterion.id%>lowlabel").val(slider.slider("values")[0]);
-      $("#crit<%=criterion.id%>highlabel").val(slider.slider("values")[1]);
+      $("#crit<%=(index+1).to_s%>low").val(slider.slider("values")[0]);
+      $("#crit<%=(index+1).to_s%>high").val(slider.slider("values")[1]);
+      $("#crit<%=(index+1).to_s%>lowlabel").val(slider.slider("values")[0]);
+      $("#crit<%=(index+1).to_s%>highlabel").val(slider.slider("values")[1]);
+
     <% end %>
   });
 
@@ -92,4 +158,7 @@
           // Adjust for scientific notation.
         - (match[2] ? +match[2] : 0));
   }
+
+  //take values with comma separated
+  document.getElementById('project_jobprofile_list').value = '<%= @project.jobprofile_list%>';
 </script>

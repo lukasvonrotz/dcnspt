@@ -4,6 +4,9 @@
     <td><%= criterionparam.text_field :preferencethreshold, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter preference threshold of this criterion' %></td>
     <td><%= criterionparam.text_field :indifferencethreshold, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter indifference threshold of this criterion' %></td>
     <td><%= criterionparam.text_field :vetothreshold, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter veto threshold of this criterion' %></td>
+    <td><%= criterionparam.text_field :filterlow, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter minimal value for this criterion' %></td>
+    <td><%= criterionparam.text_field :filterhigh, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter maximal value of this criterion' %></td>
+
     <td>
       <a class="btn btn-info criterionparam_edit criterionparam<%=criterionparamid.to_s%>_edit"onclick="editLine(<%=criterionparamid%>);">Edit</a>
       <%= criterionparam.submit 'Update parameters of this line', class: "btn btn-success criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", data: { disable_with: "Processsing..." }  %>
