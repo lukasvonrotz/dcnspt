@@ -130,7 +130,6 @@ class ProjectsController < ApplicationController
       }
     end
     xml = builder.to_xml
-    puts xml
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     soapmessage1.alternatives = xml_raw
@@ -148,59 +147,77 @@ class ProjectsController < ApplicationController
     criteria[hashkey]['id'] = 'c1'
     criteria[hashkey]['name'] = 'Price'
     criteria[hashkey]['direction'] = 'min'
-    criteria[hashkey]['indifference'] = '500'
-    criteria[hashkey]['preference'] = '3000'
-    criteria[hashkey]['veto'] = '4000'
+    criteria[hashkey]['indslo'] = '0.08'
+    criteria[hashkey]['indint'] = '-2000.0'
+    criteria[hashkey]['preslo'] = '0.13'
+    criteria[hashkey]['preint'] = '-3000.0'
+    criteria[hashkey]['vetslo'] = '0.9'
+    criteria[hashkey]['vetint'] = '50000'
     hashkey = 'crit2'
     criteria[hashkey] = Hash.new()
     criteria[hashkey]['id'] = 'c2'
     criteria[hashkey]['name'] = 'Vmax'
     criteria[hashkey]['direction'] = 'max'
-    criteria[hashkey]['indifference'] = '0.0'
-    criteria[hashkey]['preference'] = '30.0'
+    criteria[hashkey]['indslo'] = '0.02'
+    criteria[hashkey]['indint'] = '0'
+    criteria[hashkey]['preslo'] = '0.05'
+    criteria[hashkey]['preint'] = '0'
     hashkey = 'crit3'
     criteria[hashkey] = Hash.new()
     criteria[hashkey]['id'] = 'c3'
     criteria[hashkey]['name'] = 'C120'
     criteria[hashkey]['direction'] = 'min'
-    criteria[hashkey]['indifference'] = '0.0'
-    criteria[hashkey]['preference'] = '2.0'
+    criteria[hashkey]['indslo'] = '0'
+    criteria[hashkey]['indint'] = '1'
+    criteria[hashkey]['preslo'] = '0'
+    criteria[hashkey]['preint'] = '2'
+    criteria[hashkey]['vetslo'] = '0'
+    criteria[hashkey]['vetint'] = '4'
     hashkey = 'crit4'
     criteria[hashkey] = Hash.new()
     criteria[hashkey]['id'] = 'c4'
     criteria[hashkey]['name'] = 'Coff'
     criteria[hashkey]['direction'] = 'max'
-    criteria[hashkey]['indifference'] = '0.0'
-    criteria[hashkey]['preference'] = '1.0'
+    criteria[hashkey]['indslo'] = '0'
+    criteria[hashkey]['indint'] = '100'
+    criteria[hashkey]['preslo'] = '0'
+    criteria[hashkey]['preint'] = '200'
     hashkey = 'crit5'
     criteria[hashkey] = Hash.new()
     criteria[hashkey]['id'] = 'c5'
     criteria[hashkey]['name'] = 'Acc'
     criteria[hashkey]['direction'] = 'min'
-    criteria[hashkey]['indifference'] = '0.0'
-    criteria[hashkey]['preference'] = '100.0'
+    criteria[hashkey]['indslo'] = '0.1'
+    criteria[hashkey]['indint'] = '-0.5'
+    criteria[hashkey]['preslo'] = '0.2'
+    criteria[hashkey]['preint'] = '-1'
+    criteria[hashkey]['vetslo'] = '0.5'
+    criteria[hashkey]['vetint'] = '3'
     hashkey = 'crit6'
     criteria[hashkey] = Hash.new()
     criteria[hashkey]['id'] = 'c6'
     criteria[hashkey]['name'] = 'Frei'
     criteria[hashkey]['direction'] = 'min'
-    criteria[hashkey]['indifference'] = '0.0'
-    criteria[hashkey]['preference'] = '100.0'
+    criteria[hashkey]['indslo'] = '0'
+    criteria[hashkey]['indint'] = '0'
+    criteria[hashkey]['preslo'] = '0'
+    criteria[hashkey]['preint'] = '5'
+    criteria[hashkey]['vetslo'] = '0'
+    criteria[hashkey]['vetint'] = '15'
     hashkey = 'crit7'
     criteria[hashkey] = Hash.new()
     criteria[hashkey]['id'] = 'c7'
     criteria[hashkey]['name'] = 'Brui'
     criteria[hashkey]['direction'] = 'min'
-    criteria[hashkey]['indifference'] = '0.0'
-    criteria[hashkey]['preference'] = '100.0'
+    criteria[hashkey]['indslo'] = '0'
+    criteria[hashkey]['indint'] = '3'
+    criteria[hashkey]['preslo'] = '0'
+    criteria[hashkey]['preint'] = '5'
+    criteria[hashkey]['vetslo'] = '0'
+    criteria[hashkey]['vetint'] = '15'
 
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       xml['xmcda'].XMCDA("xmlns:xmcda" => "http://www.decision-deck.org/2009/XMCDA-2.1.0") {
-        xml.projectReference {
-          xml.parent.namespace = nil
-          xml.title 'All relevant criteria'
-          xml.comment_ 'Only the relevant criteria for the project'
-        }
         xml.criteria{
           xml.parent.namespace = nil
             criteria.each_with_index do |criterion, index|
@@ -211,24 +228,39 @@ class ProjectsController < ApplicationController
                   }
                 }
                 xml.thresholds {
-                  if criterion[1]['indifference']
+                  if criterion[1]['indslo']
                     xml.threshold(:mcdaConcept => "indifference") {
-                      xml.constant {
-                        xml.real "#{criterion[1]['indifference']}"
+                      xml.linear {
+                        xml.slope {
+                          xml.real "#{criterion[1]['indslo']}"
+                        }
+                        xml.intercept {
+                          xml.real "#{criterion[1]['indint']}"
+                        }
                       }
                     }
                   end
-                  if criterion[1]['preference']
+                  if criterion[1]['preslo']
                   xml.threshold(:mcdaConcept => "preference") {
-                    xml.constant {
-                      xml.real "#{criterion[1]['preference']}"
+                    xml.linear {
+                      xml.slope {
+                        xml.real "#{criterion[1]['preslo']}"
+                      }
+                      xml.intercept {
+                        xml.real "#{criterion[1]['preint']}"
+                      }
                     }
                   }
                   end
-                  if criterion[1]['veto']
+                  if criterion[1]['vetslo']
                   xml.threshold(:mcdaConcept => "veto") {
-                    xml.constant {
-                      xml.real "#{criterion[1]['veto']}"
+                    xml.linear {
+                      xml.slope {
+                        xml.real "#{criterion[1]['vetslo']}"
+                      }
+                      xml.intercept {
+                        xml.real "#{criterion[1]['vetint']}"
+                      }
                     }
                   }
                   end
@@ -510,7 +542,6 @@ class ProjectsController < ApplicationController
       }
     end
     xml = builder.to_xml
-    puts xml
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     soapmessage1.method_parameters = xml_raw
@@ -574,7 +605,6 @@ class ProjectsController < ApplicationController
       }
     end
     xml = builder.to_xml
-    puts xml
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     soapmessage1.weights = xml_raw
@@ -623,7 +653,7 @@ class ProjectsController < ApplicationController
   end
 
   def post_xml(xml)
-    host = "http://webservices.decision-deck.org/soap/ElectreConcordanceReinforcedPreference-PUT.py"
+    host = "http://webservices.decision-deck.org/soap/ElectreConcordance-PUT.py"
     uri = URI.parse host
     request = Net::HTTP::Post.new uri.path
     request.body = xml
