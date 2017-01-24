@@ -1,6 +1,6 @@
 class Soapcreator
 
-  attr_accessor :alternatives, :criteria, :performance, :method_parameters, :weights, :concordance, :discordance, :credibility
+  attr_accessor :alternatives, :criteria, :performance, :method_parameters, :weights, :concordance, :discordance, :credibility, :downwards, :upwards
 
   @@soapheader =
       '<?xml version="1.0" encoding="UTF-8"?>
@@ -48,6 +48,10 @@ class Soapcreator
   @@performancefooter = '</performance_table>'
   @@method_parametersheader = '<method_parameters xsi:type="xsd:string">'
   @@method_parametersfooter = '</method_parameters>'
+  @@downwardsheader = '<downwards xsi:type="xsd:string">'
+  @@downwardsfooter = '</downwards>'
+  @@upwardsheader = '<upwards xsi:type="xsd:string">'
+  @@upwardsfooter = '</upwards>'
   @@weightsheader = '<weights xsi:type="xsd:string">'
   @@weightsfooter = '</weights>'
 
@@ -80,7 +84,7 @@ class Soapcreator
     @performance = xml_raw
 
     ######method_parameter######
-    xml  = buildMethodparamsXML(0,'')
+    xml  = buildMethodparamsXML(0,'','','')
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     @method_parameters = xml_raw
@@ -126,7 +130,7 @@ class Soapcreator
     @performance = xml_raw
 
     ######method_parameter######
-    xml  = buildMethodparamsXML(1,'')
+    xml  = buildMethodparamsXML(1,'','','')
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     @method_parameters = xml_raw
@@ -172,7 +176,7 @@ class Soapcreator
     @discordance = xml_raw
 
     ######method_parameter######
-    xml  = buildMethodparamsXML(2,'')
+    xml  = buildMethodparamsXML(2,'','','')
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     @method_parameters = xml_raw
@@ -185,7 +189,7 @@ class Soapcreator
         @@soapfooter.to_s
   end
 
-  def getSoapDistillation(credibilityXML, direction)
+  def getSoapDistillation(credibilityXML, direction, alpha, beta)
 
     ####buildSOAPMsg####
 
@@ -202,7 +206,7 @@ class Soapcreator
     @credibility = xml_raw
 
     ######method_parameter######
-    xml  = buildMethodparamsXML(3,direction)
+    xml  = buildMethodparamsXML(3,direction, alpha, beta)
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     @method_parameters = xml_raw
@@ -212,6 +216,36 @@ class Soapcreator
         @@alternativesheader.to_s + @alternatives.to_s + @@alternativesfooter.to_s +
         @@credibilityheader.to_s + @credibility.to_s + @@credibilityfooter.to_s +
         @@method_parametersheader.to_s + @method_parameters.to_s + @@method_parametersfooter.to_s +
+        @@soapfooter.to_s
+  end
+
+  def getSoapRanking(downwardsXML, upwardsXML)
+
+    ####buildSOAPMsg####
+
+    ####alternatives####
+    xml = buildAlternativesXML(1)
+    xml = xml.gsub! '<', '&lt;'
+    xml_raw = xml.gsub! '>', '&gt;'
+    @alternatives = xml_raw
+
+    ######downwards######
+    xml = buildDownwardsXML(downwardsXML)
+    xml = xml.gsub! '<', '&lt;'
+    xml_raw = xml.gsub! '>', '&gt;'
+    @downwards = xml_raw
+
+    ######upwards######
+    xml = buildUpwardsXML(upwardsXML)
+    xml = xml.gsub! '<', '&lt;'
+    xml_raw = xml.gsub! '>', '&gt;'
+    @upwards = xml_raw
+
+
+    return @@soapheader.to_s +
+        @@alternativesheader.to_s + @alternatives.to_s + @@alternativesfooter.to_s +
+        @@downwardsheader.to_s + @downwards.to_s + @@downwardsfooter.to_s +
+        @@upwardsheader.to_s + @upwards.to_s + @@upwardsfooter.to_s +
         @@soapfooter.to_s
   end
 
@@ -640,7 +674,7 @@ class Soapcreator
     return builder.to_xml
   end
 
-  def buildMethodparamsXML(mode, direction)
+  def buildMethodparamsXML(mode, direction, alpha, beta)
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       xml['xmcda'].XMCDA("xmlns:xmcda" => "http://www.decision-deck.org/2012/XMCDA-2.2.0",
                          "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
@@ -779,6 +813,20 @@ class Soapcreator
   def buildCredibilityXML(credibilityXML)
     return '<xmcda:XMCDA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0" xsi:schemaLocation="http://www.decision-deck.org/2009/XMCDA-2.0.0 http://sma.uni.lu/d2cms/xmcda/_downloads/XMCDA-2.0.0.xsd">
 <alternativesComparisons>' + credibilityXML + '</alternativesComparisons></xmcda:XMCDA>'
+  end
+
+  def buildDownwardsXML(downwardsXML)
+    return '<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="xmcdaXSL.xsl"?>
+<xmcda:XMCDA xmlns:xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.decision-deck.org/2009/XMCDA-2.0.0 http://sma.uni.lu/d2cms/xmcda/_downloads/XMCDA-2.0.0.xsd">
+<alternativesValues mcdaConcept="downwards_distillation">' + downwardsXML + '</alternativesValues></xmcda:XMCDA>'
+  end
+
+  def buildUpwardsXML(upwardsXML)
+    return '<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="xmcdaXSL.xsl"?>
+<xmcda:XMCDA xmlns:xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.decision-deck.org/2009/XMCDA-2.0.0 http://sma.uni.lu/d2cms/xmcda/_downloads/XMCDA-2.0.0.xsd">
+<alternativesValues mcdaConcept="upwards_distillation">' + upwardsXML + '</alternativesValues></xmcda:XMCDA>'
   end
 
 end

@@ -1,32 +1,47 @@
 <h1>Project Information</h1>
-
-<p><strong>ID</strong></p>
-<%= @project.id %>
-</br></br>
-<p><strong>Name</strong></p>
-<%= @project.name %>
-</br></br>
-<p><strong>Owner</strong></p>
-<%= link_to @project.user.email, user_path(@project.user.id) %>
-</br></br>
-<p><strong>Employees</strong></p>
-<a class="btn btn-default" href="/projects/<%= @project.id %>/filter">Filter</a></br></br>
-<% @project.employees.each do |employee| %>
-    <%= employee.firstname %> <%= employee.surname %></br>
-    Distance: <%= Location.get_distance(employee.loclat,employee.loclon,@project.loclat,@project.loclon) %> km<br>
-    Margin: <%= Margin.get_margin(@project.hourlyrate,employee.costrate) %> CHF</br></br>
-<% end %>
-</br></br>
-<p><strong>Project parameters</strong></p>
-<%= link_to "Edit project parameters", project_criterionparams_path(@project.id), class: "btn btn-default" %>
-</br></br>
-<% @project.criterionparams.each do |criterionparam| %>
-    <strong><%= criterionparam.criterion.name %></strong><br>
-    Weight: <%= criterionparam.weight %></br>
-    Preference threshold: <%= criterionparam.preferencethreshold %></br>
-    Indifference threshold: <%= criterionparam.indifferencethreshold %></br>
-    Veto threshold: <%= criterionparam.vetothreshold %></br></br>
-<% end %>
-</br></br>
+</br>
 <%= link_to "Back to project overview", projects_path %>
 </br></br>
+<div class="row">
+  <div class="col-lg-4">
+    <h3>ELECTRE Algorithm</h3>
+    <form action="/projects/<%= @project.id %>/electre">
+      <div class="field form-group">
+        <label for="alpha">Distillation Alpha</label>
+        <input type="text" name="alpha" value="-0.15" class="form-control">
+      </div>
+      <div class="field form-group">
+        <label for="beta">Distillation Beta</label>
+        <input type="text" name="beta" value="0.3" class="form-control">
+      </div>
+      <input type="submit" value="Run Algorithm" class="btn btn-default"><%= image_tag('spinner.gif', width: '60') %>Looking for best candidates..
+    </form>
+
+  </div>
+
+  <div class="col-lg-4">
+    <h3>Project Parameters</h3>
+    </br>
+    <%= link_to "Edit project parameters", project_criterionparams_path(@project.id), class: "btn btn-default" %>
+    </br></br>
+    <% @project.criterionparams.each do |criterionparam| %>
+        <strong><%= criterionparam.criterion.name.capitalize %></strong><br>
+        Weight: <%= criterionparam.weight %></br>
+        Preference threshold: <%= criterionparam.preferencethreshold %></br>
+        Indifference threshold: <%= criterionparam.indifferencethreshold %></br>
+        Veto threshold: <%= criterionparam.vetothreshold %></br></br>
+    <% end %>
+  </div>
+
+  <div class="col-lg-4">
+    <h3>Alternatives</h3>
+    </br>
+    <a class="btn btn-default" href="/projects/<%= @project.id %>/filter">Filter employees</a></br></br>
+    <% @project.employees.each do |employee| %>
+        <strong><%= employee.firstname %> <%= employee.surname %></strong></br>
+        Distance: <%= Location.get_distance(employee.loclat,employee.loclon,@project.loclat,@project.loclon) %> km<br>
+        Margin: <%= Margin.get_margin(@project.hourlyrate,employee.costrate) %> CHF</br></br>
+    <% end %>
+  </div>
+
+</div>

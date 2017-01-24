@@ -34,8 +34,6 @@
               <td>
                 <a href="<%= project_path(project.id) %>" class="btn btn-xs btn-default">Show</a>
                 <a href="<%= edit_project_path(project.id) %>" class="btn btn-xs btn-info">Edit</a>
-                <a class="btn btn-xs btn-info" href="/projects/<%= project.id %>/filter">Filter</a>
-                <%= link_to "Edit project parameters", project_criterionparams_path(project.id), class: "btn btn-xs btn-info" %>
                 <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#popup_sure_delete" data-projectid="<%= project.id %>">Delete</button>
               </td>
           <% end %>

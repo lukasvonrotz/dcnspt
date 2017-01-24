@@ -5,9 +5,8 @@
                url = window.location.protocol + '//' + window.location.host + '/projects/' + this.value + '/electre';
                window.location = url;}", class: 'form-control' %>
 <br>
-<p>Do algorithm for <%= @project.name %></p>
 
-<h3>Steps</h3>
+<a class="btn btn-default" href="/projects/<%= @project.id %>/filter">Filter</a></br></br>
 
 <style>
   #projsel {

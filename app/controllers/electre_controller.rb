@@ -7,6 +7,16 @@ class ElectreController < ApplicationController
 
     @project = Project.find(params[:project_id])
 
+    @alternatives = Hash.new()
+    Employee.all.each_with_index do |employee, index|
+      if index<10
+        hashkey = 'a' + (index+1).to_s
+        @alternatives[hashkey] = Hash.new()
+        @alternatives[hashkey]['user'] = employee.id
+        @alternatives[hashkey]['rank'] = 0
+      end
+    end
+
 
     ####buildSoapRequestConcordance#####
     soapInstance = Soapcreator.new
@@ -75,31 +85,47 @@ class ElectreController < ApplicationController
 
     ####buildSoapRequestDistillations#####
     ######downwards#######################
-    credibilityInput = soapInstance.getSoapDistillation(credibilityXML,'downwards')
-    credibilityOutput1 = Nokogiri::XML(postXmlToWebservice(credibilityInput,"http://webservices.decision-deck.org/soap/ElectreDistillation-PUT.py"))
-    credibilityOutput2 = Soapcreator.getSoapTicket(credibilityOutput1.xpath("//ticket/text()").to_s)
-    credibilityOutput = Nokogiri::XML(postXmlToWebservice(credibilityOutput2,"http://webservices.decision-deck.org/soap/ElectreDistillation-PUT.py"))
-    xml = credibilityOutput.to_s.gsub! '&lt;', '<'
+    distillationInput = soapInstance.getSoapDistillation(credibilityXML,'downwards', params[:alpha], params[:beta])
+    distillationOutput1 = Nokogiri::XML(postXmlToWebservice(distillationInput,"http://webservices.decision-deck.org/soap/ElectreDistillation-PUT.py"))
+    distillationOutput2 = Soapcreator.getSoapTicket(distillationOutput1.xpath("//ticket/text()").to_s)
+    distillationOutput = Nokogiri::XML(postXmlToWebservice(distillationOutput2,"http://webservices.decision-deck.org/soap/ElectreDistillation-PUT.py"))
+    xml = distillationOutput.to_s.gsub! '&lt;', '<'
     xml = xml.gsub! '&gt;', '>'
-    puts xml
-
+    input_string = xml
+    str1_markerstring = "<alternativesValues>"
+    str2_markerstring = "</alternativesValues>"
+    downwardsXML = input_string[/#{str1_markerstring}(.*?)#{str2_markerstring}/m, 1]
 
     ######upwards#######################
+    distillationInput = soapInstance.getSoapDistillation(credibilityXML,'upwards', params[:alpha], params[:beta])
+    distillationOutput1 = Nokogiri::XML(postXmlToWebservice(distillationInput,"http://webservices.decision-deck.org/soap/ElectreDistillation-PUT.py"))
+    distillationOutput2 = Soapcreator.getSoapTicket(distillationOutput1.xpath("//ticket/text()").to_s)
+    distillationOutput = Nokogiri::XML(postXmlToWebservice(distillationOutput2,"http://webservices.decision-deck.org/soap/ElectreDistillation-PUT.py"))
+    xml = distillationOutput.to_s.gsub! '&lt;', '<'
+    xml = xml.gsub! '&gt;', '>'
+    input_string = xml
+    str1_markerstring = "<alternativesValues>"
+    str2_markerstring = "</alternativesValues>"
+    upwardsXML = input_string[/#{str1_markerstring}(.*?)#{str2_markerstring}/m, 1]
 
 
+    ####buildSoapRequestRanking#####
+    rankingInput = soapInstance.getSoapRanking(downwardsXML, upwardsXML)
+    rankingOutput1 = Nokogiri::XML(postXmlToWebservice(rankingInput,"http://webservices.decision-deck.org/soap/ElectreDistillationRank-PUT.py"))
+    rankingOutput2 = Soapcreator.getSoapTicket(rankingOutput1.xpath("//ticket/text()").to_s)
+    rankingOutput = Nokogiri::XML(postXmlToWebservice(rankingOutput2,"http://webservices.decision-deck.org/soap/ElectreDistillationRank-PUT.py"))
+    xml = rankingOutput.to_s.gsub! '&lt;', '<'
+    xml = xml.gsub! '&gt;', '>'
+    hashRanking = Hash.from_xml(xml.gsub("\n", ""))
+    hashRanking['Envelope']['Body']['requestSolutionResponse']['rank']['XMCDA']['alternativesValues'].each do |key, pair|
+      pair.each do |alternative|
+        key = alternative['alternativeID']
+        rank = alternative['value']['integer']
+        @alternatives[key]['rank'] = rank
+      end
+    end
 
-
-
-
-
-
-
-    puts 'concordanceXML'
-    puts concordanceXML
-    puts 'discordanceXML'
-    puts discordanceXML
-    puts 'credibilityXML'
-    puts credibilityXML
+    puts @alternatives
 
   end
 
