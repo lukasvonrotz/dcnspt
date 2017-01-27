@@ -125,7 +125,7 @@ class ElectreController < ApplicationController
       end
     end
 
-    puts @alternatives
+    @alternatives = @alternatives.sort_by{|x,y| y['rank']}.to_h
 
   end
 

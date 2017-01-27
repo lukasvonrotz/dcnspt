@@ -1,12 +1,25 @@
-<h1>Electre Algorithm</h1>
-<%= label_tag 'Choose project' %>
-<%= select_tag 'projsel', options_from_collection_for_select(Project.all, "id", "name"),
-               :onchange => "if(this.value){
-               url = window.location.protocol + '//' + window.location.host + '/projects/' + this.value + '/electre';
-               window.location = url;}", class: 'form-control' %>
-<br>
+<h1>Electre Algorithm - Results</h1>
+<table class="table table-striped" style="width: 100%;">
+  <thead>
+  <tr>
+    <th>Rank</th>
+    <th>Alternative ID</th>
+    <th>Firstname</th>
+    <th>Surname</th>
+  </tr>
+  </thead>
+  <tbody>
+    <% @alternatives.each do |key,value| %>
+      <tr>
+        <td><%= value['rank'] %></td>
+        <td><%= key %></td>
+        <td><%= Employee.find(value['user'].to_i).firstname %></td>
+        <td><%= Employee.find(value['user'].to_i).surname %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
 
-<a class="btn btn-default" href="/projects/<%= @project.id %>/filter">Filter</a></br></br>
 
 <style>
   #projsel {

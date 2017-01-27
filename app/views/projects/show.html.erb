@@ -14,7 +14,8 @@
         <label for="beta">Distillation Beta</label>
         <input type="text" name="beta" value="0.3" class="form-control">
       </div>
-      <input type="submit" value="Run Algorithm" class="btn btn-default"><%= image_tag('spinner.gif', width: '60') %>Looking for best candidates..
+      <input type="submit" value="Run Algorithm" onclick="$('#spinner').show();" class="btn btn-default">
+      <span id="spinner" style="display: none;"><%= image_tag('spinner.gif', width: '60') %>Looking for best candidates..</span>
     </form>
 
   </div>
