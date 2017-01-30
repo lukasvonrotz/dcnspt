@@ -8,18 +8,16 @@ class ElectreController < ApplicationController
     @project = Project.find(params[:project_id])
 
     @alternatives = Hash.new()
-    Employee.all.each_with_index do |employee, index|
-      if index<10
-        hashkey = 'a' + (index+1).to_s
-        @alternatives[hashkey] = Hash.new()
-        @alternatives[hashkey]['user'] = employee.id
-        @alternatives[hashkey]['rank'] = 0
-      end
+    @project.employees.each_with_index do |employee, index|
+      hashkey = 'a' + (index+1).to_s
+      @alternatives[hashkey] = Hash.new()
+      @alternatives[hashkey]['user'] = employee.id
+      @alternatives[hashkey]['rank'] = 0
     end
-
 
     ####buildSoapRequestConcordance#####
     soapInstance = Soapcreator.new
+    soapInstance.project = @project.id
     concordanceInput = soapInstance.getSoapConcordance
     concordanceOutput1 = Nokogiri::XML(postXmlToWebservice(concordanceInput, "http://webservices.decision-deck.org/soap/ElectreConcordance-PUT.py"))
     concordanceOutput2 = Soapcreator.getSoapTicket(concordanceOutput1.xpath("//ticket/text()").to_s)

@@ -5,9 +5,13 @@ class CreateCriterionparams < ActiveRecord::Migration
       t.belongs_to :project, index: true
       t.belongs_to :criterion, index: true
       t.decimal :weight
-      t.decimal :preferencethreshold
-      t.decimal :indifferencethreshold
-      t.decimal :vetothreshold
+      t.boolean :direction
+      t.decimal :prefthresslo
+      t.decimal :prefthresint
+      t.decimal :inthresslo
+      t.decimal :inthresint
+      t.decimal :vetothresslo
+      t.decimal :vetothresint
       t.decimal :filterlow
       t.decimal :filterhigh
 

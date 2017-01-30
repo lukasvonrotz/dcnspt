@@ -1,6 +1,6 @@
 class Soapcreator
 
-  attr_accessor :alternatives, :criteria, :performance, :method_parameters, :weights, :concordance, :discordance, :credibility, :downwards, :upwards
+  attr_accessor :project, :alternatives, :criteria, :performance, :method_parameters, :weights, :concordance, :discordance, :credibility, :downwards, :upwards
 
   @@soapheader =
       '<?xml version="1.0" encoding="UTF-8"?>
@@ -263,13 +263,11 @@ class Soapcreator
 
   def buildAlternativesXML(mode)
     alternatives = Hash.new()
-    Employee.all.each_with_index do |employee, index|
-      if index<10
-        hashkey = 'alt' + (index+1).to_s
-        alternatives[hashkey] = Hash.new()
-        alternatives[hashkey]['id'] = 'a' + (index + 1).to_s
-        alternatives[hashkey]['name'] = employee.firstname + ' ' + employee.surname
-      end
+    Project.find(@project).employees.each_with_index do |employee, index|
+      hashkey = 'alt' + (index+1).to_s
+      alternatives[hashkey] = Hash.new()
+      alternatives[hashkey]['id'] = 'a' + (index + 1).to_s
+      alternatives[hashkey]['name'] = employee.firstname + ' ' + employee.surname
     end
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       case mode
@@ -307,79 +305,19 @@ class Soapcreator
 
   def buildCriteriaXML
     criteria = Hash.new()
-    hashkey = 'crit1'
-    criteria[hashkey] = Hash.new()
-    criteria[hashkey]['id'] = 'c1'
-    criteria[hashkey]['name'] = 'Price'
-    criteria[hashkey]['direction'] = 'min'
-    criteria[hashkey]['indslo'] = '0.08'
-    criteria[hashkey]['indint'] = '-2000.0'
-    criteria[hashkey]['preslo'] = '0.115'
-    criteria[hashkey]['preint'] = '-2654.87'
-    criteria[hashkey]['vetslo'] = '0.474'
-    criteria[hashkey]['vetint'] = '26315.79'
-    hashkey = 'crit2'
-    criteria[hashkey] = Hash.new()
-    criteria[hashkey]['id'] = 'c2'
-    criteria[hashkey]['name'] = 'Vmax'
-    criteria[hashkey]['direction'] = 'max'
-    criteria[hashkey]['indslo'] = '0.02'
-    criteria[hashkey]['indint'] = '0'
-    criteria[hashkey]['preslo'] = '0.05'
-    criteria[hashkey]['preint'] = '0'
-    hashkey = 'crit3'
-    criteria[hashkey] = Hash.new()
-    criteria[hashkey]['id'] = 'c3'
-    criteria[hashkey]['name'] = 'C120'
-    criteria[hashkey]['direction'] = 'min'
-    criteria[hashkey]['indslo'] = '0'
-    criteria[hashkey]['indint'] = '1'
-    criteria[hashkey]['preslo'] = '0'
-    criteria[hashkey]['preint'] = '2'
-    criteria[hashkey]['vetslo'] = '0'
-    criteria[hashkey]['vetint'] = '4'
-    hashkey = 'crit4'
-    criteria[hashkey] = Hash.new()
-    criteria[hashkey]['id'] = 'c4'
-    criteria[hashkey]['name'] = 'Coff'
-    criteria[hashkey]['direction'] = 'max'
-    criteria[hashkey]['indslo'] = '0'
-    criteria[hashkey]['indint'] = '100'
-    criteria[hashkey]['preslo'] = '0'
-    criteria[hashkey]['preint'] = '200'
-    hashkey = 'crit5'
-    criteria[hashkey] = Hash.new()
-    criteria[hashkey]['id'] = 'c5'
-    criteria[hashkey]['name'] = 'Acc'
-    criteria[hashkey]['direction'] = 'min'
-    criteria[hashkey]['indslo'] = '0.1'
-    criteria[hashkey]['indint'] = '-0.5'
-    criteria[hashkey]['preslo'] = '0.2'
-    criteria[hashkey]['preint'] = '-1'
-    criteria[hashkey]['vetslo'] = '0.5'
-    criteria[hashkey]['vetint'] = '3'
-    hashkey = 'crit6'
-    criteria[hashkey] = Hash.new()
-    criteria[hashkey]['id'] = 'c6'
-    criteria[hashkey]['name'] = 'Frei'
-    criteria[hashkey]['direction'] = 'min'
-    criteria[hashkey]['indslo'] = '0'
-    criteria[hashkey]['indint'] = '0'
-    criteria[hashkey]['preslo'] = '0'
-    criteria[hashkey]['preint'] = '5'
-    criteria[hashkey]['vetslo'] = '0'
-    criteria[hashkey]['vetint'] = '15'
-    hashkey = 'crit7'
-    criteria[hashkey] = Hash.new()
-    criteria[hashkey]['id'] = 'c7'
-    criteria[hashkey]['name'] = 'Brui'
-    criteria[hashkey]['direction'] = 'min'
-    criteria[hashkey]['indslo'] = '0'
-    criteria[hashkey]['indint'] = '3'
-    criteria[hashkey]['preslo'] = '0'
-    criteria[hashkey]['preint'] = '5'
-    criteria[hashkey]['vetslo'] = '0'
-    criteria[hashkey]['vetint'] = '15'
+    Project.find(@project).criterionparams.each_with_index do |criterionparam, index|
+      hashkey = 'crit' + (index+1).to_s
+      criteria[hashkey] = Hash.new()
+      criteria[hashkey]['id'] = 'c' + (index + 1).to_s
+      criteria[hashkey]['name'] = criterionparam.criterion.name
+      criteria[hashkey]['direction'] = (criterionparam.direction ? 'max' : 'min')
+      criteria[hashkey]['indslo'] = criterionparam.inthresslo ? criterionparam.inthresslo.to_f : nil
+      criteria[hashkey]['indint'] = criterionparam.inthresint ? criterionparam.inthresint.to_f : nil
+      criteria[hashkey]['preslo'] = criterionparam.prefthresslo ? criterionparam.prefthresslo.to_f : nil
+      criteria[hashkey]['preint'] = criterionparam.prefthresint ? criterionparam.prefthresint.to_f : nil
+      criteria[hashkey]['vetslo'] = criterionparam.vetothresslo ? criterionparam.vetothresslo.to_f : nil
+      criteria[hashkey]['vetint'] = criterionparam.vetothresint ? criterionparam.vetothresint.to_f : nil
+    end
 
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       xml['xmcda'].XMCDA("xmlns:xmcda" => "http://www.decision-deck.org/2009/XMCDA-2.1.0") {
@@ -439,177 +377,24 @@ class Soapcreator
   end
 
   def buildPerformanceXML
+
     performance = Hash.new()
-    hashkey = 'a1'
-    performance[hashkey] = Hash.new()
-    performance[hashkey]['id'] = 'a1'
-    performance[hashkey]['crit1'] = 'c1'
-    performance[hashkey]['val1'] = '103000.0'
-    performance[hashkey]['crit2'] = 'c2'
-    performance[hashkey]['val2'] = '171.3'
-    performance[hashkey]['crit3'] = 'c3'
-    performance[hashkey]['val3'] = '7.65'
-    performance[hashkey]['crit4'] = 'c4'
-    performance[hashkey]['val4'] = '352.0'
-    performance[hashkey]['crit5'] = 'c5'
-    performance[hashkey]['val5'] = '11.6'
-    performance[hashkey]['crit6'] = 'c6'
-    performance[hashkey]['val6'] = '88.0'
-    performance[hashkey]['crit7'] = 'c7'
-    performance[hashkey]['val7'] = '69.7'
-    hashkey = 'a2'
-    performance[hashkey] = Hash.new()
-    performance[hashkey]['id'] = 'a2'
-    performance[hashkey]['crit1'] = 'c1'
-    performance[hashkey]['val1'] = '101300.0'
-    performance[hashkey]['crit2'] = 'c2'
-    performance[hashkey]['val2'] = '205.3'
-    performance[hashkey]['crit3'] = 'c3'
-    performance[hashkey]['val3'] = '7.9'
-    performance[hashkey]['crit4'] = 'c4'
-    performance[hashkey]['val4'] = '203.0'
-    performance[hashkey]['crit5'] = 'c5'
-    performance[hashkey]['val5'] = '8.4'
-    performance[hashkey]['crit6'] = 'c6'
-    performance[hashkey]['val6'] = '78.3'
-    performance[hashkey]['crit7'] = 'c7'
-    performance[hashkey]['val7'] = '73.4'
-    hashkey = 'a3'
-    performance[hashkey] = Hash.new()
-    performance[hashkey]['id'] = 'a3'
-    performance[hashkey]['crit1'] = 'c1'
-    performance[hashkey]['val1'] = '156400.0'
-    performance[hashkey]['crit2'] = 'c2'
-    performance[hashkey]['val2'] = '221.7'
-    performance[hashkey]['crit3'] = 'c3'
-    performance[hashkey]['val3'] = '7.9'
-    performance[hashkey]['crit4'] = 'c4'
-    performance[hashkey]['val4'] = '391.0'
-    performance[hashkey]['crit5'] = 'c5'
-    performance[hashkey]['val5'] = '8.4'
-    performance[hashkey]['crit6'] = 'c6'
-    performance[hashkey]['val6'] = '81.5'
-    performance[hashkey]['crit7'] = 'c7'
-    performance[hashkey]['val7'] = '69.0'
-    hashkey = 'a4'
-    performance[hashkey] = Hash.new()
-    performance[hashkey]['id'] = 'a4'
-    performance[hashkey]['crit1'] = 'c1'
-    performance[hashkey]['val1'] = '267400.0'
-    performance[hashkey]['crit2'] = 'c2'
-    performance[hashkey]['val2'] = '230.7'
-    performance[hashkey]['crit3'] = 'c3'
-    performance[hashkey]['val3'] = '10.5'
-    performance[hashkey]['crit4'] = 'c4'
-    performance[hashkey]['val4'] = '419.0'
-    performance[hashkey]['crit5'] = 'c5'
-    performance[hashkey]['val5'] = '8.6'
-    performance[hashkey]['crit6'] = 'c6'
-    performance[hashkey]['val6'] = '64.7'
-    performance[hashkey]['crit7'] = 'c7'
-    performance[hashkey]['val7'] = '65.6'
-    hashkey = 'a5'
-    performance[hashkey] = Hash.new()
-    performance[hashkey]['id'] = 'a5'
-    performance[hashkey]['crit1'] = 'c1'
-    performance[hashkey]['val1'] = '49900.0'
-    performance[hashkey]['crit2'] = 'c2'
-    performance[hashkey]['val2'] = '122.6'
-    performance[hashkey]['crit3'] = 'c3'
-    performance[hashkey]['val3'] = '8.3'
-    performance[hashkey]['crit4'] = 'c4'
-    performance[hashkey]['val4'] = '120.0'
-    performance[hashkey]['crit5'] = 'c5'
-    performance[hashkey]['val5'] = '23.7'
-    performance[hashkey]['crit6'] = 'c6'
-    performance[hashkey]['val6'] = '74.1'
-    performance[hashkey]['crit7'] = 'c7'
-    performance[hashkey]['val7'] = '76.4'
-    hashkey = 'a6'
-    performance[hashkey] = Hash.new()
-    performance[hashkey]['id'] = 'a6'
-    performance[hashkey]['crit1'] = 'c1'
-    performance[hashkey]['val1'] = '103600.0'
-    performance[hashkey]['crit2'] = 'c2'
-    performance[hashkey]['val2'] = '205.1'
-    performance[hashkey]['crit3'] = 'c3'
-    performance[hashkey]['val3'] = '8.2'
-    performance[hashkey]['crit4'] = 'c4'
-    performance[hashkey]['val4'] = '265.0'
-    performance[hashkey]['crit5'] = 'c5'
-    performance[hashkey]['val5'] = '8.1'
-    performance[hashkey]['crit6'] = 'c6'
-    performance[hashkey]['val6'] = '81.7'
-    performance[hashkey]['crit7'] = 'c7'
-    performance[hashkey]['val7'] = '73.6'
-    hashkey = 'a7'
-    performance[hashkey] = Hash.new()
-    performance[hashkey]['id'] = 'a7'
-    performance[hashkey]['crit1'] = 'c1'
-    performance[hashkey]['val1'] = '103000.0'
-    performance[hashkey]['crit2'] = 'c2'
-    performance[hashkey]['val2'] = '178.0'
-    performance[hashkey]['crit3'] = 'c3'
-    performance[hashkey]['val3'] = '7.2'
-    performance[hashkey]['crit4'] = 'c4'
-    performance[hashkey]['val4'] = '419.0'
-    performance[hashkey]['crit5'] = 'c5'
-    performance[hashkey]['val5'] = '11.4'
-    performance[hashkey]['crit6'] = 'c6'
-    performance[hashkey]['val6'] = '77.6'
-    performance[hashkey]['crit7'] = 'c7'
-    performance[hashkey]['val7'] = '66.2'
-    hashkey = 'a8'
-    performance[hashkey] = Hash.new()
-    performance[hashkey]['id'] = 'a8'
-    performance[hashkey]['crit1'] = 'c1'
-    performance[hashkey]['val1'] = '170100.0'
-    performance[hashkey]['crit2'] = 'c2'
-    performance[hashkey]['val2'] = '226.0'
-    performance[hashkey]['crit3'] = 'c3'
-    performance[hashkey]['val3'] = '9.1'
-    performance[hashkey]['crit4'] = 'c4'
-    performance[hashkey]['val4'] = '419.0'
-    performance[hashkey]['crit5'] = 'c5'
-    performance[hashkey]['val5'] = '8.1'
-    performance[hashkey]['crit6'] = 'c6'
-    performance[hashkey]['val6'] = '74.7'
-    performance[hashkey]['crit7'] = 'c7'
-    performance[hashkey]['val7'] = '71.7'
-    hashkey = 'a9'
-    performance[hashkey] = Hash.new()
-    performance[hashkey]['id'] = 'a9'
-    performance[hashkey]['crit1'] = 'c1'
-    performance[hashkey]['val1'] = '279700.0'
-    performance[hashkey]['crit2'] = 'c2'
-    performance[hashkey]['val2'] = '233.8'
-    performance[hashkey]['crit3'] = 'c3'
-    performance[hashkey]['val3'] = '10.9'
-    performance[hashkey]['crit4'] = 'c4'
-    performance[hashkey]['val4'] = '359.0'
-    performance[hashkey]['crit5'] = 'c5'
-    performance[hashkey]['val5'] = '7.8'
-    performance[hashkey]['crit6'] = 'c6'
-    performance[hashkey]['val6'] = '75.5'
-    performance[hashkey]['crit7'] = 'c7'
-    performance[hashkey]['val7'] = '70.9'
-    hashkey = 'a10'
-    performance[hashkey] = Hash.new()
-    performance[hashkey]['id'] = 'a10'
-    performance[hashkey]['crit1'] = 'c1'
-    performance[hashkey]['val1'] = '405000.0'
-    performance[hashkey]['crit2'] = 'c2'
-    performance[hashkey]['val2'] = '265.0'
-    performance[hashkey]['crit3'] = 'c3'
-    performance[hashkey]['val3'] = '10.3'
-    performance[hashkey]['crit4'] = 'c4'
-    performance[hashkey]['val4'] = '265.0'
-    performance[hashkey]['crit5'] = 'c5'
-    performance[hashkey]['val5'] = '6.0'
-    performance[hashkey]['crit6'] = 'c6'
-    performance[hashkey]['val6'] = '74.7'
-    performance[hashkey]['crit7'] = 'c7'
-    performance[hashkey]['val7'] = '72.0'
+    Project.find(@project).employees.each_with_index do |employee, index|
+      hashkey = 'a' + (index+1).to_s
+      performance[hashkey] = Hash.new()
+      performance[hashkey]['id'] = 'a' + (index+1).to_s
+      Project.find(@project).criterions.each_with_index do |criterion, index|
+        cstring = 'crit' + (index+1).to_s
+        vstring = 'val' + (index+1).to_s
+        vvalue = 0
+        performance[hashkey][cstring] = 'c' + (index+1).to_s
+        puts criterion.id
+        puts employee.id
+        puts Criterionvalue.where(:criterion_id => criterion.id, :employee_id => employee.id)[0].criterion.name
+        puts Criterionvalue.where(:criterion_id => criterion.id, :employee_id => employee.id)[0].value.to_s
+        performance[hashkey][vstring] = Criterionvalue.where(:criterion_id => criterion.id, :employee_id => employee.id)[0].value.to_s
+      end
+    end
 
 
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
@@ -624,48 +409,16 @@ class Soapcreator
           performance.each_with_index do |perf, index|
             xml.alternativePerformances {
               xml.alternativeID "#{perf[1]['id']}"
+              Project.find(@project).criterions.each_with_index do |criterion, index|
+                critstring = 'crit' + (index+1).to_s
+                valstring = 'val' + (index+1).to_s
               xml.performance {
-                xml.criterionID "#{perf[1]['crit1']}"
+                xml.criterionID "#{perf[1][critstring]}"
                 xml.value {
-                  xml.real "#{perf[1]['val1']}"
+                  xml.real "#{perf[1][valstring]}"
                 }
               }
-              xml.performance {
-                xml.criterionID "#{perf[1]['crit2']}"
-                xml.value {
-                  xml.real "#{perf[1]['val2']}"
-                }
-              }
-              xml.performance {
-                xml.criterionID "#{perf[1]['crit3']}"
-                xml.value {
-                  xml.real "#{perf[1]['val3']}"
-                }
-              }
-              xml.performance {
-                xml.criterionID "#{perf[1]['crit4']}"
-                xml.value {
-                  xml.real "#{perf[1]['val4']}"
-                }
-              }
-              xml.performance {
-                xml.criterionID "#{perf[1]['crit5']}"
-                xml.value {
-                  xml.real "#{perf[1]['val5']}"
-                }
-              }
-              xml.performance {
-                xml.criterionID "#{perf[1]['crit6']}"
-                xml.value {
-                  xml.real "#{perf[1]['val6']}"
-                }
-              }
-              xml.performance {
-                xml.criterionID "#{perf[1]['crit7']}"
-                xml.value {
-                  xml.real "#{perf[1]['val7']}"
-                }
-              }
+              end
             }
           end
         }
@@ -750,34 +503,12 @@ class Soapcreator
 
   def buildWeightsXML
     weights = Hash.new()
-    hashkey = 'c1'
-    weights[hashkey] = Hash.new()
-    weights[hashkey]['id'] = 'c1'
-    weights[hashkey]['weight'] = '0.3'
-    hashkey = 'c2'
-    weights[hashkey] = Hash.new()
-    weights[hashkey]['id'] = 'c2'
-    weights[hashkey]['weight'] = '0.1'
-    hashkey = 'c3'
-    weights[hashkey] = Hash.new()
-    weights[hashkey]['id'] = 'c3'
-    weights[hashkey]['weight'] = '0.3'
-    hashkey = 'c4'
-    weights[hashkey] = Hash.new()
-    weights[hashkey]['id'] = 'c4'
-    weights[hashkey]['weight'] = '0.2'
-    hashkey = 'c5'
-    weights[hashkey] = Hash.new()
-    weights[hashkey]['id'] = 'c5'
-    weights[hashkey]['weight'] = '0.1'
-    hashkey = 'c6'
-    weights[hashkey] = Hash.new()
-    weights[hashkey]['id'] = 'c6'
-    weights[hashkey]['weight'] = '0.2'
-    hashkey = 'c7'
-    weights[hashkey] = Hash.new()
-    weights[hashkey]['id'] = 'c7'
-    weights[hashkey]['weight'] = '0.1'
+    Project.find(@project).criterionparams.each_with_index do |criterionparam, index|
+      hashkey = 'c' + (index+1).to_s
+      weights[hashkey] = Hash.new()
+      weights[hashkey]['id'] = 'c' + (index + 1).to_s
+      weights[hashkey]['weight'] = criterionparam.weight
+    end
 
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       xml['xmcda'].XMCDA("xmlns:xmcda" => "http://www.decision-deck.org/2009/XMCDA-2.1.0") {

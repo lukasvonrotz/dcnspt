@@ -1,14 +1,19 @@
 <%= form_for [project, criterionparam] do |criterionparam| %>
     <td><%= criterionparamname %></td>
     <td><%= criterionparam.text_field :weight, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter weight of this criterion' %></td>
-    <td><%= criterionparam.text_field :preferencethreshold, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter preference threshold of this criterion' %></td>
-    <td><%= criterionparam.text_field :indifferencethreshold, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter indifference threshold of this criterion' %></td>
-    <td><%= criterionparam.text_field :vetothreshold, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter veto threshold of this criterion' %></td>
+    <td><%= criterionparam.text_field :direction, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter direction of this criterion' %></td>
+    <td><%= criterionparam.collection_select :direction, ['true','false'],:id,:name, {:selected => @criterioncontext.to_s}, {class:"form-control"} %></td>
+    <td><%= criterionparam.text_field :prefthresslo, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter preference threshold slope of this criterion' %></td>
+    <td><%= criterionparam.text_field :prefthresint, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter preference threshold intersection of this criterion' %></td>
+    <td><%= criterionparam.text_field :inthresslo, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter indifference threshold slope of this criterion' %></td>
+    <td><%= criterionparam.text_field :inthresint, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter indifference threshold intersection of this criterion' %></td>
+    <td><%= criterionparam.text_field :vetothresslo, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter veto threshold slope of this criterion' %></td>
+    <td><%= criterionparam.text_field :vetothresint, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter veto threshold intersection of this criterion' %></td>
     <td><%= criterionparam.text_field :filterlow, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter minimal value for this criterion' %></td>
     <td><%= criterionparam.text_field :filterhigh, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter maximal value of this criterion' %></td>
 
     <td>
-      <a class="btn btn-info criterionparam_edit criterionparam<%=criterionparamid.to_s%>_edit"onclick="editLine(<%=criterionparamid%>);">Edit</a>
+      <a class="btn btn-info criterionparam_edit criterionparam<%=criterionparamid.to_s%>_edit"onclick="editLine(<%=criterionparamid%>);" style="margin-bottom: 5px;">Edit</a>
       <%= criterionparam.submit 'Update parameters of this line', class: "btn btn-success criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", data: { disable_with: "Processsing..." }  %>
     </td>
 <% end %>

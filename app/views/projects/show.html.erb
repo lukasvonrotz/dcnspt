@@ -28,9 +28,12 @@
     <% @project.criterionparams.each do |criterionparam| %>
         <strong><%= criterionparam.criterion.name.capitalize %></strong><br>
         Weight: <%= criterionparam.weight %></br>
-        Preference threshold: <%= criterionparam.preferencethreshold %></br>
-        Indifference threshold: <%= criterionparam.indifferencethreshold %></br>
-        Veto threshold: <%= criterionparam.vetothreshold %></br></br>
+        Preference threshold slope: <%= criterionparam.prefthresslo %></br>
+        Preference threshold intersect: <%= criterionparam.prefthresint %></br>
+        Indifference threshold slope: <%= criterionparam.inthresslo %></br>
+        Indifference threshold intersect: <%= criterionparam.inthresint %></br>
+        Veto threshold slope: <%= criterionparam.vetothresslo %></br>
+        Veto threshold intersect: <%= criterionparam.vetothresint %></br></br>
     <% end %>
   </div>
 

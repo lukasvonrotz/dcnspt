@@ -50,7 +50,9 @@ class ProjectsController < ApplicationController
         @project.criterionparams.each do |criterionparam|
           if !employee.criterionvalues.find_by(criterion_id: criterionparam.criterion.id).nil?
             criterionvalue = employee.criterionvalues.find_by(criterion_id: criterionparam.criterion.id).value.to_f
-            if (criterionparam.filterlow <= criterionvalue) && (criterionparam.filterhigh >= criterionvalue)
+            filterhigh = criterionparam.filterhigh + 0.1
+            filterlow = criterionparam.filterlow - 0.1
+            if (filterlow <= criterionvalue) && (filterhigh >= criterionvalue)
               fulfilled += 1
             end
           end
