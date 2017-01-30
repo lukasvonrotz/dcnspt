@@ -73,7 +73,7 @@ class ProjectsController < ApplicationController
         end
 
         #if all criteria are fulfilled && job profile does also match
-        if ((numberofcrits == fulfilled) && (jobprofiles.include? employee.jobprofile))
+        if ((numberofcrits == fulfilled) && (jobprofiles.include? employee.jobprofile.name))
           @project.employees << employee
         end
         fulfilled = 0

@@ -31,8 +31,12 @@
     </div>
 
     <div class="field form-group">
-      <%= employee.label :jobprofile, 'Job Profile' %>
-      <%= employee.text_field :jobprofile, :class => "form-control", placeholder: 'Enter job profile of employee' %>
+      <%= employee.label :jobprofile_id, 'Job Profile' %>
+      <% if context %>
+          <%= employee.select :jobprofile_id, options_for_select(Jobprofile.all.map{|j|[j.name, j.id]}), {}, {class:"form-control"} %>
+      <% else %>
+          <%= employee.select :jobprofile_id, options_for_select(Jobprofile.all.map{|j|[j.name, j.id]}, Jobprofile.find(jobprofile).id), {}, {class:"form-control"} %>
+      <% end %>
     </div>
 
     <div class="actions form-group">

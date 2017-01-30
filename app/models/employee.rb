@@ -4,5 +4,6 @@ class Employee < ActiveRecord::Base
   has_many :criterions, through: :criterionvalues
   has_many :workloads, dependent: :destroy
   has_many :weeks, through: :workloads
+  belongs_to :jobprofile
 
 end

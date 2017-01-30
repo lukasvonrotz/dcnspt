@@ -5,5 +5,5 @@
       <%= @employee.errors.full_messages.first %>
     </div>
 <% end %>
-<%= render 'form', :employee => @employee, :context => false  %>
+<%= render 'form', :employee => @employee, :context => false, :jobprofile => @employee.jobprofile.id  %>
 <%= link_to "Back to employee overview", employees_path %>

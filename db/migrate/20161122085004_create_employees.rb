@@ -8,7 +8,6 @@ class CreateEmployees < ActiveRecord::Migration
       t.decimal :loclon
       t.string :country
       t.decimal :costrate
-      t.string :jobprofile
 
       t.timestamps null: false
     end

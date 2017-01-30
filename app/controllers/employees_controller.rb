@@ -48,7 +48,7 @@ class EmployeesController < ApplicationController
   private
   # defines which parameters have to be provided by the form when creating a new project
   def employee_params
-    params.require(:employee).permit(:firstname, :surname, :country, :loclat, :loclon, :costrate, :jobprofile)
+    params.require(:employee).permit(:firstname, :surname, :country, :loclat, :loclon, :costrate, :jobprofile_id)
   end
 
 end
