@@ -4,7 +4,7 @@ class CreateCriterionvalues < ActiveRecord::Migration
 
       t.belongs_to :employee, index: true
       t.belongs_to :criterion, index: true
-      t.decimal :value, :precision => 10, :scale => 3git pu
+      t.decimal :value, :precision => 10, :scale => 3
 
       t.timestamps
     end
