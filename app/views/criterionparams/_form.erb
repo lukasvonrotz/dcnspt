@@ -1,8 +1,7 @@
 <%= form_for [project, criterionparam] do |criterionparam| %>
     <td><%= criterionparamname %></td>
     <td><%= criterionparam.text_field :weight, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter weight of this criterion' %></td>
-    <td><%= criterionparam.text_field :direction, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter direction of this criterion' %></td>
-    <td><%= criterionparam.collection_select :direction, ['true','false'],:id,:name, {:selected => @criterioncontext.to_s}, {class:"form-control"} %></td>
+    <td style="min-width: 100px;"><%= criterionparam.select :direction, options_for_select(['true','false'], Criterionparam.find(criterionparamid).direction), {}, {class:"form-control"} %></td>
     <td><%= criterionparam.text_field :prefthresslo, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter preference threshold slope of this criterion' %></td>
     <td><%= criterionparam.text_field :prefthresint, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter preference threshold intersection of this criterion' %></td>
     <td><%= criterionparam.text_field :inthresslo, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter indifference threshold slope of this criterion' %></td>
