@@ -19,6 +19,7 @@ class ElectreController < ApplicationController
     soapInstance = Soapcreator.new
     soapInstance.project = @project.id
     concordanceInput = soapInstance.getSoapConcordance
+    puts concordanceInput
     concordanceOutput1 = Nokogiri::XML(postXmlToWebservice(concordanceInput, "http://webservices.decision-deck.org/soap/ElectreConcordance-PUT.py"))
     concordanceOutput2 = Soapcreator.getSoapTicket(concordanceOutput1.xpath("//ticket/text()").to_s)
     concordanceOutput = Nokogiri::XML(postXmlToWebservice(concordanceOutput2, "http://webservices.decision-deck.org/soap/ElectreConcordance-PUT.py"))
@@ -34,6 +35,7 @@ class ElectreController < ApplicationController
     #  end
     #end
     input_string = xml
+    puts xml
     str1_markerstring = "<alternativesComparisons>"
     str2_markerstring = "</alternativesComparisons>"
     concordanceXML = input_string[/#{str1_markerstring}(.*?)#{str2_markerstring}/m, 1]
@@ -68,6 +70,9 @@ class ElectreController < ApplicationController
 
 
     ####buildSoapRequestCredibility#####
+    puts 'lukas'
+    puts concordanceXML
+    puts 'lukas'
     credibilityInput = soapInstance.getSoapCredibility(concordanceXML, discordanceXML)
     credibilityOutput1 = Nokogiri::XML(postXmlToWebservice(credibilityInput,"http://webservices.decision-deck.org/soap/ElectreCredibility-PUT.py"))
     credibilityOutput2 = Soapcreator.getSoapTicket(credibilityOutput1.xpath("//ticket/text()").to_s)

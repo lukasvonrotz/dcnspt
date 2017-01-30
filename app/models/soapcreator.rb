@@ -263,12 +263,18 @@ class Soapcreator
 
   def buildAlternativesXML(mode)
     alternatives = Hash.new()
+    puts 'projectid'
+    puts @project
+    puts Project.find(@project).employees
     Project.find(@project).employees.each_with_index do |employee, index|
       hashkey = 'alt' + (index+1).to_s
       alternatives[hashkey] = Hash.new()
       alternatives[hashkey]['id'] = 'a' + (index + 1).to_s
       alternatives[hashkey]['name'] = employee.firstname + ' ' + employee.surname
     end
+    puts 'alternativeshash
+'
+    puts alternatives
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       case mode
         when 0

@@ -13,6 +13,9 @@
 
 ActiveRecord::Schema.define(version: 20161223132321) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "criterioncontexts", force: :cascade do |t|
     t.string   "name"
     t.datetime "created_at", null: false
@@ -36,8 +39,8 @@ ActiveRecord::Schema.define(version: 20161223132321) do
     t.datetime "updated_at"
   end
 
-  add_index "criterionparams", ["criterion_id"], name: "index_criterionparams_on_criterion_id"
-  add_index "criterionparams", ["project_id"], name: "index_criterionparams_on_project_id"
+  add_index "criterionparams", ["criterion_id"], name: "index_criterionparams_on_criterion_id", using: :btree
+  add_index "criterionparams", ["project_id"], name: "index_criterionparams_on_project_id", using: :btree
 
   create_table "criterions", force: :cascade do |t|
     t.integer  "criterioncontext_id"
@@ -46,18 +49,18 @@ ActiveRecord::Schema.define(version: 20161223132321) do
     t.datetime "updated_at",          null: false
   end
 
-  add_index "criterions", ["criterioncontext_id"], name: "index_criterions_on_criterioncontext_id"
+  add_index "criterions", ["criterioncontext_id"], name: "index_criterions_on_criterioncontext_id", using: :btree
 
   create_table "criterionvalues", force: :cascade do |t|
     t.integer  "employee_id"
     t.integer  "criterion_id"
-    t.decimal  "value",        precision: 5, scale: 2
+    t.decimal  "value",        precision: 10, scale: 3
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "criterionvalues", ["criterion_id"], name: "index_criterionvalues_on_criterion_id"
-  add_index "criterionvalues", ["employee_id"], name: "index_criterionvalues_on_employee_id"
+  add_index "criterionvalues", ["criterion_id"], name: "index_criterionvalues_on_criterion_id", using: :btree
+  add_index "criterionvalues", ["employee_id"], name: "index_criterionvalues_on_employee_id", using: :btree
 
   create_table "employees", force: :cascade do |t|
     t.string   "firstname"
@@ -89,7 +92,7 @@ ActiveRecord::Schema.define(version: 20161223132321) do
     t.integer  "user_id"
   end
 
-  add_index "projects", ["user_id"], name: "index_projects_on_user_id"
+  add_index "projects", ["user_id"], name: "index_projects_on_user_id", using: :btree
 
   create_table "taggings", force: :cascade do |t|
     t.integer  "tag_id"
@@ -101,22 +104,22 @@ ActiveRecord::Schema.define(version: 20161223132321) do
     t.datetime "created_at"
   end
 
-  add_index "taggings", ["context"], name: "index_taggings_on_context"
-  add_index "taggings", ["tag_id", "taggable_id", "taggable_type", "context", "tagger_id", "tagger_type"], name: "taggings_idx", unique: true
-  add_index "taggings", ["tag_id"], name: "index_taggings_on_tag_id"
-  add_index "taggings", ["taggable_id", "taggable_type", "context"], name: "index_taggings_on_taggable_id_and_taggable_type_and_context"
-  add_index "taggings", ["taggable_id", "taggable_type", "tagger_id", "context"], name: "taggings_idy"
-  add_index "taggings", ["taggable_id"], name: "index_taggings_on_taggable_id"
-  add_index "taggings", ["taggable_type"], name: "index_taggings_on_taggable_type"
-  add_index "taggings", ["tagger_id", "tagger_type"], name: "index_taggings_on_tagger_id_and_tagger_type"
-  add_index "taggings", ["tagger_id"], name: "index_taggings_on_tagger_id"
+  add_index "taggings", ["context"], name: "index_taggings_on_context", using: :btree
+  add_index "taggings", ["tag_id", "taggable_id", "taggable_type", "context", "tagger_id", "tagger_type"], name: "taggings_idx", unique: true, using: :btree
+  add_index "taggings", ["tag_id"], name: "index_taggings_on_tag_id", using: :btree
+  add_index "taggings", ["taggable_id", "taggable_type", "context"], name: "index_taggings_on_taggable_id_and_taggable_type_and_context", using: :btree
+  add_index "taggings", ["taggable_id", "taggable_type", "tagger_id", "context"], name: "taggings_idy", using: :btree
+  add_index "taggings", ["taggable_id"], name: "index_taggings_on_taggable_id", using: :btree
+  add_index "taggings", ["taggable_type"], name: "index_taggings_on_taggable_type", using: :btree
+  add_index "taggings", ["tagger_id", "tagger_type"], name: "index_taggings_on_tagger_id_and_tagger_type", using: :btree
+  add_index "taggings", ["tagger_id"], name: "index_taggings_on_tagger_id", using: :btree
 
   create_table "tags", force: :cascade do |t|
     t.string  "name"
     t.integer "taggings_count", default: 0
   end
 
-  add_index "tags", ["name"], name: "index_tags_on_name", unique: true
+  add_index "tags", ["name"], name: "index_tags_on_name", unique: true, using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
@@ -133,8 +136,8 @@ ActiveRecord::Schema.define(version: 20161223132321) do
     t.datetime "updated_at",                          null: false
   end
 
-  add_index "users", ["email"], name: "index_users_on_email", unique: true
-  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
+  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
   create_table "weeks", force: :cascade do |t|
     t.integer  "workweek"
@@ -154,7 +157,8 @@ ActiveRecord::Schema.define(version: 20161223132321) do
     t.datetime "updated_at",  null: false
   end
 
-  add_index "workloads", ["employee_id"], name: "index_workloads_on_employee_id"
-  add_index "workloads", ["week_id"], name: "index_workloads_on_week_id"
+  add_index "workloads", ["employee_id"], name: "index_workloads_on_employee_id", using: :btree
+  add_index "workloads", ["week_id"], name: "index_workloads_on_week_id", using: :btree
 
+  add_foreign_key "projects", "users"
 end

@@ -14,8 +14,14 @@
         <label for="beta">Distillation Beta</label>
         <input type="text" name="beta" value="0.3" class="form-control">
       </div>
-      <input type="submit" value="Run Algorithm" onclick="$('#spinner').show();" class="btn btn-default">
-      <span id="spinner" style="display: none;"><%= image_tag('spinner.gif', width: '60') %>Looking for best candidates..</span>
+      <% if @project.employees.empty? %>
+        <div class="alert alert-danger field form-group">
+          To run the algorithm, filter the employees!
+        </div>
+      <% else %>
+        <input type="submit" value="Run Algorithm" onclick="$('#spinner').show();" class="btn btn-default">
+        <span id="spinner" style="display: none;"><%= image_tag('spinner.gif', width: '60') %>Looking for best candidates..</span>
+      <% end %>
     </form>
 
   </div>
