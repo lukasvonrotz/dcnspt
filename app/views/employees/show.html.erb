@@ -20,7 +20,11 @@
       <td><%= @employee.id %></td>
       <td><%= @employee.code %></td>
       <td><%= @employee.jobprofile.name %></td>
-      <td><%= Criterionvalue.where(employee_id: @employee.id, criterion_id: 3).first.value %></td>
+      <% if Criterionvalue.where(employee_id: @employee.id, criterion_id: 3).first.nil? %>
+        <td>No seniority</td>
+      <% else %>
+        <td><%= Criterionvalue.where(employee_id: @employee.id, criterion_id: 3).first.value %></td>
+      <% end %>
       <td><%= @employee.country %></td>
       <td><%= @employee.location %></td>
       <td><%= @employee.costrate %></td>
