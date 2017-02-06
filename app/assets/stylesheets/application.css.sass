@@ -13,6 +13,7 @@
  *= require chosen
  *= require bootstrap-tokenfield
  *= require jquery-ui
+ *= require dataTables.bootstrap.min.css
  *= require_tree .
  *= require_self
  */
@@ -20,6 +21,8 @@
 @import "bootstrap-sprockets"
 @import "bootstrap"
 
+.chip
+  border-radius: 15px !important
 *
   border-radius: 0 !important
 
@@ -147,3 +150,21 @@ ul
   -moz-border-radius: 4px
   border-radius: 4px
 
+.paginate_button a
+  color: #925FA7 !important
+
+.paginate_button.active a
+  background-color: #925FA7 !important
+  color: #FFFFFF !important
+  border-color: #DADADA !important
+
+.chip
+  display: inline-block
+  padding: 0 25px
+  margin: 3px
+  height: 30px
+  font-size: 16px
+  line-height: 30px
+  background-color: #C1C1C1
+  color: white
+  box-shadow: 2px 2px 2px grey

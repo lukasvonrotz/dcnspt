@@ -48,9 +48,11 @@
     </br>
     <a class="btn btn-default" href="/projects/<%= @project.id %>/filter">Filter employees</a></br></br>
     <% @project.employees.each do |employee| %>
-        <strong><%= employee.firstname %> <%= employee.surname %></strong></br>
+        <strong><%= link_to employee.code, employee_path(employee.id) %></strong></br>
         Distance: <%= Location.get_distance(employee.loclat,employee.loclon,@project.loclat,@project.loclon) %> km<br>
-        Margin: <%= Margin.get_margin(@project.hourlyrate,employee.costrate) %> CHF</br></br>
+        <% if employee.costrate && @project.hourlyrate %>
+          Margin: <%= Margin.get_margin(@project.hourlyrate,employee.costrate) %> CHF</br></br>
+        <% end %>
     <% end %>
   </div>
 

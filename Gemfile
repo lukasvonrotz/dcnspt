@@ -61,3 +61,4 @@ gem 'rails_12factor', group: :production
 gem 'nokogiri'
 gem 'acts-as-taggable-on'
 gem 'bootstrap_tokenfield_rails'
+gem 'will_paginate-bootstrap'

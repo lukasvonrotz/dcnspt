@@ -5,8 +5,14 @@
 <% if @criterions.nil? %>
     No criteria in database.
 <% else %>
-    <div class="table-responsive">
-      <table id="user_table" class="table table-striped table-bordered" cellspacing="0" width="100%">
+
+    <div id="loading"  style="width: 100%; text-align: center;">
+      <p><%= image_tag('spinner.gif', width: '300') %></p>
+      <p>Loading data...</p>
+    </div>
+
+    <div id="content" class="table-responsive" style="display: none;">
+      <table class="table table-striped table-bordered data_table" cellspacing="0" width="100%">
         <thead>
           <tr>
             <th>ID</th>
@@ -62,6 +68,8 @@
 </div>
 
 
+<input type="hidden" id="refresh" value="no">
+
 <script>
   $('#popup_sure_delete').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget) // Button that triggered the modal
@@ -71,5 +79,19 @@
     var modal = $(this)
     modal.find('.btn-delete').attr("href", '/criterions/' + project)
     modal.find('.btn-delete').attr("text", 'Yes')
+  });
+
+  $(document).ready(function() {
+    $("#loading").hide();
+    $("#content").show();
+    var $input = $('#refresh');
+    if ($input.val() == 'yes') {
+      location.reload(true);
+      $("#loading").show();
+      $("#content").hide();
+    }
+    else {
+      $input.val('yes');
+    }
   });
 </script>

@@ -53,7 +53,7 @@
 <input type="hidden" id="refresh" value="no">
 
 <script>
-  $(".chosen-select").chosen({allow_single_deselect: true, placeholder_text_single: "Select options", no_results_text: 'No results matched', width: '500px'});
+  $(".chosen-select").chosen({allow_single_deselect: true, placeholder_text_single: "Select options", no_results_text: 'No results matched', search_contains: true, width: '500px'});
   var $input = $('#refresh');
   if ($input.val() == 'yes') {
     location.reload(true);

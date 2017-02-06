@@ -73,6 +73,7 @@ class Soapcreator
 
     ######criteria######
     xml = buildCriteriaXML
+    puts xml
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     @criteria = xml_raw
@@ -263,18 +264,13 @@ class Soapcreator
 
   def buildAlternativesXML(mode)
     alternatives = Hash.new()
-    puts 'projectid'
-    puts @project
-    puts Project.find(@project).employees
     Project.find(@project).employees.each_with_index do |employee, index|
       hashkey = 'alt' + (index+1).to_s
       alternatives[hashkey] = Hash.new()
       alternatives[hashkey]['id'] = 'a' + (index + 1).to_s
       alternatives[hashkey]['name'] = employee.firstname + ' ' + employee.surname
     end
-    puts 'alternativeshash
-'
-    puts alternatives
+
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       case mode
         when 0
@@ -392,13 +388,12 @@ class Soapcreator
       Project.find(@project).criterions.each_with_index do |criterion, index|
         cstring = 'crit' + (index+1).to_s
         vstring = 'val' + (index+1).to_s
-        vvalue = 0
         performance[hashkey][cstring] = 'c' + (index+1).to_s
-        puts criterion.id
-        puts employee.id
-        puts Criterionvalue.where(:criterion_id => criterion.id, :employee_id => employee.id)[0].criterion.name
-        puts Criterionvalue.where(:criterion_id => criterion.id, :employee_id => employee.id)[0].value.to_s
-        performance[hashkey][vstring] = Criterionvalue.where(:criterion_id => criterion.id, :employee_id => employee.id)[0].value.to_s
+        if !Criterionvalue.where(:criterion_id => criterion.id, :employee_id => employee.id)[0].nil?
+          performance[hashkey][vstring] = Criterionvalue.where(:criterion_id => criterion.id, :employee_id => employee.id)[0].value.to_s
+        else
+          performance[hashkey][vstring] = 0
+        end
       end
     end
 

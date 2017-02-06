@@ -12,15 +12,27 @@
         <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
         <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
     <% when "costrate" %>
-        <% minimum = Employee.all.minimum("costrate") %>
-        <% maximum = Employee.all.maximum("costrate") %>
-        <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
-        <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
+        <% minimum = 0 %>
+        <% if Employee.all.maximum("costrate") %>
+            <% maximum = Employee.all.maximum("costrate") %>
+        <% else %>
+            <% maximum = 100 %>
+        <% end %>
+        <% if Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
+            <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
+        <% else %>
+            <% filterlow = 0 %>
+        <% end %>
+        <% if Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
+            <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
+        <% else %>
+            <% filterhigh = 100 %>
+        <% end %>
         <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
         <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
     <% else %>
       <% if Criterionvalue.where(criterion_id: criterion.id).first && Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first %>
-          <% minimum = Criterionvalue.where(criterion_id: criterion.id).minimum("value") %>
+          <% minimum = 0 %>
           <% maximum = Criterionvalue.where(criterion_id: criterion.id).maximum("value") %>
           <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
           <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
@@ -90,21 +102,25 @@
         <% case criterion.name.to_s %>
           <% when "location" %>
             <% minimum = 0 %>
-            <% maximum = 1000 %>
+            <% maximum = 1000000 %>
             <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
             <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
             <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
             <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
           <% when "costrate" %>
-            <% minimum = Employee.all.minimum("costrate") %>
-            <% maximum = Employee.all.maximum("costrate") %>
+            <% minimum = 0 %>
+            <% if Employee.all.maximum("costrate") %>
+              <% maximum = Employee.all.maximum("costrate") %>
+            <% else %>
+              <% maximum = 100 %>
+            <% end %>
             <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
             <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
             <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
             <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
           <% else %>
             <% if Criterionvalue.where(criterion_id: criterion.id).first && Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first %>
-              <% minimum = Criterionvalue.where(criterion_id: criterion.id).minimum("value") %>
+              <% minimum = 0 %>
               <% maximum = Criterionvalue.where(criterion_id: criterion.id).maximum("value") %>
               <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
               <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>

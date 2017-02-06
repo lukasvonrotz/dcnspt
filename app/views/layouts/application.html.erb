@@ -32,6 +32,7 @@
       </div>
     </div>
   </div>
+  <footer style="height: 100px; background-color: white; margin-top: 50px;"></footer>
 
   <script>
     $('.tokenize').tokenfield({
@@ -42,6 +43,11 @@
       },
       showAutocompleteOnFocus: false
     });
+
+    $(document).ready(function() {
+      $('.data_table').DataTable();
+    });
+
   </script>
 </body>
 </html>

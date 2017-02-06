@@ -22,16 +22,16 @@ ActiveRecord::Schema.define(version: 20170130155052) do
   create_table "criterionparams", force: :cascade do |t|
     t.integer  "project_id"
     t.integer  "criterion_id"
-    t.decimal  "weight"
-    t.boolean  "direction"
-    t.decimal  "prefthresslo"
-    t.decimal  "prefthresint"
-    t.decimal  "inthresslo"
-    t.decimal  "inthresint"
-    t.decimal  "vetothresslo"
-    t.decimal  "vetothresint"
-    t.decimal  "filterlow"
-    t.decimal  "filterhigh"
+    t.decimal  "weight",       default: 0.1
+    t.boolean  "direction",    default: true
+    t.decimal  "prefthresslo", default: 0.1
+    t.decimal  "prefthresint", default: 0.1
+    t.decimal  "inthresslo",   default: 0.1
+    t.decimal  "inthresint",   default: 0.1
+    t.decimal  "vetothresslo", default: 0.1
+    t.decimal  "vetothresint", default: 0.1
+    t.decimal  "filterlow",    default: 0.0
+    t.decimal  "filterhigh",   default: 100000.0
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -60,10 +60,13 @@ ActiveRecord::Schema.define(version: 20170130155052) do
   add_index "criterionvalues", ["employee_id"], name: "index_criterionvalues_on_employee_id"
 
   create_table "employees", force: :cascade do |t|
+    t.string   "code"
     t.string   "firstname"
     t.string   "surname"
+    t.string   "city"
     t.decimal  "loclat"
     t.decimal  "loclon"
+    t.string   "location"
     t.string   "country"
     t.decimal  "costrate"
     t.datetime "created_at",    null: false

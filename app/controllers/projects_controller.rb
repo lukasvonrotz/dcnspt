@@ -55,6 +55,11 @@ class ProjectsController < ApplicationController
             if (filterlow <= criterionvalue) && (filterhigh >= criterionvalue)
               fulfilled += 1
             end
+          else
+            filterlow = criterionparam.filterlow - 0.1
+            if filterlow <= 0
+              fulfilled +=1
+            end
           end
         end
 
@@ -63,7 +68,11 @@ class ProjectsController < ApplicationController
         costrateid = Criterion.where(name: 'costrate').first.id
         if @project.criterionparams.exists?(:criterion_id => locationid) && @project.criterionparams.exists?(:criterion_id => costrateid)
           distance = Location.get_distance(employee.loclat,employee.loclon,@project.loclat,@project.loclon)
-          costrate = employee.costrate
+          if employee.costrate
+            costrate = employee.costrate
+          else
+            costrate = 0
+          end
           if (Criterionparam.where(criterion_id: locationid).first.filterlow <= distance) && (Criterionparam.where(criterion_id: locationid).first.filterhigh >= distance)
             fulfilled += 1
           end
