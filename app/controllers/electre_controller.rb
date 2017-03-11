@@ -22,48 +22,72 @@ class ElectreController < ApplicationController
     soapInstance = Soapcreator.new
     soapInstance.project = @project.id
 
+
+    criteria = Hash.new()
+    Project.find(@project).criterionparams.each_with_index do |criterionparam, index|
+      hashkey = 'crit' + (index+1).to_s
+      criteria[hashkey] = Hash.new()
+      criteria[hashkey]['id'] = 'c' + (index + 1).to_s
+      criteria[hashkey]['name'] = criterionparam.criterion.name
+      criteria[hashkey]['direction'] = (criterionparam.direction ? 'max' : 'min')
+      criteria[hashkey]['indslo'] = criterionparam.inthresslo ? criterionparam.inthresslo.to_f : nil
+      criteria[hashkey]['indint'] = criterionparam.inthresint ? criterionparam.inthresint.to_f : nil
+      criteria[hashkey]['preslo'] = criterionparam.prefthresslo ? criterionparam.prefthresslo.to_f : nil
+      criteria[hashkey]['preint'] = criterionparam.prefthresint ? criterionparam.prefthresint.to_f : nil
+      criteria[hashkey]['vetslo'] = criterionparam.vetothresslo ? criterionparam.vetothresslo.to_f : nil
+      criteria[hashkey]['vetint'] = criterionparam.vetothresint ? criterionparam.vetothresint.to_f : nil
+    end
+
+    weights = Hash.new()
+    Project.find(@project).criterionparams.each_with_index do |criterionparam, index|
+      hashkey = 'c' + (index+1).to_s
+      weights[hashkey] = Hash.new()
+      weights[hashkey]['id'] = 'c' + (index + 1).to_s
+      weights[hashkey]['weight'] = criterionparam.weight
+    end
+
     ####buildSoapRequestConcordance#####
-    #concordanceInput = soapInstance.getSoapConcordance
-    #xml = buildSoapRequestConcordance(concordanceInput)
-    #xmlConcordance = convertXML(xml,'<alternativesComparisons>','</alternativesComparisons>')
+    concordanceInput = soapInstance.getSoapConcordance(criteria,weights)
+    xml = buildSoapRequestConcordance(concordanceInput)
+    xmlConcordance = convertXML(xml,'<alternativesComparisons>','</alternativesComparisons>')
 
     ####buildSoapRequestDiscordance#####
-    #discordanceInput = soapInstance.getSoapDiscordance
-    #xml = buildSoapRequestDiscordance(discordanceInput)
-    #xmlDiscordance = convertXML(xml,'<alternativesComparisons>','</alternativesComparisons>')
+    discordanceInput = soapInstance.getSoapDiscordance(criteria,weights)
+    xml = buildSoapRequestDiscordance(discordanceInput)
+    xmlDiscordance = convertXML(xml,'<alternativesComparisons>','</alternativesComparisons>')
 
     ####buildSoapRequestDistillations#####
-    #credibilityInput = soapInstance.getSoapCredibility(xmlConcordance, xmlDiscordance)
-    #xml = buildSoapRequestCredibility(credibilityInput)
-    #credibilityXML = convertXML(xml,'<alternativesComparisons>','</alternativesComparisons>')
+    credibilityInput = soapInstance.getSoapCredibility(xmlConcordance, xmlDiscordance)
+    xml = buildSoapRequestCredibility(credibilityInput)
+    credibilityXML = convertXML(xml,'<alternativesComparisons>','</alternativesComparisons>')
 
 
     ####buildSoapRequestDistillations#####
 
     ######downwards#######################
-    #distillationInput = soapInstance.getSoapDistillation(credibilityXML,'downwards', @alpha, @beta)
-    #xml = buildSoapRequestDistillation(distillationInput)
-    #downwardsXML = convertXML(xml,'<alternativesValues>','</alternativesValues>')
+    distillationInput = soapInstance.getSoapDistillation(credibilityXML,'downwards', @alpha, @beta)
+    xml = buildSoapRequestDistillation(distillationInput)
+    downwardsXML = convertXML(xml,'<alternativesValues>','</alternativesValues>')
 
     ######upwards#######################
-    #distillationInput = soapInstance.getSoapDistillation(credibilityXML,'upwards', @alpha, @beta)
-    #xml = buildSoapRequestDistillation(distillationInput)
-    #upwardsXML = convertXML(xml,'<alternativesValues>','</alternativesValues>')
+    distillationInput = soapInstance.getSoapDistillation(credibilityXML,'upwards', @alpha, @beta)
+    xml = buildSoapRequestDistillation(distillationInput)
+    upwardsXML = convertXML(xml,'<alternativesValues>','</alternativesValues>')
 
 
     ####buildSoapRequestRanking#####
-    #rankingInput = soapInstance.getSoapRanking(downwardsXML, upwardsXML)
-    #xml = buildSoapRequestRanking(rankingInput)
-    #hashRanking = Hash.from_xml(xml.gsub("\n", ""))
-    #hashRanking['Envelope']['Body']['requestSolutionResponse']['rank']['XMCDA']['alternativesValues'].each do |key, pair|
-    #  pair.each do |alternative|
-    #    key = alternative['alternativeID']
-    #    rank = alternative['value']['integer']
-    #    @alternatives[key]['rank'] = rank
-    #  end
-    #end
+    rankingInput = soapInstance.getSoapRanking(downwardsXML, upwardsXML)
+    xml = buildSoapRequestRanking(rankingInput)
+    hashRanking = Hash.from_xml(xml.gsub("\n", ""))
+    hashRanking['Envelope']['Body']['requestSolutionResponse']['rank']['XMCDA']['alternativesValues'].each do |key, pair|
+      pair.each do |alternative|
+        key = alternative['alternativeID']
+        rank = alternative['value']['integer']
+        @alternatives[key]['rank'] = rank
+      end
+    end
 
-    #@alternatives = @alternatives.sort_by{|x,y| y['rank']}.to_h
+    @alternatives = @alternatives.sort_by{|x,y| y['rank']}.to_h
 
   end
 
@@ -72,7 +96,13 @@ class ElectreController < ApplicationController
     @project = Project.find(params[:project_id])
     @alpha = params[:alpha]
     @beta = params[:beta]
+    @iteration = params['iteration'].to_i
+    @textfield
 
+    soapInstance = Soapcreator.new
+    soapInstance.project = @project.id
+
+    ###build alternatives hash###
     @alternatives = Hash.new()
     @project.employees.each_with_index do |employee, index|
       hashkey = 'a' + (index+1).to_s
@@ -81,19 +111,45 @@ class ElectreController < ApplicationController
       @alternatives[hashkey]['rank'] = 0
     end
 
-    soapInstance = Soapcreator.new
-    soapInstance.project = @project.id
+    ###build criteria hash###
+    criteria = Hash.new()
+    Project.find(@project).criterionparams.each_with_index do |criterionparam, index|
+      hashkey = 'crit' + (index+1).to_s
+      criteria[hashkey] = Hash.new()
+      criteria[hashkey]['id'] = 'c' + (index + 1).to_s
+      criteria[hashkey]['name'] = criterionparam.criterion.name
+      criteria[hashkey]['direction'] = (criterionparam.direction ? 'max' : 'min')
 
-    puts params['iteration']
-    puts params['inthresslo10']
+      criteria[hashkey]['indslo'] = params['inthresslo' + criterionparam.criterion.id.to_s][@iteration].to_f ?
+          params['inthresslo' + criterionparam.criterion.id.to_s][@iteration].to_f : nil
+      criteria[hashkey]['indint'] = params['inthresint' + criterionparam.criterion.id.to_s][@iteration].to_f ?
+          params['inthresint' + criterionparam.criterion.id.to_s][@iteration].to_f : nil
+      criteria[hashkey]['preslo'] = params['prefthresslo' + criterionparam.criterion.id.to_s][@iteration].to_f ?
+          params['prefthresslo' + criterionparam.criterion.id.to_s][@iteration].to_f : nil
+      criteria[hashkey]['preint'] = params['prefthresint' + criterionparam.criterion.id.to_s][@iteration].to_f ?
+          params['prefthresint' + criterionparam.criterion.id.to_s][@iteration].to_f : nil
+      criteria[hashkey]['vetslo'] = params['vetothresslo' + criterionparam.criterion.id.to_s][@iteration].to_f ?
+          params['vetothresslo' + criterionparam.criterion.id.to_s][@iteration].to_f : nil
+      criteria[hashkey]['vetint'] = params['vetothresint' + criterionparam.criterion.id.to_s][@iteration].to_f ?
+          params['vetothresint' + criterionparam.criterion.id.to_s][@iteration].to_f : nil
+    end
+
+    ###build weight hash###
+    weights = Hash.new()
+    Project.find(@project).criterionparams.each_with_index do |criterionparam, index|
+      hashkey = 'c' + (index+1).to_s
+      weights[hashkey] = Hash.new()
+      weights[hashkey]['id'] = 'c' + (index + 1).to_s
+      weights[hashkey]['weight'] = params['weight' + criterionparam.criterion.id.to_s][@iteration].to_f
+    end
 
     ###buildSoapRequestConcordance#####
-    concordanceInput = soapInstance.getSoapConcordance
+    concordanceInput = soapInstance.getSoapConcordance(criteria,weights)
     xml = buildSoapRequestConcordance(concordanceInput)
     xmlConcordance = convertXML(xml,'<alternativesComparisons>','</alternativesComparisons>')
 
     ###buildSoapRequestDiscordance#####
-    discordanceInput = soapInstance.getSoapDiscordance
+    discordanceInput = soapInstance.getSoapDiscordance(criteria,weights)
     xml = buildSoapRequestDiscordance(discordanceInput)
     xmlDiscordance = convertXML(xml,'<alternativesComparisons>','</alternativesComparisons>')
 

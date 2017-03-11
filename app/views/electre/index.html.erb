@@ -26,6 +26,9 @@
     <h3>Sensitivity Analysis</h3>
     <% @project.criterionparams.each do |criterionparam| %>
       <strong><%= criterionparam.criterion.name.capitalize %></strong></br></br>
+      <label for="weight<%=criterionparam.criterion.id%>">Weight</label>
+      <input class="tagsinput" id="weight<%=criterionparam.criterion.id%>" type="text" value="
+      <%=criterionparam.weight%>,<%=criterionparam.weight%>" data-role="tagsinput"></br></br>
       <label for="inthresslo<%=criterionparam.criterion.id%>">Indifference threshold slope</label>
       <input class="tagsinput" id="inthresslo<%=criterionparam.criterion.id%>" type="text" value="
       <%=criterionparam.inthresslo ? criterionparam.inthresslo : 'none'%>,<%=criterionparam.inthresslo ? criterionparam.inthresslo : 'none'%>" data-role="tagsinput"></br></br>
@@ -120,6 +123,9 @@
     
     $("#sensitivityresults").html('');
     <% @project.criterionparams.each do |criterionparam| %>
+      if (!(numberOfParams == $("#weight<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length)) {
+        numberIsEqual = false;
+      }
       if (!(numberOfParams == $("#inthresslo<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length)) {
         numberIsEqual = false;
       }
@@ -138,6 +144,8 @@
       if (!(numberOfParams == $("#vetothresint<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length)) {
         numberIsEqual = false;
       }
+      inputdata["weight<%=criterionparam.criterion.id%>"] = ($("#weight<%=criterionparam.criterion.id%>"))
+          .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
       inputdata["inthresslo<%=criterionparam.criterion.id%>"] = ($("#inthresslo<%=criterionparam.criterion.id%>"))
           .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
       inputdata["inthresint<%=criterionparam.criterion.id%>"] = ($("#inthresint<%=criterionparam.criterion.id%>"))
@@ -208,7 +216,6 @@
                 outputdata['iteration'+JSON.parse(result)['iteration']] = (JSON.parse(result));
                 if (progress==100){
                   $(".spinner").fadeOut('slow');
-                  console.log(outputdata);
                   Object.keys(outputdata).forEach(function (key1) {
                     iteration = outputdata[key1];
                     Object.keys(iteration).forEach(function (key2) {

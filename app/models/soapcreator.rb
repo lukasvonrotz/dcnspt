@@ -1,6 +1,7 @@
 class Soapcreator
 
-  attr_accessor :project, :alternatives, :criteria, :performance, :method_parameters, :weights, :concordance, :discordance, :credibility, :downwards, :upwards
+  attr_accessor :project, :alternatives, :criteria, :performance, :method_parameters, :weights,
+                :concordance, :discordance, :credibility, :downwards, :upwards
 
   @@soapheader =
       '<?xml version="1.0" encoding="UTF-8"?>
@@ -61,7 +62,7 @@ class Soapcreator
 
 
 
-  def getSoapConcordance
+  def getSoapConcordance(criteria,weights)
 
     ####buildSOAPMsg####
 
@@ -72,7 +73,7 @@ class Soapcreator
     @alternatives = xml_raw
 
     ######criteria######
-    xml = buildCriteriaXML
+    xml = buildCriteriaXML(criteria)
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     @criteria = xml_raw
@@ -91,7 +92,7 @@ class Soapcreator
 
 
     ##########weights###########
-    xml = buildWeightsXML
+    xml = buildWeightsXML(weights)
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     @weights = xml_raw
@@ -107,7 +108,7 @@ class Soapcreator
         @@soapfooter.to_s
   end
 
-  def getSoapDiscordance
+  def getSoapDiscordance(criteria,weights)
 
     ####buildSOAPMsg####
 
@@ -118,7 +119,7 @@ class Soapcreator
     @alternatives = xml_raw
 
     ######criteria######
-    xml = buildCriteriaXML
+    xml = buildCriteriaXML(criteria)
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     @criteria = xml_raw
@@ -137,7 +138,7 @@ class Soapcreator
 
 
     ##########weights###########
-    xml = buildWeightsXML
+    xml = buildWeightsXML(weights)
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     @weights = xml_raw
@@ -302,21 +303,7 @@ class Soapcreator
     return builder.to_xml
   end
 
-  def buildCriteriaXML
-    criteria = Hash.new()
-    Project.find(@project).criterionparams.each_with_index do |criterionparam, index|
-      hashkey = 'crit' + (index+1).to_s
-      criteria[hashkey] = Hash.new()
-      criteria[hashkey]['id'] = 'c' + (index + 1).to_s
-      criteria[hashkey]['name'] = criterionparam.criterion.name
-      criteria[hashkey]['direction'] = (criterionparam.direction ? 'max' : 'min')
-      criteria[hashkey]['indslo'] = criterionparam.inthresslo ? criterionparam.inthresslo.to_f : nil
-      criteria[hashkey]['indint'] = criterionparam.inthresint ? criterionparam.inthresint.to_f : nil
-      criteria[hashkey]['preslo'] = criterionparam.prefthresslo ? criterionparam.prefthresslo.to_f : nil
-      criteria[hashkey]['preint'] = criterionparam.prefthresint ? criterionparam.prefthresint.to_f : nil
-      criteria[hashkey]['vetslo'] = criterionparam.vetothresslo ? criterionparam.vetothresslo.to_f : nil
-      criteria[hashkey]['vetint'] = criterionparam.vetothresint ? criterionparam.vetothresint.to_f : nil
-    end
+  def buildCriteriaXML(criteria)
 
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       xml['xmcda'].XMCDA("xmlns:xmcda" => "http://www.decision-deck.org/2009/XMCDA-2.1.0") {
@@ -499,15 +486,7 @@ class Soapcreator
     return builder.to_xml
   end
 
-  def buildWeightsXML
-    weights = Hash.new()
-    Project.find(@project).criterionparams.each_with_index do |criterionparam, index|
-      hashkey = 'c' + (index+1).to_s
-      weights[hashkey] = Hash.new()
-      weights[hashkey]['id'] = 'c' + (index + 1).to_s
-      weights[hashkey]['weight'] = criterionparam.weight
-    end
-
+  def buildWeightsXML(weights)
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       xml['xmcda'].XMCDA("xmlns:xmcda" => "http://www.decision-deck.org/2009/XMCDA-2.1.0") {
         xml.projectReference {
