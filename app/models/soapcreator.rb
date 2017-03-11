@@ -73,7 +73,6 @@ class Soapcreator
 
     ######criteria######
     xml = buildCriteriaXML
-    puts xml
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     @criteria = xml_raw
@@ -142,8 +141,6 @@ class Soapcreator
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     @weights = xml_raw
-
-
 
     return @@soapheader.to_s +
         @@alternativesheader.to_s + @alternatives.to_s + @@alternativesfooter.to_s +
@@ -291,7 +288,7 @@ class Soapcreator
                              "xsi:schemaLocation" => "http://www.decision-deck.org/2009/XMCDA-2.0.0 http://sma.uni.lu/d2cms/xmcda/_downloads/XMCDA-2.0.0.xsd") {
             xml.projectReference {
               xml.parent.namespace = nil
-              xml.comment_ 'All users that are considered for the electre iv algorithm'
+              xml.comment_ 'All users that are considered for the electre iii algorithm'
             }
             xml.alternatives {
               xml.parent.namespace = nil

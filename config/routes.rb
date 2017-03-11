@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   resources :criterions
 
   get 'projects/:project_id/electre' => "electre#index"
+  post 'projects/:project_id/electre-sensitivity' => "electre#sensitivity"
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'

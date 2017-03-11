@@ -18,5 +18,6 @@
 //= require jquery-ui
 //= require jquery.dataTables.min.js
 //= require dataTables.bootstrap.min.js
+//= require bootstrap-tagsinput.js
 //= require bootstrap-tokenfield
 //= require_tree .

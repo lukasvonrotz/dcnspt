@@ -14,6 +14,7 @@
         <label for="beta">Distillation Beta</label>
         <input type="text" name="beta" value="0.3" class="form-control">
       </div>
+
       <% if @project.employees.empty? %>
         <div class="alert alert-danger field form-group">
           To run the algorithm, filter the employees!
@@ -25,7 +26,6 @@
     </form>
 
   </div>
-
   <div class="col-lg-4">
     <h3>Project Parameters</h3>
     </br>
