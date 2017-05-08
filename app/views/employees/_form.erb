@@ -11,6 +11,11 @@
     </div>
 
     <div class="field form-group">
+      <%= employee.label :code, 'Code' %>
+      <%= employee.text_field :code, :class => "form-control", placeholder: 'Enter employee code' %>
+    </div>
+
+    <div class="field form-group">
       <%= employee.label :country, 'Country' %>
       <%= employee.text_field :country, :class => "form-control", placeholder: 'Enter country of employee' %>
     </div>
@@ -39,6 +44,11 @@
       <% end %>
     </div>
 
+    <div class="field form-group">
+      <%= employee.label :criterion_ids, 'Relevant criteria' %></br>
+      <%= employee.select :criterion_ids, Criterion.all.map { |c| [c.name, c.id] }, { include_blank: true }, { class: 'chosen-select', multiple: 'true' } %>
+    </div>
+
     <div class="actions form-group">
       <% if context %>
         <%= employee.submit 'Create employee', class: "btn btn-success", data: { disable_with: "Processsing..." }  %>
@@ -48,3 +58,16 @@
     </div>
 
 <% end %>
+
+<input type="hidden" id="refresh" value="no">
+
+<script>
+  $(".chosen-select").chosen({allow_single_deselect: true, placeholder_text_single: "Select options", no_results_text: 'No results matched', search_contains: true, width: '500px'});
+  var $input = $('#refresh');
+  if ($input.val() == 'yes') {
+    location.reload(true);
+  }
+  else {
+    $input.val('yes');
+  }
+</script>

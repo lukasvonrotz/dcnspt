@@ -5,5 +5,5 @@
       <%= @criterion.errors.full_messages.first %>
     </div>
 <% end %>
-<%= render 'form', :criterion => @criterion, :context => false  %>
+<%= render 'form', :criterion => @criterion, :criterioncontext => @criterion.criterioncontext, :context => false  %>
 <%= link_to "Back to criteria overview", criterions_path %>

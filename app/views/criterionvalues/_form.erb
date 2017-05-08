@@ -1,8 +1,9 @@
 <%= form_for [employee, criterionvalue] do |criterionvalue| %>
     <td><%= criterionvaluename %></td>
+    <td><%= criterionvaluecontext %></td>
     <td><%= criterionvalue.text_field :value, :class => "form-control criterionvalue_fld criterionvalue" + criterionvalueid.to_s + "_fld", placeholder: 'Enter value of this criterion' %></td>
     <td>
       <a class="btn btn-info criterionvalue_edit criterionvalue<%=criterionvalueid.to_s%>_edit"onclick="editLine(<%=criterionvalueid%>);">Edit</a>
-      <%= criterionvalue.submit 'Update values of this line', class: "btn btn-success criterionvalue_fld criterionvalue" + criterionvalueid.to_s + "_fld", data: { disable_with: "Processsing..." }  %>
+      <%= criterionvalue.submit 'Update value', class: "btn btn-success criterionvalue_fld criterionvalue" + criterionvalueid.to_s + "_fld", data: { disable_with: "Processsing..." }  %>
     </td>
 <% end %>

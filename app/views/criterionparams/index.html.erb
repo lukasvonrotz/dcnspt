@@ -8,33 +8,33 @@
       <table id="user_table" class="table" cellspacing="0" cellpadding="0" width="100%" style="border: none;">
         <thead>
           <tr>
-            <th>Criterion name</th>
+            <th>Name</th>
             <th>Weight</th>
             <th>Direction</th>
-            <th>Preference threshold slope</th>
-            <th>Preference threshold intersection</th>
-            <th>Indifference threshold slope</th>
-            <th>Indifference threshold intersection</th>
+            <th>Pref.-threshold slope</th>
+            <th>Pref.-threshold intersection</th>
+            <th>Indiff.-threshold slope</th>
+            <th>Indiff.-threshold intersection</th>
             <th>Veto threshold slope</th>
             <th>Veto threshold intersection</th>
-            <th>Minimal value (filter)</th>
-            <th>Maximal value (filter)</th>
+            <th>Min. filter value</th>
+            <th>Max. filter value</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tfoot>
           <tr>
-            <th>Criterion name</th>
+            <th>Name</th>
             <th>Weight</th>
             <th>Direction</th>
-            <th>Preference threshold slope</th>
-            <th>Preference threshold intersection</th>
-            <th>Indifference threshold slope</th>
-            <th>Indifference threshold intersection</th>
+            <th>Pref.-threshold slope</th>
+            <th>Pref.-threshold intersection</th>
+            <th>Indiff.-threshold slope</th>
+            <th>Indiff.-threshold intersection</th>
             <th>Veto threshold slope</th>
             <th>Veto threshold intersection</th>
-            <th>Minimal value (filter)</th>
-            <th>Maximal value (filter)</th>
+            <th>Min. filter value</th>
+            <th>Max. filter value</th>
             <th>Actions</th>
           </tr>
         </tfoot>
@@ -63,9 +63,11 @@
     <% @criterionparams.each_with_index do |criterionparam, i| %>
       <% if i != 0 %>
         $("input.criterionparam<%=criterionparam.id %>_fld").attr("disabled", true);
+        $("select.criterionparam<%=criterionparam.id %>_fld").attr("disabled", true);
       <% else %>
         $("a.criterionparam<%=criterionparam.id %>_edit").hide();
         $("input.criterionparam<%=criterionparam.id %>_fld").attr("disabled", false);
+        $("select.criterionparam<%=criterionparam.id %>_fld").attr("disabled", false);
       <% end %>
     <% end %>
 
@@ -83,9 +85,11 @@
   });
   function editLine(id) {
     $("input.criterionparam_fld").attr("disabled", true);
+    $("select.criterionparam_fld").attr("disabled", true);
     $("a.criterionparam_edit").show();
     $("a.criterionparam" + id + "_edit").hide();
     $("input.criterionparam" + id + "_fld").attr("disabled", false);
+    $("select.criterionparam" + id + "_fld").attr("disabled", false);
   }
 
 </script>

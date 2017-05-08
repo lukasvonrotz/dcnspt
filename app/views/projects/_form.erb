@@ -6,12 +6,12 @@
     </div>
 
     <div class="field form-group">
-      <%= project.label :loclat, 'Location (Latitude) of customer' %>
+      <%= project.label :loclat, 'Customer location (Latitude)' %>
       <%= project.text_field :loclat, :class => "form-control", placeholder: 'Enter coordinate (latitude) of customer' %>
     </div>
 
     <div class="field form-group">
-      <%= project.label :loclon, 'Location (Longitude) of customer' %>
+      <%= project.label :loclon, 'Customer location (Longitude)' %>
       <%= project.text_field :loclon, :class => "form-control", placeholder: 'Enter coordinate (longitude) of customer' %>
     </div>
 
@@ -31,13 +31,13 @@
     </div>
 
     <div class="field form-group">
-      <%= project.label :criterion_ids, 'Choose relevant criteria' %></br>
-      <%= project.select :criterion_ids, Criterion.all.map { |c| [c.name, c.id] }, { include_blank: true }, { class: 'chosen-select', multiple: 'true' } %>
+      <%= project.label :criterion_ids, 'Project criteria' %></br>
+      <%= project.select :criterion_ids, Criterion.all.map { |c| [c.name + ' (' + c.criterioncontext.name + ')', c.id] }, { include_blank: true }, { class: 'chosen-select', multiple: 'true' } %>
     </div>
 
     <div class="field form-group">
-      <%= project.label :employee_ids, 'Choose employees' %></br>
-      <%= project.select :employee_ids, Employee.all.map { |e| [e.firstname + ' ' + e.surname, e.id] }, { include_blank: true }, { class: 'chosen-select', multiple: 'true' } %>
+      <%= project.label :employee_ids, 'Project alternatives' %></br>
+      <%= project.select :employee_ids, Employee.all.map { |e| [e.code, e.id] }, { include_blank: true }, { class: 'chosen-select', multiple: 'true' } %>
     </div>
 
     <div class="actions form-group">

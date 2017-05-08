@@ -80,6 +80,7 @@ class Soapcreator
 
     ########performance#########
     xml = buildPerformanceXML
+    puts xml
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     @performance = xml_raw
@@ -365,18 +366,25 @@ class Soapcreator
   def buildPerformanceXML
 
     performance = Hash.new()
-    Project.find(@project).employees.each_with_index do |employee, index|
+    actualProject = Project.find(@project)
+    actualProject.employees.each_with_index do |employee, index|
       hashkey = 'a' + (index+1).to_s
       performance[hashkey] = Hash.new()
       performance[hashkey]['id'] = 'a' + (index+1).to_s
-      Project.find(@project).criterions.each_with_index do |criterion, index|
+      actualProject.criterions.each_with_index do |criterion, index|
         cstring = 'crit' + (index+1).to_s
         vstring = 'val' + (index+1).to_s
         performance[hashkey][cstring] = 'c' + (index+1).to_s
         if !Criterionvalue.where(:criterion_id => criterion.id, :employee_id => employee.id)[0].nil?
           performance[hashkey][vstring] = Criterionvalue.where(:criterion_id => criterion.id, :employee_id => employee.id)[0].value.to_s
         else
-          performance[hashkey][vstring] = 0
+          if criterion.id == 1
+            performance[hashkey][vstring] = Location.get_distance(employee.loclat,employee.loclon,actualProject.loclat,actualProject.loclon)
+          elsif criterion.id == 2
+            performance[hashkey][vstring] = Margin.get_margin(actualProject.hourlyrate,employee.costrate)
+          else
+            performance[hashkey][vstring] = 0
+          end
         end
       end
     end

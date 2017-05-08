@@ -2,36 +2,38 @@
 
 <div class="row">
 <div class="col-lg-8">
+  <%= link_to "Edit", edit_employee_path, class: "btn btn-default" %>
   <table class="table table-striped">
     <thead>
     <tr>
-      <th>ID</th>
       <th>Code</th>
+      <th>First Name</th>
+      <th>Last Name</th>
       <th>Job Profile</th>
       <th>Seniority</th>
-      <th>Country</th>
-      <th>Location</th>
       <th>Costrate</th>
-      <th>City</th>
+      <th>Residence</th>
+      <th>Branch</th>
     </tr>
     </thead>
     <tbody>
     <tr>
-      <td><%= @employee.id %></td>
       <td><%= @employee.code %></td>
-      <td><%= @employee.jobprofile.name %></td>
+      <td><%= @employee.firstname %></td>
+      <td><%= @employee.surname %></td>
+      <td><%= @employee.jobprofile ? @employee.jobprofile.name : "No job profile" %></td>
       <% if Criterionvalue.where(employee_id: @employee.id, criterion_id: 3).first.nil? %>
         <td>No seniority</td>
       <% else %>
         <td><%= Criterionvalue.where(employee_id: @employee.id, criterion_id: 3).first.value %></td>
       <% end %>
-      <td><%= @employee.country %></td>
-      <td><%= @employee.location %></td>
       <td><%= @employee.costrate %></td>
       <td><%= @employee.city %></td>
+      <td><%= @employee.location %></td>
     </tr>
     </tbody>
   </table>
+
   </br></br>
   <p><strong>Criteria</strong></p>
   <%= link_to "Edit criteria values", employee_criterionvalues_path(@employee.id), class: "btn btn-default" %>
@@ -40,13 +42,27 @@
   <% @employee.criterionvalues.each do |criterionvalue| %>
       <% max = criterionvalue.value.to_i>max ? criterionvalue.value.to_i : max %>
   <% end %>
-  <% @employee.criterionvalues.each do |criterionvalue| %>
-      <div class="chip" style="height: <%= 30 + ((20 * criterionvalue.value) / max) %>px; line-height: <%= 30 + ((20 * criterionvalue.value) / max) %>px;">
-        <%= criterionvalue.criterion.name %>:
-        <%= criterionvalue.value %>
-      </div>
-  <% end %>
+
+  <div id="content" class="table-responsive">
+    <table class="table table-striped table-bordered data_table" cellspacing="0" width="100%">
+      <thead>
+      <tr>
+        <th>Criterion Name</th>
+        <th>Criterion Value</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% @employee.criterionvalues.each do |criterionvalue| %>
+          <tr>
+            <td><%= criterionvalue.criterion.name %></td>
+            <td><%= criterionvalue.value %></td>
+          </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
 </div>
+
 <div class="col-lg-4">
   <strong>Map</strong></br></br>
   <iframe style="width: 100%; height: 400px;" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=<%= @employee.loclat %>,<%= @employee.loclon %>&hl=es;z=14&amp;output=embed"></iframe>

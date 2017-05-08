@@ -15,7 +15,6 @@
       <table class="table table-striped table-bordered data_table" cellspacing="0" width="100%">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Name</th>
             <th>Context</th>
             <th>Actions</th>
@@ -23,7 +22,6 @@
         </thead>
         <tfoot>
           <tr>
-            <th>ID</th>
             <th>Name</th>
             <th>Context</th>
             <th>Actions</th>
@@ -32,7 +30,6 @@
         <tbody>
         <% @criterions.each do |criterion| %>
             <tr>
-              <td><%= criterion.id %></td>
               <td><%= link_to criterion.name, criterion_path(criterion.id) %></td>
               <td><%= criterion.criterioncontext.name %></td>
               <td>

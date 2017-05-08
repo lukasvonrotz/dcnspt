@@ -45,7 +45,25 @@
     });
 
     $(document).ready(function() {
-      $('.data_table').DataTable();
+      $('.data_table').DataTable({
+        "language": {
+          "decimal":        "",
+          "emptyTable":     "No records found",
+          "info":           "Show _START_ to _END_ of _TOTAL_ entries",
+          "infoEmpty":      "Show 0 to 0 of 0 entries",
+          "infoFiltered":   "(filtered of _MAX_ total entries)",
+          "lengthMenu":     "Show _MENU_ entries",
+          "loadingRecords": "Loading records",
+          "processing":     "Processing...",
+          "search":         "Search",
+          "zeroRecords":    "0 records",
+          "paginate": {
+            "first":      "First",
+            "last":       "Last",
+            "next":       "Next",
+            "previous":   "Previous"
+          }
+        }});
     });
 
   </script>

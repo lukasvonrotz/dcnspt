@@ -9,6 +9,7 @@
         <thead>
           <tr>
             <th>Criterion name</th>
+            <th>Criterion context</th>
             <th>Value</th>
             <th>Actions</th>
           </tr>
@@ -16,6 +17,7 @@
         <tfoot>
           <tr>
             <th>Criterion name</th>
+            <th>Criterion context</th>
             <th>Value</th>
             <th>Actions</th>
           </tr>
@@ -23,7 +25,9 @@
         <tbody>
           <% @criterionvalues.each do |criterionvalue| %>
             <tr>
-              <%= render 'form', :criterionvalue => criterionvalue, :employee => criterionvalue.employee, :criterionvaluename => criterionvalue.criterion.name, :criterionvalueid => criterionvalue.id %>
+              <%= render 'form', :criterionvalue => criterionvalue, :employee => criterionvalue.employee,
+                         :criterionvaluename => criterionvalue.criterion.name, :criterionvalueid => criterionvalue.id,
+                         :criterionvaluecontext => criterionvalue.criterion.criterioncontext.name%>
             </tr>
           <% end %>
         </tbody>

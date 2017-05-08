@@ -1,58 +1,85 @@
-<h1>Project Information</h1>
-</br>
-<%= link_to "Back to project overview", projects_path %>
-</br></br>
+<h1><%= @project.name %></h1>
 <div class="row">
-  <div class="col-lg-4">
-    <h3>ELECTRE Algorithm</h3>
-    <form action="/projects/<%= @project.id %>/electre">
-      <div class="field form-group">
-        <label for="alpha">Distillation Alpha</label>
-        <input type="text" name="alpha" value="-0.15" class="form-control">
-      </div>
-      <div class="field form-group">
-        <label for="beta">Distillation Beta</label>
-        <input type="text" name="beta" value="0.3" class="form-control">
-      </div>
-
-      <% if @project.employees.empty? %>
-        <div class="alert alert-danger field form-group">
-          To run the algorithm, filter the employees!
-        </div>
-      <% else %>
-        <input type="submit" value="Run Algorithm" onclick="$('#spinner').show();" class="btn btn-default">
-        <span id="spinner" style="display: none;"><%= image_tag('spinner.gif', width: '60') %>Looking for best candidates..</span>
-      <% end %>
-    </form>
-
+  <div class="col-lg-3">
+    <h3>Project Information</h3>
+    </br>
+    <%= link_to "Edit", edit_project_path, class: "btn btn-default" %>
+    </br></br>
+    <strong>Name</strong></br><%= @project.name %>
+    </br></br>
+    <strong>Customer location (Latitude)</strong></br><%= @project.loclat %>
+    </br></br>
+    <strong>Customer location (Longitude)</strong></br><%= @project.loclon %>
+    <iframe style="width: 100%; height: 400px; margin-top: 10px;" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=<%= @project.loclat %>,<%= @project.loclon %>&hl=es;z=14&amp;output=embed"></iframe>
+    </br></br>
+    <strong>Start date</strong></br><%= @project.startdate.nil? ? 'unknown' : @project.startdate.strftime("%Y/%m/%d") %>
+    </br></br>
+    <strong>End date</strong></br><%= @project.enddate.nil? ? 'unknown' : @project.enddate.strftime("%Y/%m/%d") %>
+    </br></br>
+    <strong>Estimated Effort</strong></br><%= @project.effort %> hours
+    </br></br>
   </div>
-  <div class="col-lg-4">
+  <div class="col-lg-3">
     <h3>Project Parameters</h3>
     </br>
     <%= link_to "Edit project parameters", project_criterionparams_path(@project.id), class: "btn btn-default" %>
     </br></br>
     <% @project.criterionparams.each do |criterionparam| %>
-        <strong><%= criterionparam.criterion.name.capitalize %></strong><br>
+        <strong><%= criterionparam.criterion ? criterionparam.criterion.name.capitalize : "None" %></strong><br>
         Weight: <%= criterionparam.weight %></br>
-        Preference threshold slope: <%= criterionparam.prefthresslo %></br>
-        Preference threshold intersect: <%= criterionparam.prefthresint %></br>
+        Direction: <%= criterionparam.direction ? 'maximizing' : 'minimizing' %></br>
         Indifference threshold slope: <%= criterionparam.inthresslo %></br>
         Indifference threshold intersect: <%= criterionparam.inthresint %></br>
+        Preference threshold slope: <%= criterionparam.prefthresslo %></br>
+        Preference threshold intersect: <%= criterionparam.prefthresint %></br>
         Veto threshold slope: <%= criterionparam.vetothresslo %></br>
         Veto threshold intersect: <%= criterionparam.vetothresint %></br></br>
     <% end %>
   </div>
 
-  <div class="col-lg-4">
-    <h3>Alternatives</h3>
+  <div class="col-lg-3">
+    <h3>Project Alternatives</h3>
     </br>
     <a class="btn btn-default" href="/projects/<%= @project.id %>/filter">Filter employees</a></br></br>
     <% @project.employees.each do |employee| %>
         <strong><%= link_to employee.code, employee_path(employee.id) %></strong></br>
-        Distance: <%= Location.get_distance(employee.loclat,employee.loclon,@project.loclat,@project.loclon) %> km<br>
-        <% if employee.costrate && @project.hourlyrate %>
-          Margin: <%= Margin.get_margin(@project.hourlyrate,employee.costrate) %> CHF</br></br>
+        <% @project.criterionparams.each do |criterionparam| %>
+          <% critvalue = Criterionvalue.where(:employee_id => employee.id, :criterion_id => criterionparam.criterion.id).first %>
+          <% if criterionparam.criterion.name == 'location' %>
+                <%= criterionparam.criterion.name %>:
+                <%= number_with_precision(Location.get_distance(employee.loclat,employee.loclon,@project.loclat,@project.loclon), :precision => 1) %> km<br>
+          <% elsif criterionparam.criterion.name == 'costrate' %>
+            Costrate: <%= employee.costrate %><br>
+            Margin: <%= Margin.get_margin(@project.hourlyrate,employee.costrate) %> CHF<br>
+          <% else %>
+            <%= criterionparam.criterion.name %>: <%= critvalue ? critvalue.value : "" %><br>
+          <% end %>
         <% end %>
+        </br></br>
+    <% end %>
+  </div>
+
+  <div class="col-lg-3">
+    <h3>ELECTRE Algorithm</h3>
+    </br>
+    <% if @project.employees.empty? %>
+        <div class="alert alert-danger field form-group" style="width: 100%;">
+          To run the algorithm, filter the employees!
+        </div>
+    <% else %>
+      <form action="/projects/<%= @project.id %>/electre">
+        <input type="submit" value="Run Algorithm" onclick="$('#spinner').show();" class="btn btn-default">
+        <span id="spinner" style="display: none;"><%= image_tag('spinner.gif', width: '60') %>Looking for best candidates..</span>
+        </br></br>
+        <div class="field form-group" style="width: 100%;">
+          <label for="alpha">Distillation Alpha</label>
+          <input type="text" name="alpha" value="-0.15" class="form-control" style="width: 220px;">
+        </div>
+        <div class="field form-group" style="width: 100%;">
+          <label for="beta">Distillation Beta</label>
+          <input type="text" name="beta" value="0.3" class="form-control" style="width: 220px;">
+        </div>
+      </form>
     <% end %>
   </div>
 
