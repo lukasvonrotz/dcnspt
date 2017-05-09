@@ -97,7 +97,6 @@ class ElectreController < ApplicationController
     @alpha = params[:alpha]
     @beta = params[:beta]
     @iteration = params['iteration'].to_i
-    @textfield
 
     soapInstance = Soapcreator.new
     soapInstance.project = @project.id

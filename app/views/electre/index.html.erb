@@ -10,7 +10,7 @@
         <th>Alternative ID</th>
         <th>Code</th>
         <% @project.criterionparams.each do |criterionparam| %>
-            <th><%= criterionparam.criterion.name %>-value</th>
+            <th><%= criterionparam.criterion.name %>-value (<%= criterionparam.weight %>)</th>
         <% end %>
       </tr>
       </thead>
@@ -53,29 +53,30 @@
           <strong><%= criterionparam.criterion.name.capitalize %> (<%= criterionparam.criterion.criterioncontext.name %>)</strong></br></br>
           <label for="weight<%=criterionparam.criterion.id%>">Weight</label>
           <input class="tagsinput" id="weight<%=criterionparam.criterion.id%>" type="text" value="
-          <%=criterionparam.weight%>,<%=criterionparam.weight%>" data-role="tagsinput"></br></br>
+          <%=criterionparam.weight%>" data-role="tagsinput"></br></br>
           <label for="inthresslo<%=criterionparam.criterion.id%>">Indifference threshold slope</label>
           <input class="tagsinput" id="inthresslo<%=criterionparam.criterion.id%>" type="text" value="
-          <%=criterionparam.inthresslo ? criterionparam.inthresslo : 'none'%>,<%=criterionparam.inthresslo ? criterionparam.inthresslo : 'none'%>" data-role="tagsinput"></br></br>
-          <label for="inthressint<%=criterionparam.criterion.id%>">Indifference threshold intersect</label>
+          <%=criterionparam.inthresslo ? criterionparam.inthresslo : 'none'%>" data-role="tagsinput"></br></br>
+          <label for="inthresint<%=criterionparam.criterion.id%>">Indifference threshold intersect</label>
           <input class="tagsinput" id="inthresint<%=criterionparam.criterion.id%>" type="text" value="
-          <%=criterionparam.inthresint ? criterionparam.inthresint : 'none'%>,<%=criterionparam.inthresint ? criterionparam.inthresint : 'none'%>" data-role="tagsinput"></br></br>
+          <%=criterionparam.inthresint ? criterionparam.inthresint : 'none'%>" data-role="tagsinput"></br></br>
           <label for="prefthresslo<%=criterionparam.criterion.id%>">Preference threshold slope</label>
           <input class="tagsinput" id="prefthresslo<%=criterionparam.criterion.id%>" type="text" value="
-          <%=criterionparam.prefthresslo ? criterionparam.prefthresslo : 'none'%>, <%=criterionparam.prefthresslo ? criterionparam.prefthresslo : 'none'%>" data-role="tagsinput"></br></br>
-          <label for="prefthressint<%=criterionparam.criterion.id%>">Preference threshold intersect</label>
+          <%=criterionparam.prefthresslo ? criterionparam.prefthresslo : 'none'%>" data-role="tagsinput"></br></br>
+          <label for="prefthresint<%=criterionparam.criterion.id%>">Preference threshold intersect</label>
           <input class="tagsinput" id="prefthresint<%=criterionparam.criterion.id%>" type="text" value="
-          <%=criterionparam.prefthresint ? criterionparam.prefthresint : 'none'%>,<%=criterionparam.prefthresint ? criterionparam.prefthresint : 'none'%>" data-role="tagsinput"></br></br>
+          <%=criterionparam.prefthresint ? criterionparam.prefthresint : 'none'%>" data-role="tagsinput"></br></br>
           <label for="vetothresslo<%=criterionparam.criterion.id%>">Veto threshold slope</label>
           <input class="tagsinput" id="vetothresslo<%=criterionparam.criterion.id%>" type="text" value="
-          <%=criterionparam.vetothresslo ? criterionparam.vetothresslo : 'none'%>,<%=criterionparam.vetothresslo ? criterionparam.vetothresslo : 'none'%>" data-role="tagsinput"></br></br>
-          <label for="vetothressint<%=criterionparam.criterion.id%>">Veto threshold intersect</label>
+          <%=criterionparam.vetothresslo ? criterionparam.vetothresslo : 'none'%>" data-role="tagsinput"></br></br>
+          <label for="vetothresint<%=criterionparam.criterion.id%>">Veto threshold intersect</label>
           <input class="tagsinput" id="vetothresint<%=criterionparam.criterion.id%>" type="text" value="
-        <%=criterionparam.vetothresint ? criterionparam.vetothresint : 'none'%>,<%=criterionparam.vetothresint ? criterionparam.vetothresint : 'none'%>" data-role="tagsinput"></br></br></br></br>
+        <%=criterionparam.vetothresint ? criterionparam.vetothresint : 'none'%>" data-role="tagsinput"></br></br></br></br>
       </div>
     <% end %>
     <div class="col-lg-12" style="margin: 0; padding: 0;">
-      <button class="btn btn-default">Run Analysis</button>
+      <a id="btn_duplicate_values" href="#">Duplicate Values</a></br></br>
+      <button id="btn_run_analysis" class="btn btn-default">Run Analysis</button>
       <span class="spinner" style="display: none;"><%= image_tag('spinner.gif', width: '60') %>Running Sensitivity Analysis..</span>
     </div>
 
@@ -85,12 +86,30 @@
 
 
 <script>
+  $("#btn_duplicate_values").click(function(){
+    <% @project.criterionparams.each do |criterionparam| %>
+      var first_value = $("#weight<%=criterionparam.criterion.id%>").tagsinput('items');
+      $("#weight<%=criterionparam.criterion.id%>").tagsinput('add', first_value[0]);
+      first_value= $("#inthresslo<%=criterionparam.criterion.id%>").tagsinput('items');
+      $("#inthresslo<%=criterionparam.criterion.id%>").tagsinput('add', first_value[0]);
+      first_value = $("#inthresint<%=criterionparam.criterion.id%>").tagsinput('items');
+      $("#inthresint<%=criterionparam.criterion.id%>").tagsinput('add', first_value[0]);
+      first_value = $("#prefthresslo<%=criterionparam.criterion.id%>").tagsinput('items');
+      $("#prefthresslo<%=criterionparam.criterion.id%>").tagsinput('add', first_value[0]);
+      first_value = $("#prefthresint<%=criterionparam.criterion.id%>").tagsinput('items');
+      $("#prefthresint<%=criterionparam.criterion.id%>").tagsinput('add', first_value[0]);
+      first_value = $("#vetothresslo<%=criterionparam.criterion.id%>").tagsinput('items');
+      $("#vetothresslo<%=criterionparam.criterion.id%>").tagsinput('add', first_value[0]);
+      first_value = $("#vetothresint<%=criterionparam.criterion.id%>").tagsinput('items');
+      $("#vetothresint<%=criterionparam.criterion.id%>").tagsinput('add', first_value[0]);
+    <% end %>
+  });
   $('.tagsinput').tagsinput({
     allowDuplicates: true
   });
 
   $(".notEqual").hide();
-  $("button").click(function(){
+  $("#btn_run_analysis").click(function(){
     $('.progress-bar').width("10%");
     $('.progress-bar').html("10%");
     //check whether number of params is equal in every input field (compared to first one)
@@ -163,7 +182,7 @@
         $.ajax(
             {
               type: "POST",
-              url: '/projects/1/electre-sensitivity',
+              url: '/projects/<%= @project.id %>/electre-sensitivity',
               data: inputdata,
               dataType: "html",
               success: function(result) {
