@@ -38,11 +38,12 @@
   </div>
 
   <div class="col-lg-3">
-    <h3>Project Alternatives</h3>
+    <h3>Project Alternatives (<%= @project.employees.length %>)</h3>
     </br>
     <a class="btn btn-default" href="/projects/<%= @project.id %>/filter">Filter employees</a></br></br>
     <% @project.employees.each do |employee| %>
         <strong><%= link_to employee.code, employee_path(employee.id) %></strong></br>
+        Location: <%= employee.location %><br>
         <% @project.criterionparams.each do |criterionparam| %>
           <% critvalue = Criterionvalue.where(:employee_id => employee.id, :criterion_id => criterionparam.criterion.id).first %>
           <% if criterionparam.criterion.name == 'location' %>

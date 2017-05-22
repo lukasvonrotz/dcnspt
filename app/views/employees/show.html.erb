@@ -53,10 +53,12 @@
       </thead>
       <tbody>
       <% @employee.criterionvalues.each do |criterionvalue| %>
+          <% if criterionvalue.criterion %>
           <tr>
             <td><%= criterionvalue.criterion.name %></td>
             <td><%= criterionvalue.value %></td>
           </tr>
+          <% end %>
       <% end %>
       </tbody>
     </table>

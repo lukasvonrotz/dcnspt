@@ -73,6 +73,14 @@
           <%= project.label :jobprofile_list, 'Choose relevant job profiles' %></br>
           <%= project.text_field :jobprofile_list, class: 'tokenize' %></br>
         </div>
+        <div class="field form-group" style="width: 100%;">
+          <label for="branch[]">Branch Location</label>
+          <select name="branch[]" class="form-control" multiple="multiple">
+            <option value="Schlieren">Schlieren</option>
+            <option value="Bern">Bern</option>
+            <option value="Belgrad">Belgrad</option>
+          </select>
+        </div>
 
         <div class="field form-group">
           <%= project.hidden_field :name, :class => "form-control", placeholder: 'Enter name of the project' %>

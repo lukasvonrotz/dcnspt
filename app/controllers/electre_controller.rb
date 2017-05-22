@@ -87,7 +87,7 @@ class ElectreController < ApplicationController
       end
     end
 
-    @alternatives = @alternatives.sort_by{|x,y| y['rank']}.to_h
+    @alternatives = @alternatives.sort_by{|x,y| y['rank'].to_i}.to_h
 
   end
 

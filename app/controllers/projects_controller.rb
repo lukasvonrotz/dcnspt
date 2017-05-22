@@ -33,6 +33,7 @@ class ProjectsController < ApplicationController
     if !params[:numberofcrits].nil?
       jobprofiles = project_params[:jobprofile_list].split(', ')
       numberofcrits = params[:numberofcrits].to_i
+      branch = params[:branch]
 
       index = 1
       while index <= numberofcrits
@@ -114,8 +115,16 @@ class ProjectsController < ApplicationController
         puts numberofcrits
         puts fulfilled
 
-        if ((numberofcrits == fulfilled) && (jobprofiles.include? employee.jobprofile.name))
-          @project.employees << employee
+        if (employee.jobprofile && (numberofcrits == fulfilled) && (jobprofiles.include? employee.jobprofile.name))
+          if !branch
+            puts 'empty'
+            @project.employees << employee
+          else
+            puts 'notempty'
+            if employee.location && branch.to_s.include?(employee.location.to_s)
+              @project.employees << employee
+            end
+          end
         end
         fulfilled = 0
       end
