@@ -183,7 +183,7 @@ class ElectreController < ApplicationController
       end
     end
 
-    @alternatives = @alternatives.sort_by{|x,y| y['rank']}.to_h
+    @alternatives = @alternatives.sort_by{|x,y| y['rank'].to_i}.to_h
     @alternatives['iteration'] = params['iteration']
 
     respond_to do |format|
@@ -194,6 +194,43 @@ class ElectreController < ApplicationController
   end
 
 
+  def saveSensitivityParams
+    Sensitivity.where(:project_id => params[:project_id]).destroy_all
+    @project = Project.find(params[:project_id])
+    @project.criterionparams.each do |criterionparam|
+      weight = 'hidden_weight' + criterionparam.criterion.id.to_s
+      indslo = 'hidden_inthresslo' + criterionparam.criterion.id.to_s
+      indint = 'hidden_inthresint' + criterionparam.criterion.id.to_s
+      prefslo = 'hidden_prefthresslo' + criterionparam.criterion.id.to_s
+      prefint = 'hidden_prefthresint' + criterionparam.criterion.id.to_s
+      vetoslo = 'hidden_vetothresslo' + criterionparam.criterion.id.to_s
+      vetoint = 'hidden_vetothresint' + criterionparam.criterion.id.to_s
+      weight_array = params[weight].split(",").map(&:strip);
+      indslo_array = params[indslo].split(",").map(&:strip);
+      indint_array = params[indint].split(",").map(&:strip);
+      prefslo_array = params[prefslo].split(",").map(&:strip);
+      prefint_array = params[prefint].split(",").map(&:strip);
+      vetslo_array = params[vetoslo].split(",").map(&:strip);
+      vetint_array = params[vetoint].split(",").map(&:strip);
+      i = 0
+      while i < weight_array.length do
+        @sensitivity = Sensitivity.new(:project_id => params[:project_id],
+                                       :criterion_id => criterionparam.criterion.id,
+                                       :weight => weight_array[i] == 'none' ? nil : weight_array[i],
+                                       :indslo => indslo_array[i] == 'none' ? nil : indslo_array[i],
+                                       :indint => indint_array[i] == 'none' ? nil : indint_array[i],
+                                       :prefslo => prefslo_array[i] == 'none' ? nil : prefslo_array[i],
+                                       :prefint => prefint_array[i] == 'none' ? nil : prefint_array[i],
+                                       :vetslo => vetslo_array[i] == 'none' ? nil : vetslo_array[i],
+                                       :vetint => vetint_array[i] == 'none' ? nil : vetint_array[i]
+        )
+        @sensitivity.save
+        i+=1
+      end
+
+    end
+    redirect_to projects_path + '/' + params[:project_id].to_s + '/electre?alpha=-0.15&beta=0.3'
+  end
 
 
   private

@@ -80,7 +80,6 @@ class Soapcreator
 
     ########performance#########
     xml = buildPerformanceXML
-    puts xml
     xml = xml.gsub! '<', '&lt;'
     xml_raw = xml.gsub! '>', '&gt;'
     @performance = xml_raw

@@ -20,6 +20,8 @@ Rails.application.routes.draw do
 
   get 'projects/:project_id/electre' => "electre#index"
   post 'projects/:project_id/electre-sensitivity' => "electre#sensitivity"
+  get 'projects/:project_id/save-sensitivity-params' => "electre#saveSensitivityParams"
+
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'

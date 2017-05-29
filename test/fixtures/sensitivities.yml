@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  indslo: 1.5
+  indint: 1.5
+  prefslo: 1.5
+  prefint: 1.5
+  vetslo: 1.5
+  vetint: 1.5
+
+two:
+  indslo: 1.5
+  indint: 1.5
+  prefslo: 1.5
+  prefint: 1.5
+  vetslo: 1.5
+  vetint: 1.5

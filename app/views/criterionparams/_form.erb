@@ -2,10 +2,10 @@
     <td><%= criterionparamname %></td>
     <td><%= criterionparam.text_field :weight, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter weight of this criterion' %></td>
     <td style="min-width: 100px;"><%= criterionparam.select :direction, options_for_select(['true','false'], Criterionparam.find(criterionparamid).direction), {}, {class:"form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld"} %></td>
-    <td><%= criterionparam.text_field :prefthresslo, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter preference threshold slope of this criterion' %></td>
-    <td><%= criterionparam.text_field :prefthresint, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter preference threshold intersection of this criterion' %></td>
     <td><%= criterionparam.text_field :inthresslo, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter indifference threshold slope of this criterion' %></td>
     <td><%= criterionparam.text_field :inthresint, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter indifference threshold intersection of this criterion' %></td>
+    <td><%= criterionparam.text_field :prefthresslo, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter preference threshold slope of this criterion' %></td>
+    <td><%= criterionparam.text_field :prefthresint, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter preference threshold intersection of this criterion' %></td>
     <td><%= criterionparam.text_field :vetothresslo, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter veto threshold slope of this criterion' %></td>
     <td><%= criterionparam.text_field :vetothresint, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter veto threshold intersection of this criterion' %></td>
     <td><%= criterionparam.text_field :filterlow, :class => "form-control criterionparam_fld criterionparam" + criterionparamid.to_s + "_fld", placeholder: 'Enter minimal value for this criterion' %></td>
