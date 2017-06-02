@@ -4,35 +4,19 @@
 <% if @criterionvalues.nil? %>
     No criteria values in database.
 <% else %>
-    <div class="table-responsive">
-      <table id="user_table" class="table" cellspacing="0" cellpadding="0" width="100%" style="border: none;">
-        <thead>
-          <tr>
-            <th>Criterion name</th>
-            <th>Criterion context</th>
-            <th>Value</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tfoot>
-          <tr>
-            <th>Criterion name</th>
-            <th>Criterion context</th>
-            <th>Value</th>
-            <th>Actions</th>
-          </tr>
-        </tfoot>
-        <tbody>
-          <% @criterionvalues.each do |criterionvalue| %>
-            <tr>
-              <%= render 'form', :criterionvalue => criterionvalue, :employee => criterionvalue.employee,
-                         :criterionvaluename => criterionvalue.criterion.name, :criterionvalueid => criterionvalue.id,
-                         :criterionvaluecontext => criterionvalue.criterion.criterioncontext.name%>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
+    <div class="row">
+      <div class="col-xs-3"><strong>Criterion name</strong></div>
+      <div class="col-xs-3"><strong>Criterion context</strong></div>
+      <div class="col-xs-3"><strong>Value</strong></div>
+      <div class="col-xs-3"><strong>Actions</strong></div>
+    </div></br>
+
+    <% @criterionvalues.each do |criterionvalue| %>
+        <%= render 'form', :criterionvalue => criterionvalue, :employee => criterionvalue.employee,
+                   :criterionvaluename => criterionvalue.criterion.name, :criterionvalueid => criterionvalue.id,
+                   :criterionvaluecontext => criterionvalue.criterion.criterioncontext.name%>
+    <% end %>
+
 <% end %>
 
 <%= link_to "Back to employee", employee_path(@employee.id) %>

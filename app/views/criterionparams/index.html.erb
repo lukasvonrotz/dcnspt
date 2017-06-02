@@ -4,49 +4,29 @@
 <% if @criterionparams.nil? %>
     No criteria params in database.
 <% else %>
-    <div class="table-responsive">
-      <table id="user_table" class="table" cellspacing="0" cellpadding="0" width="100%" style="border: none;">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Weight</th>
-            <th>Direction</th>
-            <th>Indiff.-threshold slope</th>
-            <th>Indiff.-threshold intersection</th>
-            <th>Pref.-threshold slope</th>
-            <th>Pref.-threshold intersection</th>
-            <th>Veto threshold slope</th>
-            <th>Veto threshold intersection</th>
-            <th>Min. filter value</th>
-            <th>Max. filter value</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tfoot>
-          <tr>
-            <th>Name</th>
-            <th>Weight</th>
-            <th>Direction</th>
-            <th>Indiff.-threshold slope</th>
-            <th>Indiff.-threshold intersection</th>
-            <th>Pref.-threshold slope</th>
-            <th>Pref.-threshold intersection</th>
-            <th>Veto threshold slope</th>
-            <th>Veto threshold intersection</th>
-            <th>Min. filter value</th>
-            <th>Max. filter value</th>
-            <th>Actions</th>
-          </tr>
-        </tfoot>
-        <tbody>
-          <% @criterionparams.each do |criterionparam| %>
-            <tr>
-              <%= render 'form', :criterionparam => criterionparam, :project => criterionparam.project, :criterionparamname => criterionparam.criterion.name, :criterionparamid => criterionparam.id %>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+    <div class="checkbox">
+      <label><input id="setParamsAutomatically" type="checkbox" checked="checked">Set Parameters automatically based on weight (weight criteria from 1 to 10!)</label>
+    </div></br>
+    <div class="row visible-lg">
+      <div class="col-lg-1"><strong>Name</strong></div>
+      <div class="col-lg-1"><strong>Weight</strong></div>
+      <div class="col-lg-1"><strong>Direction</strong></div>
+      <div class="col-lg-1"><strong>Indiff.-threshold slope</strong></div>
+      <div class="col-lg-1"><strong>Indiff.-threshold intersection</strong></div>
+      <div class="col-lg-1"><strong>Pref.-threshold slope</strong></div>
+      <div class="col-lg-1"><strong>Pref.-threshold intersection</strong></div>
+      <div class="col-lg-1"><strong>Veto threshold slope</strong></div>
+      <div class="col-lg-1"><strong>Veto threshold intersection</strong></div>
+      <div class="col-lg-1"><strong>Min. filter value</strong></div>
+      <div class="col-lg-1"><strong>Max. filter value</strong></div>
+      <div class="col-lg-1"><strong>Actions</strong></div>
     </div>
+
+    <% @criterionparams.each do |criterionparam| %>
+        <%= render 'form', :criterionparam => criterionparam, :project => criterionparam.project, :criterionparamname => criterionparam.criterion.name, :criterionparamid => criterionparam.id %>
+    <% end %>
+
+
 <% end %>
 
 <div class="processing">
@@ -83,6 +63,7 @@
       $input.val('yes');
     }
   });
+
   function editLine(id) {
     $("input.criterionparam_fld").attr("disabled", true);
     $("select.criterionparam_fld").attr("disabled", true);
@@ -90,6 +71,45 @@
     $("a.criterionparam" + id + "_edit").hide();
     $("input.criterionparam" + id + "_fld").attr("disabled", false);
     $("select.criterionparam" + id + "_fld").attr("disabled", false);
+  }
+
+  $('#setParamsAutomatically').change(function(){
+    if (this.checked) {
+      <% @criterionparams.each_with_index do |criterionparam, i| %>
+        $("#weight<%= criterionparam.id %>").attr({"max" : 10, "min" : 1});
+      <% end %>
+    }
+    else {
+      <% @criterionparams.each_with_index do |criterionparam, i| %>
+      $("#weight<%= criterionparam.id %>").attr({"max" : 100000, "min" : 0});
+      <% end %>
+    }
+  });
+
+  function calculateThresholds(id) {
+    if ($("#setParamsAutomatically").is(':checked')) {
+      var weight = $("#weight" + id).val();
+      var indthresslo = 0;
+      var indthresint = Math.round((-weight / 7 + (15 / 7)) * 10) / 10;
+      var prefthresslo = 0;
+      var prefthresint = Math.round((-weight / 7 + (22 / 7)) * 10) / 10;
+      var vetothresslo = 0;
+      var vetothresint = Math.round(((Math.pow(weight, 2) / 24) - weight + (25 / 3)) * 10) / 10;
+
+      indthresint = indthresint >= 5 ? 5 : indthresint;
+      indthresint = indthresint < 0 ? 0 : indthresint;
+      prefthresint = prefthresint >= 5 ? 5 : prefthresint;
+      prefthresint = prefthresint < 0 ? 0 : prefthresint;
+      vetothresint = vetothresint >= 5 ? '' : vetothresint;
+      vetothresint = vetothresint < 0 ? 0 : vetothresint;
+
+      $("#indthresslo" + id).val(indthresslo);
+      $("#indthresint" + id).val(indthresint);
+      $("#prefthresslo" + id).val(prefthresslo);
+      $("#prefthresint" + id).val(prefthresint);
+      $("#vetothresslo" + id).val(vetothresslo);
+      $("#vetothresint" + id).val(vetothresint);
+    }
   }
 
 </script>
