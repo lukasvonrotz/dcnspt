@@ -1,50 +1,38 @@
+# Controller for the electre algorithm
 class ElectreController < ApplicationController
 
+  # Include the methods from the electre_helper class
+  include ElectreHelper
+
+  # package for handling asynchronous requests / using web services
   require 'net/http'
+  # package for handling xml files
   require 'nokogiri'
 
   skip_before_filter :verify_authenticity_token
 
+  # Control logic for electre-view
+  # GET /projects/:project_id/electre
   def index
-
     @project = Project.find(params[:project_id])
     @alpha = params[:alpha]
     @beta = params[:beta]
 
+    # Create hash with all project alternatives (with employee id's)
     @alternatives = Hash.new()
-    @project.employees.each_with_index do |employee, index|
-      hashkey = 'a' + (index+1).to_s
-      @alternatives[hashkey] = Hash.new()
-      @alternatives[hashkey]['user'] = employee.id
-      @alternatives[hashkey]['rank'] = 0
-    end
+    @alternatives = getProjectAlternatives(@alternatives, @project, true)
+
+    # Create hash with all project criteria (and load related criterionparams)
+    criteria = Hash.new()
+    criteria = getProjectCriteria(criteria, @project)
+
+    # Create hash with all project weights (load weights from related criterionparams)
+    weights = Hash.new()
+    weights = getProjectWeights(weights, @project)
+
 
     soapInstance = Soapcreator.new
     soapInstance.project = @project.id
-
-
-    criteria = Hash.new()
-    Project.find(@project).criterionparams.each_with_index do |criterionparam, index|
-      hashkey = 'crit' + (index+1).to_s
-      criteria[hashkey] = Hash.new()
-      criteria[hashkey]['id'] = 'c' + (index + 1).to_s
-      criteria[hashkey]['name'] = criterionparam.criterion.name
-      criteria[hashkey]['direction'] = (criterionparam.direction ? 'max' : 'min')
-      criteria[hashkey]['indslo'] = criterionparam.inthresslo ? criterionparam.inthresslo.to_f : nil
-      criteria[hashkey]['indint'] = criterionparam.inthresint ? criterionparam.inthresint.to_f : nil
-      criteria[hashkey]['preslo'] = criterionparam.prefthresslo ? criterionparam.prefthresslo.to_f : nil
-      criteria[hashkey]['preint'] = criterionparam.prefthresint ? criterionparam.prefthresint.to_f : nil
-      criteria[hashkey]['vetslo'] = criterionparam.vetothresslo ? criterionparam.vetothresslo.to_f : nil
-      criteria[hashkey]['vetint'] = criterionparam.vetothresint ? criterionparam.vetothresint.to_f : nil
-    end
-
-    weights = Hash.new()
-    Project.find(@project).criterionparams.each_with_index do |criterionparam, index|
-      hashkey = 'c' + (index+1).to_s
-      weights[hashkey] = Hash.new()
-      weights[hashkey]['id'] = 'c' + (index + 1).to_s
-      weights[hashkey]['weight'] = criterionparam.weight
-    end
 
     ####buildSoapRequestConcordance#####
     concordanceInput = soapInstance.getSoapConcordance(criteria,weights)
@@ -79,18 +67,16 @@ class ElectreController < ApplicationController
     rankingInput = soapInstance.getSoapRanking(downwardsXML, upwardsXML)
     xml = buildSoapRequestRanking(rankingInput)
     hashRanking = Hash.from_xml(xml.gsub("\n", ""))
-    hashRanking['Envelope']['Body']['requestSolutionResponse']['rank']['XMCDA']['alternativesValues'].each do |key, pair|
-      pair.each do |alternative|
-        key = alternative['alternativeID']
-        rank = alternative['value']['integer']
-        @alternatives[key]['rank'] = rank
-      end
-    end
+    @alternatives = rankAlternatives(@alternatives, hashRanking)
 
+    # sort alternatives based on rank
     @alternatives = @alternatives.sort_by{|x,y| y['rank'].to_i}.to_h
 
   end
 
+
+  # Control logic for running sensitivity analysis
+  # GET /projects/:project_id/electre
   def sensitivity
 
     @project = Project.find(params[:project_id])
@@ -98,49 +84,21 @@ class ElectreController < ApplicationController
     @beta = params[:beta]
     @iteration = params['iteration'].to_i
 
+    # Create hash with all project alternatives (with employee codes)
+    @alternatives = Hash.new()
+    @alternatives = getProjectAlternatives(@alternatives, @project, false)
+
+    # Create hash with all project criteria (and load related criterionparams)
+    criteria = Hash.new()
+    criteria = getProjectCriteriaSensitivity(criteria, @project, params, @iteration)
+
+    # Create hash with all project weights (load weights from related criterionparams)
+    weights = Hash.new()
+    weights = getProjectWeightsSensitivity(weights, @project, params, @iteration)
+
+
     soapInstance = Soapcreator.new
     soapInstance.project = @project.id
-
-    ###build alternatives hash###
-    @alternatives = Hash.new()
-    @project.employees.each_with_index do |employee, index|
-      hashkey = 'a' + (index+1).to_s
-      @alternatives[hashkey] = Hash.new()
-      @alternatives[hashkey]['user'] = employee.code
-      @alternatives[hashkey]['rank'] = 0
-    end
-
-    ###build criteria hash###
-    criteria = Hash.new()
-    Project.find(@project).criterionparams.each_with_index do |criterionparam, index|
-      hashkey = 'crit' + (index+1).to_s
-      criteria[hashkey] = Hash.new()
-      criteria[hashkey]['id'] = 'c' + (index + 1).to_s
-      criteria[hashkey]['name'] = criterionparam.criterion.name
-      criteria[hashkey]['direction'] = (criterionparam.direction ? 'max' : 'min')
-
-      criteria[hashkey]['indslo'] = params['inthresslo' + criterionparam.criterion.id.to_s][@iteration].to_f ?
-          params['inthresslo' + criterionparam.criterion.id.to_s][@iteration].to_f : nil
-      criteria[hashkey]['indint'] = params['inthresint' + criterionparam.criterion.id.to_s][@iteration].to_f ?
-          params['inthresint' + criterionparam.criterion.id.to_s][@iteration].to_f : nil
-      criteria[hashkey]['preslo'] = params['prefthresslo' + criterionparam.criterion.id.to_s][@iteration].to_f ?
-          params['prefthresslo' + criterionparam.criterion.id.to_s][@iteration].to_f : nil
-      criteria[hashkey]['preint'] = params['prefthresint' + criterionparam.criterion.id.to_s][@iteration].to_f ?
-          params['prefthresint' + criterionparam.criterion.id.to_s][@iteration].to_f : nil
-      criteria[hashkey]['vetslo'] = params['vetothresslo' + criterionparam.criterion.id.to_s][@iteration].to_f ?
-          params['vetothresslo' + criterionparam.criterion.id.to_s][@iteration].to_f : nil
-      criteria[hashkey]['vetint'] = params['vetothresint' + criterionparam.criterion.id.to_s][@iteration].to_f ?
-          params['vetothresint' + criterionparam.criterion.id.to_s][@iteration].to_f : nil
-    end
-
-    ###build weight hash###
-    weights = Hash.new()
-    Project.find(@project).criterionparams.each_with_index do |criterionparam, index|
-      hashkey = 'c' + (index+1).to_s
-      weights[hashkey] = Hash.new()
-      weights[hashkey]['id'] = 'c' + (index + 1).to_s
-      weights[hashkey]['weight'] = params['weight' + criterionparam.criterion.id.to_s][@iteration].to_f
-    end
 
     ###buildSoapRequestConcordance#####
     concordanceInput = soapInstance.getSoapConcordance(criteria,weights)
@@ -175,17 +133,13 @@ class ElectreController < ApplicationController
     rankingInput = soapInstance.getSoapRanking(downwardsXML, upwardsXML)
     xml = buildSoapRequestRanking(rankingInput)
     hashRanking = Hash.from_xml(xml.gsub("\n", ""))
-    hashRanking['Envelope']['Body']['requestSolutionResponse']['rank']['XMCDA']['alternativesValues'].each do |key, pair|
-      pair.each do |alternative|
-        key = alternative['alternativeID']
-        rank = alternative['value']['integer']
-        @alternatives[key]['rank'] = rank
-      end
-    end
+    @alternatives = rankAlternatives(@alternatives, hashRanking)
 
     @alternatives = @alternatives.sort_by{|x,y| y['rank'].to_i}.to_h
+    # Additionally set the number of the actual iteration
     @alternatives['iteration'] = params['iteration']
 
+    # response is to be in json-format
     respond_to do |format|
       format.html {
         render :json => @alternatives
@@ -193,26 +147,24 @@ class ElectreController < ApplicationController
     end
   end
 
-
+  # The user has the possibility to save the definded parameters for the sensitivity analysis.
+  # Hence, if the project is reloaded, all defined parameters for each iterations can be loaded from the database.
+  # GET /projects/:project_id/save-sensitivity-params
   def saveSensitivityParams
+    # Destroy all project related sensitivity parameters that are in the database
     Sensitivity.where(:project_id => params[:project_id]).destroy_all
     @project = Project.find(params[:project_id])
     @project.criterionparams.each do |criterionparam|
-      weight = 'hidden_weight' + criterionparam.criterion.id.to_s
-      indslo = 'hidden_inthresslo' + criterionparam.criterion.id.to_s
-      indint = 'hidden_inthresint' + criterionparam.criterion.id.to_s
-      prefslo = 'hidden_prefthresslo' + criterionparam.criterion.id.to_s
-      prefint = 'hidden_prefthresint' + criterionparam.criterion.id.to_s
-      vetoslo = 'hidden_vetothresslo' + criterionparam.criterion.id.to_s
-      vetoint = 'hidden_vetothresint' + criterionparam.criterion.id.to_s
-      weight_array = params[weight].split(",").map(&:strip);
-      indslo_array = params[indslo].split(",").map(&:strip);
-      indint_array = params[indint].split(",").map(&:strip);
-      prefslo_array = params[prefslo].split(",").map(&:strip);
-      prefint_array = params[prefint].split(",").map(&:strip);
-      vetslo_array = params[vetoslo].split(",").map(&:strip);
-      vetint_array = params[vetoint].split(",").map(&:strip);
+      # Read out all sensitivity parameters from the HIDDEN fields
+      weight_array = params['hidden_weight' + criterionparam.criterion.id.to_s].split(",").map(&:strip);
+      indslo_array = params['hidden_inthresslo' + criterionparam.criterion.id.to_s].split(",").map(&:strip);
+      indint_array = params['hidden_inthresint' + criterionparam.criterion.id.to_s].split(",").map(&:strip);
+      prefslo_array = params['hidden_prefthresslo' + criterionparam.criterion.id.to_s].split(",").map(&:strip);
+      prefint_array = params['hidden_prefthresint' + criterionparam.criterion.id.to_s].split(",").map(&:strip);
+      vetslo_array = params['hidden_vetothresslo' + criterionparam.criterion.id.to_s].split(",").map(&:strip);
+      vetint_array = params['hidden_vetothresint' + criterionparam.criterion.id.to_s].split(",").map(&:strip);
       i = 0
+      # Save all new sensitivity parameters to the database
       while i < weight_array.length do
         @sensitivity = Sensitivity.new(:project_id => params[:project_id],
                                        :criterion_id => criterionparam.criterion.id,
@@ -230,63 +182,6 @@ class ElectreController < ApplicationController
 
     end
     redirect_to projects_path + '/' + params[:project_id].to_s + '/electre?alpha=-0.15&beta=0.3'
-  end
-
-
-  private
-
-  def buildSoapRequestConcordance(concordanceInput)
-    concordanceOutput1 = Nokogiri::XML(postXmlToWebservice(concordanceInput, "http://webservices.decision-deck.org/soap/ElectreConcordance-PUT.py"))
-    concordanceOutput2 = Soapcreator.getSoapTicket(concordanceOutput1.xpath("//ticket/text()").to_s)
-    concordanceOutput = Nokogiri::XML(postXmlToWebservice(concordanceOutput2, "http://webservices.decision-deck.org/soap/ElectreConcordance-PUT.py"))
-    xml = concordanceOutput.to_s.gsub! '&lt;', '<'
-    return xml.gsub! '&gt;', '>'
-  end
-
-  def buildSoapRequestDiscordance(discordanceInput)
-    discordanceOutput1 = Nokogiri::XML(postXmlToWebservice(discordanceInput, "http://webservices.decision-deck.org/soap/ElectreDiscordance-PUT.py"))
-    discordanceOutput2 = Soapcreator.getSoapTicket(discordanceOutput1.xpath("//ticket/text()").to_s)
-    discordanceOutput = Nokogiri::XML(postXmlToWebservice(discordanceOutput2, "http://webservices.decision-deck.org/soap/ElectreDiscordance-PUT.py"))
-    xml = discordanceOutput.to_s.gsub! '&lt;', '<'
-    return xml.gsub! '&gt;', '>'
-  end
-
-  def buildSoapRequestCredibility(credibilityInput)
-    credibilityOutput1 = Nokogiri::XML(postXmlToWebservice(credibilityInput,"http://webservices.decision-deck.org/soap/ElectreCredibility-PUT.py"))
-    credibilityOutput2 = Soapcreator.getSoapTicket(credibilityOutput1.xpath("//ticket/text()").to_s)
-    credibilityOutput = Nokogiri::XML(postXmlToWebservice(credibilityOutput2,"http://webservices.decision-deck.org/soap/ElectreCredibility-PUT.py"))
-    xml = credibilityOutput.to_s.gsub! '&lt;', '<'
-    return xml.gsub! '&gt;', '>'
-  end
-
-  def buildSoapRequestDistillation(distillationInput)
-    distillationOutput1 = Nokogiri::XML(postXmlToWebservice(distillationInput,"http://webservices.decision-deck.org/soap/ElectreDistillation-PUT.py"))
-    distillationOutput2 = Soapcreator.getSoapTicket(distillationOutput1.xpath("//ticket/text()").to_s)
-    distillationOutput = Nokogiri::XML(postXmlToWebservice(distillationOutput2,"http://webservices.decision-deck.org/soap/ElectreDistillation-PUT.py"))
-    xml = distillationOutput.to_s.gsub! '&lt;', '<'
-    return xml.gsub! '&gt;', '>'
-  end
-
-  def buildSoapRequestRanking(rankingInput)
-    rankingOutput1 = Nokogiri::XML(postXmlToWebservice(rankingInput,"http://webservices.decision-deck.org/soap/ElectreDistillationRank-PUT.py"))
-    rankingOutput2 = Soapcreator.getSoapTicket(rankingOutput1.xpath("//ticket/text()").to_s)
-    rankingOutput = Nokogiri::XML(postXmlToWebservice(rankingOutput2,"http://webservices.decision-deck.org/soap/ElectreDistillationRank-PUT.py"))
-    xml = rankingOutput.to_s.gsub! '&lt;', '<'
-    return xml.gsub! '&gt;', '>'
-  end
-
-  def convertXML(xml,markerstring1,markerstring2)
-    return xml[/#{markerstring1}(.*?)#{markerstring2}/m, 1]
-  end
-
-  def postXmlToWebservice(xml,url)
-    host = url
-    uri = URI.parse host
-    request = Net::HTTP::Post.new uri.path
-    request.body = xml
-    request.content_type = 'application/soap+xml'
-    response = Net::HTTP.new(uri.host, uri.port).start { |http| http.request request }
-    return response.body
   end
 
 end

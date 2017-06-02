@@ -11,7 +11,6 @@ Rails.application.routes.draw do
   resources :projects do
     resources :criterionparams
     get :filter
-    get 'updateemployees', to: 'projects#updateemployees'
   end
   resources :employees do
     resources :criterionvalues
