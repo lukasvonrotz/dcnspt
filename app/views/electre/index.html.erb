@@ -1,5 +1,7 @@
-<h1>Electre Algorithm - Results</h1>
+<h1>ELECTRE Algorithm - Results</h1>
 <div class="row">
+
+  <!-- RANKING TABLE -->
   <div class="col-lg-12">
     <h3>Ranking</h3>
     </br>
@@ -31,8 +33,11 @@
     </table>
   </div>
 
+  <!-- SENSITIVITY ANALYSIS -->
   <div class="col-lg-12">
     <h3>Sensitivity Analysis</h3>
+
+    <!-- LOADING BAR -->
     <div id="sensitivityanalysis" style="display: none;">
       <div class="spinner" style="margin-top: 35px;">
         <div class="progress">
@@ -46,6 +51,22 @@
       <div id="sensitivityresults"></div>
     </div>
 
+    <!-- ERROR MESSAGES -->
+    </br></br>
+    <div id="notEqual" class="alert alert-danger">Number of values are not equal for every criterion!</div>
+    <div id="noParams" class="alert alert-danger">There are no parameters provided for sensitivity analysis!</div>
+
+    <!-- ALPHA and BETA VALUES -->
+    <div class="field form-group" style="width: 100%;">
+      <label for="alpha">Distillation Alpha</label>
+      <input type="text" name="alpha" value="-0.15" class="form-control" style="width: 220px;">
+    </div>
+    <div class="field form-group" style="width: 100%;">
+      <label for="beta">Distillation Beta</label>
+      <input type="text" name="beta" value="0.3" class="form-control" style="width: 220px;">
+    </div>
+
+    <!-- CRITERION PARAMETERS -->
     </br></br>
     <% @project.criterionparams.each do |criterionparam| %>
         <div class="col-lg-3" style="margin-left: 0; padding-left: 0;">
@@ -66,8 +87,10 @@
           <input class="tagsinput" id="vetothresint<%=criterionparam.criterion.id%>" type="text" data-role="tagsinput"></br></br></br></br>
       </div>
     <% end %>
+
+
     <div class="col-lg-12" style="margin: 0; padding: 0;">
-      <a id="btn_duplicate_values" style="cursor: pointer;">Duplicate Values</a></br></br>
+      <!-- FORM FOR SAVING CONFIGURATION -->
       <form action="/projects/<%= @project.id %>/save-sensitivity-params">
         <% @project.criterionparams.each do |criterionparam| %>
             <%= hidden_field_tag 'hidden_weight' + criterionparam.criterion.id.to_s %>
@@ -78,24 +101,11 @@
             <%= hidden_field_tag 'hidden_vetothresslo' + criterionparam.criterion.id.to_s %>
             <%= hidden_field_tag 'hidden_vetothresint' + criterionparam.criterion.id.to_s %>
         <% end %>
-        <input type="submit" value="Save this configuration" class="btn btn-default">
+        <input type="submit" value="Save this configuration" class="btn btn-default" style="float: left;">
       </form>
 
-
-        <span id="spinner" style="display: none;"><%= image_tag('spinner.gif', width: '60') %>Looking for best candidates..</span>
-        </br></br>
-        <div class="alert alert-danger notEqual">Number of values are not equal for every criterion!</div>
-        <div class="field form-group" style="width: 100%;">
-          <label for="alpha">Distillation Alpha</label>
-          <input type="text" name="alpha" value="-0.15" class="form-control" style="width: 220px;">
-        </div>
-        <div class="field form-group" style="width: 100%;">
-          <label for="beta">Distillation Beta</label>
-          <input type="text" name="beta" value="0.3" class="form-control" style="width: 220px;">
-        </div>
-
-      <button id="btn_run_analysis" class="btn btn-default">Run Analysis</button>
-      <span class="spinner" style="display: none;"><%= image_tag('spinner.gif', width: '60') %>Running Sensitivity Analysis..</span>
+      <!-- RUNNING ANALYSIS -->
+      <button id="btn_run_analysis" class="btn btn-default" style="float: left; margin-left: 10px;">Run Analysis</button>
     </div>
 
   </div>
@@ -103,52 +113,36 @@
 </div>
 
 
+
 <script>
 
-    <% Sensitivity.where(:project_id => @project.id).each do |sensparam| %>
-      $("#weight<%=sensparam.criterion_id%>").val(String($("#weight<%=sensparam.criterion_id%>").val()) +
-          ", " + '<%= sensparam.weight.nil? ? 'none' : sensparam.weight %>');
-      $("#inthresslo<%=sensparam.criterion_id%>").val($("#inthresslo<%=sensparam.criterion_id%>").val() +
-        ", " + '<%= sensparam.indslo.nil? ? 'none' : sensparam.indslo %>');
-      $("#inthresint<%=sensparam.criterion_id%>").val($("#inthresint<%=sensparam.criterion_id%>").val() +
-        ", " + '<%= sensparam.indint.nil? ? 'none' : sensparam.indint %>');
-      $("#prefthresslo<%=sensparam.criterion_id%>").val($("#prefthresslo<%=sensparam.criterion_id%>").val() +
-        ", " + '<%= sensparam.prefslo.nil? ? 'none' : sensparam.prefslo %>');
-      $("#prefthresint<%=sensparam.criterion_id%>").val($("#prefthresint<%=sensparam.criterion_id%>").val() +
-        ", " + '<%= sensparam.prefint.nil? ? 'none' : sensparam.prefint %>');
-      $("#vetothresslo<%=sensparam.criterion_id%>").val($("#vetothresslo<%=sensparam.criterion_id%>").val() +
-        ", " + '<%= sensparam.vetslo.nil? ? 'none' : sensparam.vetslo %>');
-      $("#vetothresint<%=sensparam.criterion_id%>").val($("#vetothresint<%=sensparam.criterion_id%>").val() +
-        ", " + '<%= sensparam.vetint.nil? ? 'none' : sensparam.vetint %>');
-    <% end %>
-    moveItemsToHiddenFields();
+  // hide error messages
+  $("#notEqual").hide();
+  $("#noParams").hide();
 
-  $("#btn_duplicate_values").click(function(){
-    <% @project.criterionparams.each do |criterionparam| %>
-      var first_value = $("#weight<%=criterionparam.criterion.id%>").tagsinput('items');
-      $("#weight<%=criterionparam.criterion.id%>").tagsinput('add', first_value[0]);
-      first_value= $("#inthresslo<%=criterionparam.criterion.id%>").tagsinput('items');
-      $("#inthresslo<%=criterionparam.criterion.id%>").tagsinput('add', first_value[0]);
-      first_value = $("#inthresint<%=criterionparam.criterion.id%>").tagsinput('items');
-      $("#inthresint<%=criterionparam.criterion.id%>").tagsinput('add', first_value[0]);
-      first_value = $("#prefthresslo<%=criterionparam.criterion.id%>").tagsinput('items');
-      $("#prefthresslo<%=criterionparam.criterion.id%>").tagsinput('add', first_value[0]);
-      first_value = $("#prefthresint<%=criterionparam.criterion.id%>").tagsinput('items');
-      $("#prefthresint<%=criterionparam.criterion.id%>").tagsinput('add', first_value[0]);
-      first_value = $("#vetothresslo<%=criterionparam.criterion.id%>").tagsinput('items');
-      $("#vetothresslo<%=criterionparam.criterion.id%>").tagsinput('add', first_value[0]);
-      first_value = $("#vetothresint<%=criterionparam.criterion.id%>").tagsinput('items');
-      $("#vetothresint<%=criterionparam.criterion.id%>").tagsinput('add', first_value[0]);
-    <% end %>
-  });
-  $('.tagsinput').tagsinput({
-    allowDuplicates: true,
-    onAddTag: function(){alert("lukas")}
-  });
+  // fill the sensitivity input fields with values from database
+  <% Sensitivity.where(:project_id => @project.id).each do |sensparam| %>
+    $("#weight<%=sensparam.criterion_id%>").val(String($("#weight<%=sensparam.criterion_id%>").val()) +
+        ", " + '<%= sensparam.weight.nil? ? 'none' : sensparam.weight %>');
+    $("#inthresslo<%=sensparam.criterion_id%>").val($("#inthresslo<%=sensparam.criterion_id%>").val() +
+      ", " + '<%= sensparam.indslo.nil? ? 'none' : sensparam.indslo %>');
+    $("#inthresint<%=sensparam.criterion_id%>").val($("#inthresint<%=sensparam.criterion_id%>").val() +
+      ", " + '<%= sensparam.indint.nil? ? 'none' : sensparam.indint %>');
+    $("#prefthresslo<%=sensparam.criterion_id%>").val($("#prefthresslo<%=sensparam.criterion_id%>").val() +
+      ", " + '<%= sensparam.prefslo.nil? ? 'none' : sensparam.prefslo %>');
+    $("#prefthresint<%=sensparam.criterion_id%>").val($("#prefthresint<%=sensparam.criterion_id%>").val() +
+      ", " + '<%= sensparam.prefint.nil? ? 'none' : sensparam.prefint %>');
+    $("#vetothresslo<%=sensparam.criterion_id%>").val($("#vetothresslo<%=sensparam.criterion_id%>").val() +
+      ", " + '<%= sensparam.vetslo.nil? ? 'none' : sensparam.vetslo %>');
+    $("#vetothresint<%=sensparam.criterion_id%>").val($("#vetothresint<%=sensparam.criterion_id%>").val() +
+      ", " + '<%= sensparam.vetint.nil? ? 'none' : sensparam.vetint %>');
+  <% end %>
+
+  // every time a new value is added, move the values to the hidden fields
+  moveItemsToHiddenFields();
   $('.tagsinput').on('itemAdded', function(event) {
     moveItemsToHiddenFields();
   });
-
   function moveItemsToHiddenFields() {
     <% @project.criterionparams.each do |criterionparam| %>
       $("#hidden_weight<%=criterionparam.criterion.id%>").val($("#weight<%=criterionparam.criterion.id%>").val());
@@ -161,11 +155,10 @@
     <% end %>
   }
 
-  $(".notEqual").hide();
+
+  // when clicking on button to run the sensitivity analysis
   $("#btn_run_analysis").click(function(){
-    $('.progress-bar').width("10%");
-    $('.progress-bar').html("10%");
-    //check whether number of params is equal in every input field (compared to first one)
+
     var numberIsEqual = true;
     var progress = 0;
     var finishedIterations = 0;
@@ -173,14 +166,18 @@
     var inputdata = {};
     var outputdata = {};
     var sensitivityranking = {};
-
     <% @project.employees.each_with_index do |employee, index| %>
-      <% hashkey = 'a' + (index+1).to_s %>
-      sensitivityranking['<%= hashkey %>'] = {};
-      sensitivityranking['<%= hashkey %>']['user'] = '<%= employee.code %>';
-      sensitivityranking['<%= hashkey %>']['score'] = 0;
+    <% hashkey = 'a' + (index+1).to_s %>
+    sensitivityranking['<%= hashkey %>'] = {};
+    sensitivityranking['<%= hashkey %>']['user'] = '<%= employee.code %>';
+    sensitivityranking['<%= hashkey %>']['score'] = 0;
     <% end %>
-    
+
+    //set progress bar to initial width
+    $('.progress-bar').width("10%");
+    $('.progress-bar').html("10%");
+
+    //check whether number of params is equal in every input field (compared to first one)
     $("#sensitivityresults").html('');
     <% @project.criterionparams.each do |criterionparam| %>
       if (!(numberOfParams == $("#weight<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length)) {
@@ -204,6 +201,7 @@
       if (!(numberOfParams == $("#vetothresint<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length)) {
         numberIsEqual = false;
       }
+      // load values from input fields
       inputdata["weight<%=criterionparam.criterion.id%>"] = ($("#weight<%=criterionparam.criterion.id%>"))
           .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
       inputdata["inthresslo<%=criterionparam.criterion.id%>"] = ($("#inthresslo<%=criterionparam.criterion.id%>"))
@@ -220,16 +218,24 @@
           .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
     <% end %>
 
+    // cehck if everywhere same number of inputs for sensitivity analysis
     if (!numberIsEqual) {
-      $(".notEqual").show();
+      $("#notEqual").show();
+    }
+    // check whether any parameter is given
+    else if (numberOfParams < 2 ) {
+      $("#noParams").show();
     }
     else {
-      $('html,body').scrollTop(0);
-      $(".notEqual").hide();
-      $(".spinner").show();
+
+      $('html, body').animate({ scrollTop: $('#sensitivityanalysis').offset().top }, 'slow');
+      $("#notEqual").hide();
+      $("#noParams").hide();
       $("#sensitivityanalysis").fadeIn('slow');
 
+      // run the algorithm once for each iteration
       for (i=0;i<numberOfParams;i++){
+        // set number of iteration
         inputdata['iteration']=i;
         outputdata['iteration'+i] = [];
         $.ajax(
@@ -240,8 +246,8 @@
               dataType: "html",
               success: function(result) {
                 finishedIterations++;
-
                 var partialresult = JSON.parse(result);
+                // html code for ranking of actual iteration
                 var partialranking =
                     '</br>' +
                     '<h4>Iteration ' + finishedIterations + '</h4>' +
@@ -254,7 +260,6 @@
                     '</tr>' +
                     '</thead>' +
                     '<tbody>';
-
                 Object.keys(partialresult).forEach(function (key) {
                   if (key != 'iteration') {
                     partialranking += '<tr>' +
@@ -267,6 +272,7 @@
                 partialranking += '</tbody></table>';
                 $("#sensitivityresults").append(partialranking);
 
+                // update progress bar
                 progress = Math.floor((finishedIterations/numberOfParams)*100);
                 $('.progress-bar').width(progress + "%");
                 $('.progress-bar').html(progress + "%");

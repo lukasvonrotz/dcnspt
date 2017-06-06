@@ -21,3 +21,4 @@
 //= require bootstrap-tagsinput.js
 //= require bootstrap-tokenfield
 //= require_tree .
+

@@ -5,11 +5,6 @@
 <% if @employees.nil? %>
     No employees in database.
 <% else %>
-    <div id="loading"  style="width: 100%; text-align: center;">
-      <p><%= image_tag('spinner.gif', width: '300') %></p>
-      <p>Loading data...</p>
-    </div>
-
     <div id="content" class="table-responsive" style="display: none;">
       <table class="table table-striped table-bordered data_table" cellspacing="0" width="100%">
         <thead>
@@ -87,9 +82,8 @@
   </div>
 </div>
 
-
 <input type="hidden" id="refresh" value="no">
-
+<%= render 'layouts/loading', :message => "Loading employees..." %>
 
 <script>
   $('#popup_sure_delete').on('show.bs.modal', function (event) {
@@ -103,12 +97,14 @@
   });
 
   $(document).ready(function() {
-    $("#loading").hide();
+    // In case of using the browser back button! Rails duplicates html-elements when using this button
+    // Hence, do reload page (only once!) by usage of a hidden input field!
+    $('#loadingModal').modal('hide');
     $("#content").show();
     var $input = $('#refresh');
     if ($input.val() == 'yes') {
       location.reload(true);
-      $("#loading").show();
+      loadingAlgorithm();
       $("#content").hide();
     }
     else {

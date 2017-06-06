@@ -5,7 +5,9 @@
     No criteria params in database.
 <% else %>
     <div class="checkbox">
-      <label><input id="setParamsAutomatically" type="checkbox" checked="checked">Set Parameters automatically based on weight (weight criteria from 1 to 10!)</label>
+      <label><input id="setParamsAutomatically" type="checkbox" checked="checked">
+        Set Parameters automatically based on weight (weight criteria from 1 to 10!)
+      </label>
     </div></br>
     <div class="row visible-lg">
       <div class="col-lg-1"><strong>Name</strong></div>
@@ -23,23 +25,22 @@
     </div>
 
     <% @criterionparams.each do |criterionparam| %>
-        <%= render 'form', :criterionparam => criterionparam, :project => criterionparam.project, :criterionparamname => criterionparam.criterion.name, :criterionparamid => criterionparam.id %>
+        <%= render 'form', :criterionparam => criterionparam, :project => criterionparam.project,
+                   :criterionparamname => criterionparam.criterion.name, :criterionparamid => criterionparam.id %>
     <% end %>
 
 
 <% end %>
-
-<div class="processing">
-  <%= image_tag('spinner.gif') %>
-  <p>Loading Parameters...</p>
-</div>
-
+</br>
 <%= link_to "Back to project", project_path(@project.id) %>
+
+<%= render 'layouts/loading', :message => "Loading criterion parameters..." %>
 
 <input type="hidden" id="refresh" value="no">
 
 <script>
   $(document).ready ( function(){
+    // Disable all input fields and add 'edit'-button, except for first line.
     <% @criterionparams.each_with_index do |criterionparam, i| %>
       <% if i != 0 %>
         $("input.criterionparam<%=criterionparam.id %>_fld").attr("disabled", true);
@@ -51,12 +52,13 @@
       <% end %>
     <% end %>
 
-    $(".processing").hide();
-
+    // In case of using the browser back button! Rails duplicates html-elements when using this button
+    // Hence, do reload page (only once!) by usage of a hidden input field!
+    $('#loadingModal').modal('hide');
     var $input = $('#refresh');
     if ($input.val() == 'yes') {
       location.reload(true);
-      $(".processing").show();
+      loadingAlgorithm();
       $(".table-responsive").hide();
     }
     else {
@@ -64,14 +66,6 @@
     }
   });
 
-  function editLine(id) {
-    $("input.criterionparam_fld").attr("disabled", true);
-    $("select.criterionparam_fld").attr("disabled", true);
-    $("a.criterionparam_edit").show();
-    $("a.criterionparam" + id + "_edit").hide();
-    $("input.criterionparam" + id + "_fld").attr("disabled", false);
-    $("select.criterionparam" + id + "_fld").attr("disabled", false);
-  }
 
   $('#setParamsAutomatically').change(function(){
     if (this.checked) {
@@ -86,6 +80,14 @@
     }
   });
 
+  function editLine(id) {
+    $("input.criterionparam_fld").attr("disabled", true);
+    $("select.criterionparam_fld").attr("disabled", true);
+    $("a.criterionparam_edit").show();
+    $("a.criterionparam" + id + "_edit").hide();
+    $("input.criterionparam" + id + "_fld").attr("disabled", false);
+    $("select.criterionparam" + id + "_fld").attr("disabled", false);
+  }
   function calculateThresholds(id) {
     if ($("#setParamsAutomatically").is(':checked')) {
       var weight = $("#weight" + id).val();

@@ -1,0 +1,50 @@
+<div id="loadingModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content" style="background-color: transparent; boder: none;">
+      <%= image_tag('loading.gif', width: '160') %>
+      </br></br>
+      <p style="color: white;"><%= message %></p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .modal {
+    text-align: center;
+  }
+  @media screen and (min-width: 768px) {
+    .modal:before {
+      display: inline-block;
+      vertical-align: middle;
+      content: " ";
+      height: 100%;
+    }
+  }
+  .modal-dialog {
+    display: inline-block;
+    text-align: left;
+    vertical-align: middle;
+  }
+  .modal-content{
+    -webkit-box-shadow: 0 5px 15px rgba(0,0,0,0);
+    -moz-box-shadow: 0 5px 15px rgba(0,0,0,0);
+    -o-box-shadow: 0 5px 15px rgba(0,0,0,0);
+    box-shadow: 0 5px 15px rgba(0,0,0,0);
+    text-align: center;
+    border: none;
+  }
+  .modal-backdrop{
+    opacity:0.8 !important;
+  }
+</style>
+
+<script>
+  function loadingAlgorithm() {
+    $('#loadingModal').modal({
+      backdrop: 'static',
+      keyboard: false
+    });
+  }
+</script>

@@ -1,6 +1,7 @@
 # Controller for managing projects
 class ProjectsController < ApplicationController
 
+
   # Include the methods from the projects_helper class
   include ProjectsHelper
 

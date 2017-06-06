@@ -1,4 +1,7 @@
 module ProjectsHelper
+
+  require 'open-uri'
+
   def saveFilterValues(numberofcrits)
     index = 1
     while index <= numberofcrits
@@ -17,5 +20,13 @@ module ProjectsHelper
   def variablenamehigh (index)
     var = "crit" + index.to_s + "high"
     return var
+  end
+
+  def internet_connection?
+    begin
+      true if open("http://www.google.com/")
+    rescue
+      false
+    end
   end
 end

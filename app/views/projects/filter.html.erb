@@ -1,7 +1,6 @@
 <h1>Filter for <%= @project.name %></h1>
-<%= @output1 %>
 
-
+<!-- load filter values for each criterion -->
 <% @project.criterions.each_with_index do |criterion, index| %>
     <% case criterion.name.to_s %>
     <% when "location" %>
@@ -45,6 +44,8 @@
           <% filterhigh = 100 %>
       <% end %>
     <% end %>
+
+    <!-- Print sliders for each criterion -->
     <% if index%2 == 0 %>
       <div class="row">
         <div class="col-lg-6">
@@ -68,11 +69,12 @@
 <%= form_for @project do |project| %>
     <div class="row">
       <div class="col-lg-6">
-
+        <!-- Job Profile Filter -->
         <div class="field form-group" style="width: 100%;">
           <%= project.label :jobprofile_list, 'Choose relevant job profiles' %></br>
           <%= project.text_field :jobprofile_list, class: 'tokenize' %></br>
         </div>
+        <!-- Branch Filter -->
         <div class="field form-group" style="width: 100%;">
           <label for="branch[]">Branch Location</label>
           <select name="branch[]" class="form-control" multiple="multiple">
@@ -81,11 +83,9 @@
             <option value="Belgrad">Belgrad</option>
           </select>
         </div>
-
         <div class="field form-group">
           <%= project.hidden_field :name, :class => "form-control", placeholder: 'Enter name of the project' %>
         </div>
-
         <% @project.criterions.each_with_index do |criterion,index| %>
           <%= hidden_field_tag "crit" + (index+1).to_s + "low", "" %>
           <%= hidden_field_tag "crit" + (index+1).to_s + "high", "" %>
@@ -95,10 +95,8 @@
         <div class="actions form-group">
               <%= project.submit 'Update employees', class: "btn btn-success", data: { disable_with: "Processsing..." }  %>
         </div>
-
       </div>
     </div>
-
 <% end %>
 
 <input type="hidden" id="refresh" value="no">
@@ -106,41 +104,44 @@
 <script>
 
   $(document).ready(function() {
-      <% @project.criterions.each_with_index do |criterion, index| %>
-        <% case criterion.name.to_s %>
-          <% when "location" %>
+    // load filter values and create slider for each criterion
+    <% @project.criterions.each_with_index do |criterion, index| %>
+      <% case criterion.name.to_s %>
+        <% when "location" %>
+          <% minimum = 0 %>
+          <% maximum = 1000 %>
+          <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
+          <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
+          <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
+          <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
+        <% when "costrate" %>
+          <% minimum = 0 %>
+          <% if Employee.all.maximum("costrate") %>
+            <% maximum = Employee.all.maximum("costrate") %>
+          <% else %>
+            <% maximum = 100 %>
+          <% end %>
+          <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
+          <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
+          <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
+          <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
+        <% else %>
+          <% if Criterionvalue.where(criterion_id: criterion.id).first && Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first %>
             <% minimum = 0 %>
-            <% maximum = 1000 %>
-            <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
-            <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
-            <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
-            <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
-          <% when "costrate" %>
-            <% minimum = 0 %>
-            <% if Employee.all.maximum("costrate") %>
-              <% maximum = Employee.all.maximum("costrate") %>
-            <% else %>
-              <% maximum = 100 %>
-            <% end %>
+            <% maximum = Criterionvalue.where(criterion_id: criterion.id).maximum("value") %>
             <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
             <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
             <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
             <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
           <% else %>
-            <% if Criterionvalue.where(criterion_id: criterion.id).first && Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first %>
-              <% minimum = 0 %>
-              <% maximum = Criterionvalue.where(criterion_id: criterion.id).maximum("value") %>
-              <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
-              <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
-              <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
-              <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
-            <% else %>
-              <% minimum = 0 %>
-              <% maximum = 100 %>
-              <% filterlow = 0 %>
-              <% filterhigh = 100 %>
+            <% minimum = 0 %>
+            <% maximum = 100 %>
+            <% filterlow = 0 %>
+            <% filterhigh = 100 %>
         <% end %>
       <% end %>
+
+      // create slider
       var slider = $("#slider<%=(index+1).to_s%>").slider({
         range: true,
         step: 0.01,
@@ -154,15 +155,15 @@
           $("#crit<%=(index+1).to_s%>highlabel").html(ui.values[1]);
         }
       });
+      // set values for slider
       $("#crit<%=(index+1).to_s%>low").val(slider.slider("values")[0]);
       $("#crit<%=(index+1).to_s%>high").val(slider.slider("values")[1]);
       $("#crit<%=(index+1).to_s%>lowlabel").val(slider.slider("values")[0]);
       $("#crit<%=(index+1).to_s%>highlabel").val(slider.slider("values")[1]);
-
     <% end %>
   });
 
-
+  // initialize tag input fields
   $(".chosen-select").chosen({allow_single_deselect: true, placeholder_text_single: "Select options", no_results_text: 'No results matched', width: '500px'});
   var $input = $('#refresh');
   if ($input.val() == 'yes') {
