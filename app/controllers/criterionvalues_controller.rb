@@ -15,7 +15,7 @@ class CriterionvaluesController < ApplicationController
   end
 
   # Control logic for show-view
-  # GET /employees/:employee_id/criterionparams/:id
+  # GET /employees/:employee_id/criterionvalues/:id
   def show
     @criterionvalue = Criterionvalue.find(params[:id])
   end

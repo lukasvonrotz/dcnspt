@@ -12,7 +12,7 @@
         <th>Alternative ID</th>
         <th>Code</th>
         <% @project.criterionparams.each do |criterionparam| %>
-            <th><%= criterionparam.criterion.name %>-value (<%= criterionparam.weight %>)</th>
+            <th><%= criterionparam.criterion.name %> - Value (<%= criterionparam.weight %>)</th>
         <% end %>
       </tr>
       </thead>
@@ -24,7 +24,8 @@
             <td><%= key %></td>
             <td><%= employee.code %></td>
             <% @project.criterionparams.each do |criterionparam| %>
-                <% critvalue = Criterionvalue.where(:employee_id => employee.id, :criterion_id => criterionparam.criterion.id).first %>
+                <% critvalue = Criterionvalue.where(:employee_id => employee.id,
+                                                    :criterion_id => criterionparam.criterion.id).first %>
                 <td><%= critvalue ? critvalue.value : 0 %></td>
             <% end %>
           </tr>
@@ -36,25 +37,7 @@
   <!-- SENSITIVITY ANALYSIS -->
   <div class="col-lg-12">
     <h3>Sensitivity Analysis</h3>
-
-    <!-- LOADING BAR -->
-    <div id="sensitivityanalysis" style="display: none;">
-      <div class="spinner" style="margin-top: 35px;">
-        <div class="progress">
-          <div class="progress-bar progress-bar-striped active" role="progressbar"
-               aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:10%">
-            10%
-          </div>
-        </div>
-        <p>Running Sensitivity Analysis.. This could take a while..</p>
-      </div>
-      <div id="sensitivityresults"></div>
-    </div>
-
-    <!-- ERROR MESSAGES -->
     </br></br>
-    <div id="notEqual" class="alert alert-danger">Number of values are not equal for every criterion!</div>
-    <div id="noParams" class="alert alert-danger">There are no parameters provided for sensitivity analysis!</div>
 
     <!-- ALPHA and BETA VALUES -->
     <div class="field form-group" style="width: 100%;">
@@ -70,28 +53,37 @@
     </br></br>
     <% @project.criterionparams.each do |criterionparam| %>
         <div class="col-lg-3" style="margin-left: 0; padding-left: 0;">
-          <strong><%= criterionparam.criterion.name.capitalize %> (<%= criterionparam.criterion.criterioncontext.name %>)</strong></br></br>
+          <strong><%= criterionparam.criterion.name.capitalize %>
+            (<%= criterionparam.criterion.criterioncontext.name %>)</strong></br></br>
           <label for="weight<%=criterionparam.criterion.id%>">Weight</label>
-          <input class="tagsinput" id="weight<%=criterionparam.criterion.id%>" type="text" data-role="tagsinput"></br></br>
+          <input class="tagsinput" id="weight<%=criterionparam.criterion.id%>" type="text" data-role="tagsinput">
+          </br></br>
           <label for="inthresslo<%=criterionparam.criterion.id%>">Indifference threshold slope</label>
-          <input class="tagsinput" id="inthresslo<%=criterionparam.criterion.id%>" type="text" data-role="tagsinput"></br></br>
+          <input class="tagsinput" id="inthresslo<%=criterionparam.criterion.id%>" type="text" data-role="tagsinput">
+          </br></br>
           <label for="inthresint<%=criterionparam.criterion.id%>">Indifference threshold intersect</label>
-          <input class="tagsinput" id="inthresint<%=criterionparam.criterion.id%>" type="text" data-role="tagsinput"></br></br>
+          <input class="tagsinput" id="inthresint<%=criterionparam.criterion.id%>" type="text" data-role="tagsinput">
+          </br></br>
           <label for="prefthresslo<%=criterionparam.criterion.id%>">Preference threshold slope</label>
-          <input class="tagsinput" id="prefthresslo<%=criterionparam.criterion.id%>" type="text" data-role="tagsinput"></br></br>
+          <input class="tagsinput" id="prefthresslo<%=criterionparam.criterion.id%>" type="text" data-role="tagsinput">
+          </br></br>
           <label for="prefthresint<%=criterionparam.criterion.id%>">Preference threshold intersect</label>
-          <input class="tagsinput" id="prefthresint<%=criterionparam.criterion.id%>" type="text" data-role="tagsinput"></br></br>
+          <input class="tagsinput" id="prefthresint<%=criterionparam.criterion.id%>" type="text" data-role="tagsinput">
+          </br></br>
           <label for="vetothresslo<%=criterionparam.criterion.id%>">Veto threshold slope</label>
-          <input class="tagsinput" id="vetothresslo<%=criterionparam.criterion.id%>" type="text" data-role="tagsinput"></br></br>
+          <input class="tagsinput" id="vetothresslo<%=criterionparam.criterion.id%>" type="text" data-role="tagsinput">
+          </br></br>
           <label for="vetothresint<%=criterionparam.criterion.id%>">Veto threshold intersect</label>
-          <input class="tagsinput" id="vetothresint<%=criterionparam.criterion.id%>" type="text" data-role="tagsinput"></br></br></br></br>
+          <input class="tagsinput" id="vetothresint<%=criterionparam.criterion.id%>" type="text" data-role="tagsinput">
+          </br></br></br></br>
       </div>
     <% end %>
 
 
     <div class="col-lg-12" style="margin: 0; padding: 0;">
       <!-- FORM FOR SAVING CONFIGURATION -->
-      <form action="/projects/<%= @project.id %>/save-sensitivity-params">
+      <form id="saveConfiguration" action="/projects/<%= @project.id %>/save-sensitivity-params"
+            onsubmit="return validateConfiguration()">
         <% @project.criterionparams.each do |criterionparam| %>
             <%= hidden_field_tag 'hidden_weight' + criterionparam.criterion.id.to_s %>
             <%= hidden_field_tag 'hidden_inthresslo' + criterionparam.criterion.id.to_s %>
@@ -101,11 +93,29 @@
             <%= hidden_field_tag 'hidden_vetothresslo' + criterionparam.criterion.id.to_s %>
             <%= hidden_field_tag 'hidden_vetothresint' + criterionparam.criterion.id.to_s %>
         <% end %>
-        <input type="submit" value="Save this configuration" class="btn btn-default" style="float: left;">
+        <div id="notEqual" class="alert alert-danger">Number of values are not equal for every criterion!</div>
+        <div id="noParams" class="alert alert-danger">There are no parameters provided for sensitivity analysis!</div>
+        <input type="submit" value="Save this configuration" class="btn btn-default" style="float: left;" >
       </form>
 
       <!-- RUNNING ANALYSIS -->
       <button id="btn_run_analysis" class="btn btn-default" style="float: left; margin-left: 10px;">Run Analysis</button>
+
+      </br></br>
+
+      <!-- LOADING BAR -->
+      <div id="sensitivityanalysis" style="clear: left; display: none;">
+        <div class="spinner" style="margin-top: 35px;">
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped active" role="progressbar"
+                 aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:10%">
+              10%
+            </div>
+          </div>
+          <p>Running Sensitivity Analysis.. This could take a while..</p>
+        </div>
+        <div id="sensitivityresults"></div>
+      </div>
     </div>
 
   </div>
@@ -115,7 +125,6 @@
 
 
 <script>
-
   // hide error messages
   $("#notEqual").hide();
   $("#noParams").hide();
@@ -140,93 +149,71 @@
 
   // every time a new value is added, move the values to the hidden fields
   moveItemsToHiddenFields();
+
+  // every time a sensitivity analysis parameter is added, transfer values to hidden fields
   $('.tagsinput').on('itemAdded', function(event) {
     moveItemsToHiddenFields();
+    var input_field_id = "#" + this.id;
+    numberIsEqual = true;
   });
-  function moveItemsToHiddenFields() {
-    <% @project.criterionparams.each do |criterionparam| %>
-      $("#hidden_weight<%=criterionparam.criterion.id%>").val($("#weight<%=criterionparam.criterion.id%>").val());
-      $("#hidden_inthresslo<%=criterionparam.criterion.id%>").val($("#inthresslo<%=criterionparam.criterion.id%>").val());
-      $("#hidden_inthresint<%=criterionparam.criterion.id%>").val($("#inthresint<%=criterionparam.criterion.id%>").val());
-      $("#hidden_prefthresslo<%=criterionparam.criterion.id%>").val($("#prefthresslo<%=criterionparam.criterion.id%>").val());
-      $("#hidden_prefthresint<%=criterionparam.criterion.id%>").val($("#prefthresint<%=criterionparam.criterion.id%>").val());
-      $("#hidden_vetothresslo<%=criterionparam.criterion.id%>").val($("#vetothresslo<%=criterionparam.criterion.id%>").val());
-      $("#hidden_vetothresint<%=criterionparam.criterion.id%>").val($("#vetothresint<%=criterionparam.criterion.id%>").val());
-    <% end %>
-  }
+
+  // bugfix when removing elements with bootstrap tagsinput!! when same value exists multiple times in input field,
+  // tagsinput plugin removes all duplicates, not only one
+  $('.tagsinput').on('itemRemoved', function(event) {
+    var tags_array = [];
+    var input_field_id = "#" + this.id;
+    tags_array = $(input_field_id).tagsinput('items').toString().split(',');
+    $(input_field_id).tagsinput('removeAll');
+    tags_array.forEach(function(item, index){
+      $(input_field_id).tagsinput('add', item + " ");
+    });
+    numberIsEqual = true;
+  });
 
 
   // when clicking on button to run the sensitivity analysis
   $("#btn_run_analysis").click(function(){
+    if (validateConfiguration()) {
+      var numberIsEqual = true;
+      var progress = 0;
+      var finishedIterations = 0;
+      var numberOfParams = $("#inthresslo<%=@project.criterionparams.first.criterion.id%>").tagsinput('items').toString().split(',').length;
+      var inputdata = {};
+      var outputdata = {};
+      var sensitivityranking = {};
+      <% @project.employees.each_with_index do |employee, index| %>
+      <% hashkey = 'a' + (index+1).to_s %>
+      sensitivityranking['<%= hashkey %>'] = {};
+      sensitivityranking['<%= hashkey %>']['user'] = '<%= employee.code %>';
+      sensitivityranking['<%= hashkey %>']['score'] = 0;
+      <% end %>
 
-    var numberIsEqual = true;
-    var progress = 0;
-    var finishedIterations = 0;
-    var numberOfParams = $("#inthresslo<%=@project.criterionparams.first.criterion.id%>").tagsinput('items').toString().split(',').length;
-    var inputdata = {};
-    var outputdata = {};
-    var sensitivityranking = {};
-    <% @project.employees.each_with_index do |employee, index| %>
-    <% hashkey = 'a' + (index+1).to_s %>
-    sensitivityranking['<%= hashkey %>'] = {};
-    sensitivityranking['<%= hashkey %>']['user'] = '<%= employee.code %>';
-    sensitivityranking['<%= hashkey %>']['score'] = 0;
-    <% end %>
+      //set progress bar to initial width
+      $('.progress-bar').width("10%");
+      $('.progress-bar').html("10%");
 
-    //set progress bar to initial width
-    $('.progress-bar').width("10%");
-    $('.progress-bar').html("10%");
+      //check whether number of params is equal in every input field (compared to first one)
+      $("#sensitivityresults").html('');
 
-    //check whether number of params is equal in every input field (compared to first one)
-    $("#sensitivityresults").html('');
-    <% @project.criterionparams.each do |criterionparam| %>
-      if (!(numberOfParams == $("#weight<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length)) {
-        numberIsEqual = false;
-      }
-      if (!(numberOfParams == $("#inthresslo<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length)) {
-        numberIsEqual = false;
-      }
-      if (!(numberOfParams == $("#inthresint<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length)) {
-        numberIsEqual = false;
-      }
-      if (!(numberOfParams == $("#prefthresslo<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length)) {
-        numberIsEqual = false;
-      }
-      if (!(numberOfParams == $("#prefthresint<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length)) {
-        numberIsEqual = false;
-      }
-      if (!(numberOfParams == $("#vetothresslo<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length)) {
-        numberIsEqual = false;
-      }
-      if (!(numberOfParams == $("#vetothresint<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length)) {
-        numberIsEqual = false;
-      }
-      // load values from input fields
-      inputdata["weight<%=criterionparam.criterion.id%>"] = ($("#weight<%=criterionparam.criterion.id%>"))
-          .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
-      inputdata["inthresslo<%=criterionparam.criterion.id%>"] = ($("#inthresslo<%=criterionparam.criterion.id%>"))
-          .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
-      inputdata["inthresint<%=criterionparam.criterion.id%>"] = ($("#inthresint<%=criterionparam.criterion.id%>"))
-          .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
-      inputdata["prefthresslo<%=criterionparam.criterion.id%>"] = ($("#prefthresslo<%=criterionparam.criterion.id%>"))
-          .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
-      inputdata["prefthresint<%=criterionparam.criterion.id%>"] = ($("#prefthresint<%=criterionparam.criterion.id%>"))
-          .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
-      inputdata["vetothresslo<%=criterionparam.criterion.id%>"] = ($("#vetothresslo<%=criterionparam.criterion.id%>"))
-          .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
-      inputdata["vetothresint<%=criterionparam.criterion.id%>"] = ($("#vetothresint<%=criterionparam.criterion.id%>"))
-          .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
-    <% end %>
 
-    // cehck if everywhere same number of inputs for sensitivity analysis
-    if (!numberIsEqual) {
-      $("#notEqual").show();
-    }
-    // check whether any parameter is given
-    else if (numberOfParams < 2 ) {
-      $("#noParams").show();
-    }
-    else {
+      <% @project.criterionparams.each do |criterionparam| %>
+        // load values from input fields
+        inputdata["weight<%=criterionparam.criterion.id%>"] = ($("#weight<%=criterionparam.criterion.id%>"))
+            .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
+        inputdata["inthresslo<%=criterionparam.criterion.id%>"] = ($("#inthresslo<%=criterionparam.criterion.id%>"))
+            .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
+        inputdata["inthresint<%=criterionparam.criterion.id%>"] = ($("#inthresint<%=criterionparam.criterion.id%>"))
+            .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
+        inputdata["prefthresslo<%=criterionparam.criterion.id%>"] = ($("#prefthresslo<%=criterionparam.criterion.id%>"))
+            .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
+        inputdata["prefthresint<%=criterionparam.criterion.id%>"] = ($("#prefthresint<%=criterionparam.criterion.id%>"))
+            .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
+        inputdata["vetothresslo<%=criterionparam.criterion.id%>"] = ($("#vetothresslo<%=criterionparam.criterion.id%>"))
+            .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
+        inputdata["vetothresint<%=criterionparam.criterion.id%>"] = ($("#vetothresint<%=criterionparam.criterion.id%>"))
+            .tagsinput('items').toString().split(',').map(function(item) { return Number(item); });
+      <% end %>
+
 
       $('html, body').animate({ scrollTop: $('#sensitivityanalysis').offset().top }, 'slow');
       $("#notEqual").hide();
@@ -290,23 +277,23 @@
                   });
 
                   var finalranking =
-                    '<h4>Final Ranking</h4>' +
-                    '<table class="table table-striped table-bordered data_table" cellspacing="0" width="100%">' +
-                    '<thead>' +
-                    '<tr>' +
-                    '<th>Alternative ID</th>' +
-                    '<th>Alternative code</th>' +
-                    '<th>Score</th>' +
-                    '</tr>' +
-                    '</thead>' +
-                    '<tbody>';
+                      '<h4>Final Ranking</h4>' +
+                      '<table class="table table-striped table-bordered data_table" cellspacing="0" width="100%">' +
+                      '<thead>' +
+                      '<tr>' +
+                      '<th>Alternative ID</th>' +
+                      '<th>Alternative code</th>' +
+                      '<th>Score</th>' +
+                      '</tr>' +
+                      '</thead>' +
+                      '<tbody>';
 
                   Object.keys(sensitivityranking).forEach(function (key) {
                     finalranking += '<tr>' +
-                    '<td>' + key + '</td>' +
-                    '<td>' + sensitivityranking[key]['user'] + '</td>' +
-                    '<td>' + sensitivityranking[key]['score'] + '</td>' +
-                    '</tr>'
+                        '<td>' + key + '</td>' +
+                        '<td>' + sensitivityranking[key]['user'] + '</td>' +
+                        '<td>' + sensitivityranking[key]['score'] + '</td>' +
+                        '</tr>'
                   });
                   finalranking += '</tbody></table></br>';
                   $("#sensitivityresults").html(finalranking + $("#sensitivityresults").html());
@@ -318,4 +305,75 @@
       }
     }
   });
+
+  // every time a new value is added, move the values to the hidden fields
+  function moveItemsToHiddenFields() {
+    <% @project.criterionparams.each do |criterionparam| %>
+    $("#hidden_weight<%=criterionparam.criterion.id%>").val($("#weight<%=criterionparam.criterion.id%>").val());
+    $("#hidden_inthresslo<%=criterionparam.criterion.id%>").val($("#inthresslo<%=criterionparam.criterion.id%>").val());
+    $("#hidden_inthresint<%=criterionparam.criterion.id%>").val($("#inthresint<%=criterionparam.criterion.id%>").val());
+    $("#hidden_prefthresslo<%=criterionparam.criterion.id%>").val($("#prefthresslo<%=criterionparam.criterion.id%>").val());
+    $("#hidden_prefthresint<%=criterionparam.criterion.id%>").val($("#prefthresint<%=criterionparam.criterion.id%>").val());
+    $("#hidden_vetothresslo<%=criterionparam.criterion.id%>").val($("#vetothresslo<%=criterionparam.criterion.id%>").val());
+    $("#hidden_vetothresint<%=criterionparam.criterion.id%>").val($("#vetothresint<%=criterionparam.criterion.id%>").val());
+    <% end %>
+  }
+
+  // check whether all sensitivity analysis input fields have the same number of params
+  var numberIsEqual = true;
+  var numberOfParams = $("#inthresslo<%=@project.criterionparams.first.criterion.id%>")
+      .tagsinput('items').toString().split(',').length;
+  function validateConfiguration() {
+    var numberOfParams = $("#inthresslo<%=@project.criterionparams.first.criterion.id%>").tagsinput('items').toString().split(',').length;
+    <% @project.criterionparams.each do |criterionparam| %>
+      var lengthWeight = $("#weight<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length;
+      var lengthIntslo = $("#inthresslo<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length;
+      var lengthIntint = $("#inthresint<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length;
+      var lengthPrefslo = $("#prefthresslo<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length;
+      var lengthPrefint = $("#prefthresint<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length;
+      var lengthVetoslo = $("#vetothresslo<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length;
+      var lengthVetoint = $("#vetothresint<%=criterionparam.criterion.id%>").tagsinput('items').toString().split(',').length;
+      if (numberOfParams != lengthWeight) {
+        console.log("1<%=criterionparam.criterion.id%>");
+        numberIsEqual = false;
+      }
+      if (numberOfParams != lengthIntslo) {
+        console.log('2<%=criterionparam.criterion.id%>');
+        numberIsEqual = false;
+      }
+      if (!(numberOfParams == lengthIntint)) {
+        console.log("3<%=criterionparam.criterion.id%>");
+        numberIsEqual = false;
+      }
+      if (!(numberOfParams == lengthPrefslo)) {
+        console.log("4<%=criterionparam.criterion.id%>");
+        numberIsEqual = false;
+      }
+      if (!(numberOfParams == lengthPrefint)) {
+        console.log("5<%=criterionparam.criterion.id%>");
+        numberIsEqual = false;
+      }
+      if (!(numberOfParams == lengthVetoslo)) {
+        console.log("6<%=criterionparam.criterion.id%>");
+        numberIsEqual = false;
+      }
+      if (!(numberOfParams == lengthVetoint)) {
+        console.log("7<%=criterionparam.criterion.id%>");
+        numberIsEqual = false;
+      }
+    <% end %>
+
+    // check if everywhere same number of inputs for sensitivity analysis
+    if (!numberIsEqual) {
+      $("#notEqual").show();
+    }
+    // check whether any parameter is given
+    else if (numberOfParams < 2 ) {
+      $("#noParams").show();
+    }
+    else{
+      $("#notEqual").hide();
+    }
+    return numberIsEqual
+  }
 </script>

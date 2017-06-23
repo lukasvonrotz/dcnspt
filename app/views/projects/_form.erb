@@ -31,6 +31,11 @@
     </div>
 
     <div class="field form-group">
+      <%= project.label :hourlyrate, 'Hourly rate of project (CHF)' %>
+      <%= project.text_field :hourlyrate, :class => "form-control", placeholder: 'Enter hourly rate of project (CHF)' %>
+    </div>
+
+    <div class="field form-group">
       <%= project.label :criterion_ids, 'Project criteria' %></br>
       <%= project.select :criterion_ids, Criterion.all.map { |c| [c.name + ' (' + c.criterioncontext.name + ')', c.id] }, { include_blank: true }, { class: 'chosen-select', multiple: 'true' } %>
     </div>

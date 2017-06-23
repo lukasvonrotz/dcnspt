@@ -1,7 +1,6 @@
 # Controller for managing projects
 class ProjectsController < ApplicationController
 
-
   # Include the methods from the projects_helper class
   include ProjectsHelper
 
@@ -9,12 +8,6 @@ class ProjectsController < ApplicationController
   # GET /projects
   def index
     @projects = Project.all
-  end
-
-  # Control logic for show-view
-  # GET /projects/:id
-  def show
-    @project = Project.find(params[:id])
   end
 
   # Control logic for create-view
@@ -37,6 +30,12 @@ class ProjectsController < ApplicationController
     end
   end
 
+  # Control logic for show-view
+  # GET /projects/:id
+  def show
+    @project = Project.find(params[:id])
+  end
+
   # Control logic for edit-view
   # GET /projects/:id/edit
   def edit
@@ -52,93 +51,14 @@ class ProjectsController < ApplicationController
       # call comes from edit-view
       @project = Project.find(params[:id])
     else
-      # call comes from filter-view
+      # call comes from filter-view -> since URL is different in filter-view,
+      # it has to be defined which ID to read from URL
       @project = Project.find(params[:project_id])
     end
 
     # if update method is called from filter page (then the numberofcrits parameter is set)
     if !params[:numberofcrits].nil?
-      jobprofiles = project_params[:jobprofile_list].split(', ')
-      numberofcrits = params[:numberofcrits].to_i
-      branch = params[:branch]
-
-      # save filter-low and filter-high values
-      saveFilterValues(numberofcrits)
-
-      # remove all connected employees that are connected to the project
-      @project.employees.delete_all
-
-      fulfilled = 0
-      containsLocation = false
-      containsCostrate = false
-      Employee.all.each do |employee|
-        # check if criterionvalue of employee is fulfilled (within range of filter)
-        @project.criterionparams.each do |criterionparam|
-          # handle location anc costrate seperately, see next block
-          if criterionparam.criterion.name == 'location'
-            containsLocation = true
-          elsif criterionparam.criterion.name == 'costrate'
-            containsCostrate = true
-          end
-          #check all criteria except costrate and location (will be checked later)
-          if criterionparam.criterion.name != 'location' && criterionparam.criterion.name != 'costrate'
-            #does this employee have a assigned value to this criterion?
-            if !employee.criterionvalues.find_by(criterion_id: criterionparam.criterion.id).nil?
-              criterionvalue = employee.criterionvalues.find_by(criterion_id: criterionparam.criterion.id).value.to_f
-              filterhigh = criterionparam.filterhigh + 0.1
-              filterlow = criterionparam.filterlow - 0.1
-              if (filterlow <= criterionvalue) && (filterhigh >= criterionvalue)
-                fulfilled += 1
-              end
-            else
-              # if filter value is set to 0, then take this employee into account nevertheless!
-              filterlow = criterionparam.filterlow - 0.1
-              if filterlow <= 0
-                fulfilled +=1
-              end
-            end
-          end
-        end
-
-        #check additionally if costrate and location is fulfilled (because they are not saved in the criterion values)
-
-        # if location is a criterion of the project, check whether the distance to customer of the employee is within the range
-        if containsLocation
-          locationid = Criterion.where(name: 'location').first.id
-          costrateid = Criterion.where(name: 'costrate').first.id
-          distance = Location.get_distance(employee.loclat,employee.loclon,@project.loclat,@project.loclon)
-          if employee.costrate
-            costrate = employee.costrate
-          else
-            costrate = 0
-          end
-
-          if (Criterionparam.where(criterion_id: locationid).first.filterlow <= distance) && (Criterionparam.where(criterion_id: locationid).first.filterhigh >= distance)
-            fulfilled += 1
-          end
-        end
-
-        # if costrate is a criterion of the project, check whether the costrate of the employee is within the range
-        if containsCostrate
-          if (Criterionparam.where(criterion_id: costrateid).first.filterlow <= costrate) && (Criterionparam.where(criterion_id: costrateid).first.filterhigh >= costrate)
-            fulfilled += 1
-          end
-        end
-
-        #if all criteria are fulfilled && job profile does also match
-        if (employee.jobprofile && (numberofcrits == fulfilled) && (jobprofiles.include? employee.jobprofile.name))
-          # if there was selected one or several branches in the filter, only add employees who work at that branch
-          # IMPORTANT: The branch filter is not included in the database! only implemented for evalution purposes
-          if !branch
-            @project.employees << employee
-          else
-            if employee.location && branch.to_s.include?(employee.location.to_s)
-              @project.employees << employee
-            end
-          end
-        end
-        fulfilled = 0
-      end
+      update_filter
     end
 
     if @project.update(project_params)
@@ -166,7 +86,63 @@ class ProjectsController < ApplicationController
   private
   # defines which parameters have to be provided by the form when creating a new project
   def project_params
-    params.require(:project).permit(:name, :loclat, :loclon, :startdate, :enddate, :effort, :hourlyrate, {:criterion_ids => []}, {:employee_ids => []}, :jobprofile_list)
+    params.require(:project).permit(:name, :loclat, :loclon, :startdate, :enddate, :effort, :hourlyrate,
+                                    {:criterion_ids => []}, {:employee_ids => []}, :jobprofile_list)
+  end
+
+  def update_filter
+    puts 'lukas'
+    puts project_params[:jobprofile_list]
+    jobprofiles = project_params[:jobprofile_list].split(', ')
+    numberofcrits = params[:numberofcrits].to_i
+    branch = params[:branch]
+
+    # save filter-low and filter-high values
+    saveFilterValues(numberofcrits)
+
+    # remove all connected employees that are connected to the project
+    @project.employees.delete_all
+
+    # initialize counter (number of fulfilled criteria)
+    fulfilled = 0
+
+    # check for each employee whether he fulfills the set filter-values
+    Employee.all.each do |employee|
+      @project.criterionparams.each do |criterionparam|
+
+        # check if costrate and location is fulfilled
+        if criterionparam.criterion.name == 'location'
+          fulfilled = check_location(employee, fulfilled)
+        elsif criterionparam.criterion.name == 'costrate'
+          fulfilled = check_margin(employee, fulfilled)
+        end
+        #check all criteria except costrate and location
+        if criterionparam.criterion.name != 'location' && criterionparam.criterion.name != 'costrate'
+          #does this employee have a assigned value to this criterion?
+          if !employee.criterionvalues.find_by(criterion_id: criterionparam.criterion.id).nil?
+            # increment fulfilled counter if criterionvalue is within filter range
+            fulfilled = check_other_criteria(criterionparam, employee, fulfilled)
+          else
+            # if no value assigned but filter value is set to 0, then take this employee into account nevertheless!
+            fulfilled = check_if_filter_zero(criterionparam, fulfilled)
+          end
+        end
+      end
+
+      #if all criteria are fulfilled && job profile does also match
+      if (employee.jobprofile && (numberofcrits == fulfilled) && (jobprofiles.include? employee.jobprofile.name))
+        # if there was selected one or several branches in the filter, only add employees who work at that branch
+        # IMPORTANT: The branch filter is not included in the database! only implemented for evalution purposes
+        if !branch
+          @project.employees << employee
+        else
+          if employee.location && branch.to_s.include?(employee.location.to_s) && (employee.location.to_s.length > 0)
+            @project.employees << employee
+          end
+        end
+      end
+      fulfilled = 0
+    end
   end
 
 end
