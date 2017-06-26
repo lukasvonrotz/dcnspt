@@ -7,12 +7,6 @@ class CriterionsController < ApplicationController
     @criterions = Criterion.all
   end
 
-  # Control logic for show-view
-  # GET /criterions/:id
-  def show
-    @criterion = Criterion.find(params[:id])
-  end
-
   # Control logic for create-view
   # GET /criterions/new
   def new
@@ -32,6 +26,12 @@ class CriterionsController < ApplicationController
     else
       render 'new'
     end
+  end
+
+  # Control logic for show-view
+  # GET /criterions/:id
+  def show
+    @criterion = Criterion.find(params[:id])
   end
 
   # Control logic for edit-view

@@ -1,10 +1,5 @@
+# Controller for managing employees
 class EmployeesController < ApplicationController
-
-  # Control logic for show-view
-  # GET /employees/:id
-  def show
-    @employee = Employee.find(params[:id])
-  end
 
   # Control logic for index-view
   # GET /employees
@@ -29,6 +24,12 @@ class EmployeesController < ApplicationController
     else
       render 'new'
     end
+  end
+
+  # Control logic for show-view
+  # GET /employees/:id
+  def show
+    @employee = Employee.find(params[:id])
   end
 
   # Control logic for edit-view

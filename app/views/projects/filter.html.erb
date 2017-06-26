@@ -15,7 +15,7 @@
         <% if Employee.all.maximum("costrate") %>
             <% maximum = Employee.all.maximum("costrate") %>
         <% else %>
-            <% maximum = 100 %>
+            <% maximum = 200 %>
         <% end %>
         <% if Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
             <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
@@ -25,7 +25,7 @@
         <% if Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
             <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
         <% else %>
-            <% filterhigh = 100 %>
+            <% filterhigh = 200 %>
         <% end %>
         <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
         <% filterhigh = (filterhigh>maximum) ? maximum : filterhigh %>
@@ -52,7 +52,16 @@
     <% else %>
         <div class="col-lg-6">
     <% end %>
-          <strong><%= criterion.name.capitalize %></strong>: [<span id="crit<%= (index+1).to_s %>lowlabel"><%= filterlow %></span>,<span id="crit<%= (index+1).to_s %>highlabel"><%= filterhigh %></span>]</br></br>
+          <% if criterion.name == 'costrate' %>
+            <strong>Margin</strong>:
+          <% elsif criterion.name == 'location' %>
+            <strong>Distance to customer</strong>:
+          <% else %>
+            <strong><%= criterion.name.capitalize %></strong>:
+          <% end %>
+          [<span id="crit<%= (index+1).to_s %>lowlabel"><%= filterlow %></span>,
+           <span id="crit<%= (index+1).to_s %>highlabel"><%= filterhigh %></span>
+          ]</br></br>
           <div id="slider<%= (index+1).to_s %>"></div></br>
     <% if index%2 != 0 %>
         </div>
@@ -80,7 +89,7 @@
           <select name="branch[]" class="form-control" multiple="multiple">
             <option value="Schlieren">Schlieren</option>
             <option value="Bern">Bern</option>
-            <option value="Belgrad">Belgrad</option>
+            <option value="Novi Belgrade">Belgrad</option>
           </select>
         </div>
         <div class="field form-group">
@@ -118,7 +127,7 @@
           <% if Employee.all.maximum("costrate") %>
             <% maximum = Employee.all.maximum("costrate") %>
           <% else %>
-            <% maximum = 100 %>
+            <% maximum = 200 %>
           <% end %>
           <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
           <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
@@ -163,7 +172,6 @@
   });
 
   // initialize tag input fields
-  $(".chosen-select").chosen({allow_single_deselect: true, placeholder_text_single: "Select options", no_results_text: 'No results matched', width: '500px'});
   var $input = $('#refresh');
   if ($input.val() == 'yes') {
     location.reload(true);

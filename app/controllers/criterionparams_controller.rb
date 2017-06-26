@@ -12,6 +12,12 @@ class CriterionparamsController < ApplicationController
     end
   end
 
+  # Control logic for show-view
+  # GET /projects/:project_id/criterionparams/:id
+  def show
+    @criterionparam = Criterionparam.find(params[:id])
+  end
+
   # Control logic for edit-view
   # GET /projects/:project_id/criterionparams/:id/edit
   def edit
@@ -27,12 +33,6 @@ class CriterionparamsController < ApplicationController
     else
       render 'edit'
     end
-  end
-
-  # Control logic for show-view
-  # GET /projects/:project_id/criterionparams/:id
-  def show
-    @criterionparam = Criterionparam.find(params[:id])
   end
 
 
