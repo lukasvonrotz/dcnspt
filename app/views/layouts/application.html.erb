@@ -36,8 +36,9 @@
   <script>
     $('.tokenize').tokenfield({
       autocomplete: {
-        source: ['red','blue','green','yellow','violet','brown','purple','black','white'],
-        delay: 100
+        source: [<% Jobprofile.all.each do |jobprofile| %>"<%= jobprofile.name %>",<% end %>],
+        delay: 100,
+        minLength: 2
       },
       showAutocompleteOnFocus: true
     });
