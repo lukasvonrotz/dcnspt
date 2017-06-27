@@ -91,18 +91,21 @@
   function calculateThresholds(id) {
     if ($("#setParamsAutomatically").is(':checked')) {
       var weight = $("#weight" + id).val();
-      var indthresslo = 0;
+      var indthresslo = 0.0;
       var indthresint = Math.round((-weight / 7 + (15 / 7)) * 10) / 10;
-      var prefthresslo = 0;
+      var prefthresslo = 0.0;
       var prefthresint = Math.round((-weight / 7 + (22 / 7)) * 10) / 10;
-      var vetothresslo = 0;
+      var vetothresslo = 0.0;
       var vetothresint = Math.round(((Math.pow(weight, 2) / 24) - weight + (25 / 3)) * 10) / 10;
 
       indthresint = indthresint >= 5 ? 5 : indthresint;
       indthresint = indthresint < 0 ? 0 : indthresint;
       prefthresint = prefthresint >= 5 ? 5 : prefthresint;
       prefthresint = prefthresint < 0 ? 0 : prefthresint;
-      vetothresint = vetothresint >= 5 ? '' : vetothresint;
+      if (vetothresint >= 5) {
+          vetothresint = '';
+          vetothresslo = '';
+      }
       vetothresint = vetothresint < 0 ? 0 : vetothresint;
 
       $("#indthresslo" + id).val(indthresslo);

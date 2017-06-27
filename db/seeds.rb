@@ -2,10 +2,9 @@
 # The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
 #
 
-User.create(id: 1, email: 'admin@dcnspt.com',
-            encrypted_password: '$2a$11$sRxTQev8TpC0yyugrfOn6eRKfKhrFPgPdQPHP0B1gnh1sUvviUmKS');
+User.create(id: '1', email: 'admin@dcnspt.com', password: "electre", password_confirmation: "electre")
 
-Project.create(name: 'Example Project', loclat: '46.75', loclon: '8.03', startdate: '01.02.2017', enddate: '15.01.2017',
+p = Project.create(name: 'Example Project', loclat: '46.8483', loclon: '9.5209', startdate: '01.02.2017', enddate: '15.01.2017',
                effort: '60', hourlyrate: '200', user_id: '1')
 
 Criterioncontext.create(name: 'location')
@@ -22,39 +21,40 @@ Criterion.create(criterioncontext_id: 1, name: 'location')
 Criterion.create(criterioncontext_id: 2, name: 'costrate')
 Criterion.create(criterioncontext_id: 3, name: 'seniority')
 Criterion.create(criterioncontext_id: 4, name: '.NET')
-Criterion.create(criterioncontext_id: 4, name: 'Java')
-Criterion.create(criterioncontext_id: 4, name: 'Ethernet')
+Criterion.create(criterioncontext_id: 4, name: 'java')
+Criterion.create(criterioncontext_id: 4, name: 'ethernet')
 Criterion.create(criterioncontext_id: 4, name: 'HTTP')
 Criterion.create(criterioncontext_id: 5, name: 'RS232')
 Criterion.create(criterioncontext_id: 5, name: 'RS485')
-Criterion.create(criterioncontext_id: 5, name: 'Web Development')
+Criterion.create(criterioncontext_id: 5, name: 'web development')
 
-Employee.create(firstname: 'Anna', surname: 'unknown', code: 'anna', loclat: '47.39', loclon: '8.42', city: 'Urdorf',
-                location: 'Schlieren', country: 'Switzerland', costrate: '120', jobprofile_id: 1)
-Employee.create(firstname: 'Jack', surname: 'unknown', code: 'jack', loclat: '47.37', loclon: '8.54', city: 'Urdorf',
-                location: 'Schlieren', country: 'Switzerland', costrate: '130', jobprofile_id: 2)
-Employee.create(firstname: 'John', surname: 'unknown', code: 'john', loclat: '46.75', loclon: '7.63', city: 'Urdorf',
-                location: 'Bern', country: 'Switzerland', costrate: '100', jobprofile_id: 1)
+Employee.create(firstname: 'Anna', surname: 'Unknown', code: 'anna', loclat: '47.4631', loclon: '8.5322',
+                city: 'Rümlang', location: 'Schlieren', country: 'Switzerland', costrate: '120', jobprofile_id: 1)
+Employee.create(firstname: 'Jack', surname: 'Unknown', code: 'jack', loclat: '47.2776', loclon: '8.3073',
+                city: 'Bilten', location: 'Schlieren', country: 'Switzerland', costrate: '130', jobprofile_id: 2)
+Employee.create(firstname: 'John', surname: 'Unknown', code: 'john', loclat: '47.1501', loclon: '9.0341',
+                city: 'Buttwil', location: 'Bern', country: 'Switzerland', costrate: '100', jobprofile_id: 1)
 
-Criterionparam.create(project_id: '1', criterion_id: '1', weight: '0.5', direction: 'min',
+
+Employee.all.each { |employee| p.employees << employee }
+
+
+Criterionparam.create(project_id: '1', criterion_id: '1', weight: '0.5', direction: 'false',
                       inthresslo: '0.05', inthresint: '-2000', prefthresslo: '0.15', prefthresint: '-3000',
                       vetothresslo: '0.9', vetothresint: '50000', filterlow: '0', filterhigh: '110000')
-Criterionparam.create(project_id: '1', criterion_id: '5', weight: '0.3', direction: 'max',
+Criterionparam.create(project_id: '1', criterion_id: '4', weight: '0.3', direction: 'true',
                       inthresslo: '0.02', inthresint: '0', prefthresslo: '0.05', prefthresint: '0',
-                      filterlow: '100', filterhigh: '1000')
-Criterionparam.create(project_id: '1', criterion_id: '4', weight: '0.2', direction: 'max',
+                      filterlow: '0', filterhigh: '1000')
+Criterionparam.create(project_id: '1', criterion_id: '5', weight: '0.2', direction: 'true',
                       inthresslo: '0', inthresint: '100', prefthresslo: '0', prefthresint: '200',
-                      filterlow: '100', filterhigh: '1000')
+                      filterlow: '0', filterhigh: '1000000')
 
-Criterionvalue.create(employee_id: '1', criterion_id: '1', value: '101300')
-Criterionvalue.create(employee_id: '1', criterion_id: '5', value: '206')
-Criterionvalue.create(employee_id: '1', criterion_id: '4', value: '203')
-Criterionvalue.create(employee_id: '2', criterion_id: '1', value: '103600')
-Criterionvalue.create(employee_id: '2', criterion_id: '5', value: '205')
-Criterionvalue.create(employee_id: '2', criterion_id: '4', value: '265')
-Criterionvalue.create(employee_id: '3', criterion_id: '1', value: '49900')
-Criterionvalue.create(employee_id: '3', criterion_id: '5', value: '123')
-Criterionvalue.create(employee_id: '3', criterion_id: '4', value: '120')
+Criterionvalue.create(employee_id: '1', criterion_id: '4', value: '206')
+Criterionvalue.create(employee_id: '1', criterion_id: '5', value: '203')
+Criterionvalue.create(employee_id: '2', criterion_id: '4', value: '205')
+Criterionvalue.create(employee_id: '2', criterion_id: '5', value: '265')
+Criterionvalue.create(employee_id: '3', criterion_id: '4', value: '123')
+Criterionvalue.create(employee_id: '3', criterion_id: '5', value: '120')
 
 Week.create(workweek: '1', year:'2017')
 Week.create(workweek: '2', year:'2017')

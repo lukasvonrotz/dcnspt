@@ -12,23 +12,38 @@
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
         <% if current_user %>
-          <li class="<%= 'active' if current_page? (projects_path) %>"><a href="<%= projects_path %>"><%= 'My projects' %></a></li>
-          <li class="<%= 'active' if current_page? (employees_path) %>"><a href="<%= employees_path %>"><%= 'All employees' %></a></li>
-          <li class="<%= 'active' if current_page? (users_path) %>"><a href="<%= users_path %>"><%= 'All users' %></a></li>
-          <li class="<%= 'active' if current_page? (criterions_path) %>"><a href="<%= criterions_path %>"><%= 'All criteria' %></a></li>
+          <li class="<%= 'active' if current_page? (projects_path) %>">
+            <a href="<%= projects_path %>"><%= 'My projects' %></a>
+          </li>
+          <li class="<%= 'active' if current_page? (employees_path) %>">
+            <a href="<%= employees_path %>"><%= 'All employees' %></a>
+          </li>
+          <li class="<%= 'active' if current_page? (users_path) %>">
+            <a href="<%= users_path %>"><%= 'All users' %></a>
+          </li>
+          <li class="<%= 'active' if current_page? (criterions_path) %>">
+            <a href="<%= criterions_path %>"><%= 'All criteria' %></a>
+          </li>
         <% end %>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <% if user_signed_in? %>
-            <li class="<%= 'active' if current_page? (edit_user_registration_path) %>"><a href="<%=edit_user_registration_path%>"><span class="glyphicon glyphicon-user"></span> <%=current_user.email%></a></li>
+            <li class="<%= 'active' if current_page? (edit_user_registration_path) %>">
+              <a href="<%=edit_user_registration_path%>">
+                <span class="glyphicon glyphicon-user"></span> <%=current_user.email%>
+              </a>
+            </li>
             <li>
               <%= link_to destroy_user_session_path, method: :delete do %>
                   <i class="glyphicon glyphicon-log-out"></i> Logout
               <% end %>
             </li>
         <% else %>
-            <li><a href="<%=new_user_registration_path%>"><span class="glyphicon glyphicon-user"></span> Register</a></li>
-            <li><a href="<%=new_user_session_path%>"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            <li>
+              <a href="<%=new_user_registration_path%>"><span class="glyphicon glyphicon-user"></span> Register</a>
+            </li>
+            <li>
+              <a href="<%=new_user_session_path%>"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
         <% end %>
       </ul>
     </div>

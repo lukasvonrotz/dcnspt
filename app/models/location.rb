@@ -6,7 +6,7 @@ class Location
       dist = Math.acos(dist)
       dist = self.rad2deg(dist)
       miles = dist * 60 * 1.1515
-      return (miles * 1.609344)
+      return (miles * 1.609344 * 1000)
     else
       return 0
     end

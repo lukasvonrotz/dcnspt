@@ -51,10 +51,12 @@
                 </ul>
               </td>
               <td>
-                <a href="<%= employee_path(employee.id) %>" class="btn btn-xs btn-default">Info</a>
+                <a href="<%= employee_path(employee.id) %>" class="btn btn-xs btn-default btn-index">Info</a>
                 <a href="<%= edit_employee_path(employee.id) %>" class="btn btn-xs btn-info">Edit</a>
-                <%= link_to "Edit Criteria Values", employee_criterionvalues_path(employee.id), class: "btn btn-xs btn-info" %>
-                <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#popup_sure_delete" data-employeeid="<%= employee.id %>">Delete</button>
+                <%= link_to "Edit Criteria Values", employee_criterionvalues_path(employee.id),
+                            class: "btn btn-xs btn-info btn-index" %>
+                <button type="button" class="btn btn-xs btn-danger btn-index" data-toggle="modal"
+                        data-target="#popup_sure_delete" data-employeeid="<%= employee.id %>">Delete</button>
               </td>
         <% end %>
         </tr>
@@ -75,7 +77,8 @@
         <p>Are you sure to delete this employee?</p>
       </div>
       <div class="modal-footer">
-        <%= link_to 'Delete employee', "#", :method => :delete, :class => "btn btn-danger btn-delete", data: { disable_with: 'Processing...' } %>
+        <%= link_to 'Delete employee', "#", :method => :delete, :class => "btn btn-danger btn-delete",
+                    data: { disable_with: 'Processing...' } %>
         <button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button>
       </div>
     </div>

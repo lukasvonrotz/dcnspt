@@ -13,6 +13,8 @@
             <th>Project Name</th>
             <th>Start Date</th>
             <th>End Date</th>
+            <th>Effort</th>
+            <th>Hourly Rate</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -21,6 +23,8 @@
             <th>Project Name</th>
             <th>Start Date</th>
             <th>End Date</th>
+            <th>Effort</th>
+            <th>Hourly Rate</th>
             <th>Actions</th>
           </tr>
         </tfoot>
@@ -31,11 +35,18 @@
               <td><%= link_to project.name, project_path(project.id) %></td>
               <td><%= project.startdate.nil? ? 'unknown' : project.startdate.strftime("%Y/%m/%d") %></td>
               <td><%= project.enddate.nil? ? 'unknown' : project.enddate.strftime("%Y/%m/%d") %></td>
+              <td><%= project.effort.nil? ? 'unknown' : project.effort %></td>
+              <td><%= project.hourlyrate.nil? ? 'unknown' : project.hourlyrate %></td>
               <td>
-                <a href="<%= project_path(project.id) %>" class="btn btn-xs btn-default">Info</a>
-                <a href="<%= edit_project_path(project.id) %>" class="btn btn-xs btn-info">Edit</a>
-                <a href="<%= project_criterionparams_path(project.id) %>" class="btn btn-xs btn-info">Edit Criteria Parameters</a>
-                <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#popup_sure_delete" data-projectid="<%= project.id %>">Delete</button>
+                <a href="<%= project_path(project.id) %>" class="btn btn-xs btn-default btn-index">Info</a>
+                <a href="<%= edit_project_path(project.id) %>" class="btn btn-xs btn-info btn-index">Edit</a>
+                <a href="<%= project_criterionparams_path(project.id) %>" class="btn btn-xs btn-info btn-index">
+                  Edit Criterion Parameters
+                </a>
+                <button type="button" class="btn btn-xs btn-danger btn-index"
+                        data-toggle="modal" data-target="#popup_sure_delete" data-projectid="<%= project.id %>">
+                  Delete
+                </button>
               </td>
           <% end %>
         <% end %>
@@ -58,7 +69,8 @@
         <p>Are you sure to delete the project?</p>
       </div>
       <div class="modal-footer">
-        <%= link_to 'Delete Project', "#", :method => :delete, :class => "btn btn-danger btn-delete", data: { disable_with: 'Processing...' } %>
+        <%= link_to 'Delete Project', "#", :method => :delete, :class => "btn btn-danger btn-delete",
+                    data: { disable_with: 'Processing...' } %>
         <button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button>
       </div>
     </div>

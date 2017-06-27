@@ -16,9 +16,20 @@
     </div>
 
     <div class="field form-group">
+      <%= employee.label :city, 'City' %>
+      <%= employee.text_field :city, :class => "form-control", placeholder: 'Enter city of employee' %>
+    </div>
+
+    <div class="field form-group">
       <%= employee.label :country, 'Country' %>
       <%= employee.text_field :country, :class => "form-control", placeholder: 'Enter country of employee' %>
     </div>
+
+    <div class="field form-group">
+      <%= employee.label :location, 'Branch' %>
+      <%= employee.text_field :location, :class => "form-control", placeholder: 'Enter branch of company' %>
+    </div>
+
 
     <div class="field form-group">
       <%= employee.label :loclat, 'Location (Latitude)' %>
@@ -38,15 +49,19 @@
     <div class="field form-group">
       <%= employee.label :jobprofile_id, 'Job Profile' %>
       <% if context %>
-          <%= employee.select :jobprofile_id, options_for_select(Jobprofile.all.map{|j|[j.name, j.id]}), {}, {class:"form-control"} %>
+          <%= employee.select :jobprofile_id,
+                              options_for_select(Jobprofile.all.map{|j|[j.name, j.id]}), {}, {class:"form-control"} %>
       <% else %>
-          <%= employee.select :jobprofile_id, options_for_select(Jobprofile.all.map{|j|[j.name, j.id]}, Jobprofile.find(jobprofile).id), {}, {class:"form-control"} %>
+          <%= employee.select :jobprofile_id,
+                              options_for_select(Jobprofile.all.map{|j|[j.name, j.id]},
+                                                 Jobprofile.find(jobprofile).id), {}, {class:"form-control"} %>
       <% end %>
     </div>
 
     <div class="field form-group">
       <%= employee.label :criterion_ids, 'Relevant criteria' %></br>
-      <%= employee.select :criterion_ids, Criterion.all.map { |c| [c.name, c.id] }, { include_blank: true }, { class: 'chosen-select', multiple: 'true' } %>
+      <%= employee.select :criterion_ids, Criterion.all.map { |c| [c.name, c.id] },
+                          { include_blank: true }, { class: 'chosen-select', multiple: 'true' } %>
     </div>
 
     <div class="actions form-group">
@@ -62,7 +77,8 @@
 <input type="hidden" id="refresh" value="no">
 
 <script>
-  $(".chosen-select").chosen({allow_single_deselect: true, placeholder_text_single: "Select options", no_results_text: 'No results matched', search_contains: true, width: '500px'});
+  $(".chosen-select").chosen({allow_single_deselect: true, placeholder_text_single: "Select options",
+      no_results_text: 'No results matched', search_contains: true, width: '500px'});
   var $input = $('#refresh');
   if ($input.val() == 'yes') {
     location.reload(true);

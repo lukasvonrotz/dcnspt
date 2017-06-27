@@ -5,7 +5,7 @@
     <% case criterion.name.to_s %>
     <% when "location" %>
         <% minimum = 0 %>
-        <% maximum = 1000 %>
+        <% maximum = 1000000 %>
         <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
         <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
         <% filterlow = (filterlow<minimum) ? minimum : filterlow %>
@@ -102,7 +102,8 @@
         <%= hidden_field_tag "numberofcrits", @project.criterions.length.to_s %>
 
         <div class="actions form-group">
-              <%= project.submit 'Update employees', class: "btn btn-success", data: { disable_with: "Processsing..." }  %>
+              <%= project.submit 'Update employees', class: "btn btn-success",
+                                 data: { disable_with: "Processsing..." }  %>
         </div>
       </div>
     </div>
@@ -117,7 +118,7 @@
       <% case criterion.name.to_s %>
         <% when "location" %>
           <% minimum = 0 %>
-          <% maximum = 1000 %>
+          <% maximum = 1000000 %>
           <% filterlow = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterlow %>
           <% filterhigh = Criterionparam.where(project_id: @project.id, criterion_id: criterion.id).first.filterhigh %>
           <% filterlow = (filterlow<minimum) ? minimum : filterlow %>

@@ -22,6 +22,16 @@ module ProjectsHelper
     return var
   end
 
+  def params_set?(project)
+    params_set = true
+    project.criterionparams.each do |criterionparam|
+      if !(criterionparam.weight && criterionparam.inthresslo && criterionparam.inthresint)
+        params_set = false
+      end
+    end
+    return params_set
+  end
+
   def internet_connection?
     begin
       true if open("http://www.google.com/")

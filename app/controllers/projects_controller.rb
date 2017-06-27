@@ -91,8 +91,6 @@ class ProjectsController < ApplicationController
   end
 
   def update_filter
-    puts 'lukas'
-    puts project_params[:jobprofile_list]
     jobprofiles = project_params[:jobprofile_list].split(', ')
     numberofcrits = params[:numberofcrits].to_i
     branch = params[:branch]

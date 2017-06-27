@@ -2,47 +2,58 @@
 
     <div class="field form-group">
       <%= project.label :name, 'Project name' %>
-      <%= project.text_field :name, :class => "form-control", placeholder: 'Enter name of the project' %>
+      <%= project.text_field :name, :class => "form-control",
+                             placeholder: 'Enter name of the project' %>
     </div>
 
     <div class="field form-group">
       <%= project.label :loclat, 'Customer location (Latitude)' %>
-      <%= project.text_field :loclat, :class => "form-control", placeholder: 'Enter coordinate (latitude) of customer' %>
+      <%= project.text_field :loclat, :class => "form-control",
+                             placeholder: 'Enter coordinate (latitude) of customer' %>
     </div>
 
     <div class="field form-group">
       <%= project.label :loclon, 'Customer location (Longitude)' %>
-      <%= project.text_field :loclon, :class => "form-control", placeholder: 'Enter coordinate (longitude) of customer' %>
+      <%= project.text_field :loclon, :class => "form-control",
+                             placeholder: 'Enter coordinate (longitude) of customer' %>
     </div>
 
     <div class="field form-group">
       <%= project.label :startdate, 'Start date of project' %>
-      <%= project.text_field :startdate, :class => "form-control", placeholder: 'Enter start date of project' %>
+      <%= project.text_field :startdate, :class => "form-control",
+                             placeholder: 'Enter start date of project' %>
     </div>
 
     <div class="field form-group">
       <%= project.label :enddate, 'End date of project' %>
-      <%= project.text_field :enddate, :class => "form-control", placeholder: 'Enter end date of project' %>
+      <%= project.text_field :enddate, :class => "form-control",
+                             placeholder: 'Enter end date of project' %>
     </div>
 
     <div class="field form-group">
       <%= project.label :effort, 'Estimated effort of project (hours)' %>
-      <%= project.text_field :effort, :class => "form-control", placeholder: 'Enter estimated effort (hours) of project' %>
+      <%= project.text_field :effort, :class => "form-control",
+                             placeholder: 'Enter estimated effort (hours) of project' %>
     </div>
 
     <div class="field form-group">
       <%= project.label :hourlyrate, 'Hourly rate of project (CHF)' %>
-      <%= project.text_field :hourlyrate, :class => "form-control", placeholder: 'Enter hourly rate of project (CHF)' %>
+      <%= project.text_field :hourlyrate, :class => "form-control",
+                             placeholder: 'Enter hourly rate of project (CHF)' %>
     </div>
 
     <div class="field form-group">
       <%= project.label :criterion_ids, 'Project criteria' %></br>
-      <%= project.select :criterion_ids, Criterion.all.map { |c| [c.name + ' (' + c.criterioncontext.name + ')', c.id] }, { include_blank: true }, { class: 'chosen-select', multiple: 'true' } %>
+      <%= project.select :criterion_ids,
+                         Criterion.all.map { |c| [c.name + ' (' + c.criterioncontext.name + ')', c.id] },
+                         { include_blank: true }, { class: 'chosen-select', multiple: 'true' } %>
     </div>
 
     <div class="field form-group">
       <%= project.label :employee_ids, 'Project alternatives' %></br>
-      <%= project.select :employee_ids, Employee.all.map { |e| [e.code, e.id] }, { include_blank: true }, { class: 'chosen-select', multiple: 'true' } %>
+      <%= project.select :employee_ids,
+                         Employee.all.map { |e| [e.code, e.id] },
+                         { include_blank: true }, { class: 'chosen-select', multiple: 'true' } %>
     </div>
 
     <div class="actions form-group">
@@ -58,7 +69,8 @@
 <input type="hidden" id="refresh" value="no">
 
 <script>
-  $(".chosen-select").chosen({allow_single_deselect: true, placeholder_text_single: "Select options", no_results_text: 'No results matched', search_contains: true, width: '500px'});
+  $(".chosen-select").chosen({allow_single_deselect: true, placeholder_text_single: "Select options",
+      no_results_text: 'No results matched', search_contains: true, width: '500px'});
   var $input = $('#refresh');
   if ($input.val() == 'yes') {
     location.reload(true);

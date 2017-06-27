@@ -12,7 +12,13 @@
         <th>Alternative ID</th>
         <th>Code</th>
         <% @project.criterionparams.each do |criterionparam| %>
-            <th><%= criterionparam.criterion.name %> - Value (<%= criterionparam.weight %>)</th>
+            <% if criterionparam.criterion.name == 'location' %>
+                <th>Distance to customer (<%= criterionparam.weight %>)</th>
+            <% elsif criterionparam.criterion.name == 'costrate' %>
+                <th>Margin (<%= criterionparam.weight %>)</th>
+            <% else %>
+                <th><%= criterionparam.criterion.name %> - Value (<%= criterionparam.weight %>)</th>
+            <% end %>
         <% end %>
       </tr>
       </thead>
@@ -24,9 +30,18 @@
             <td><%= key %></td>
             <td><%= employee.code %></td>
             <% @project.criterionparams.each do |criterionparam| %>
-                <% critvalue = Criterionvalue.where(:employee_id => employee.id,
+                <% if criterionparam.criterion.name == 'location' %>
+                    <% critvalue = number_with_precision((Location.get_distance(employee.loclat,employee.loclon,
+                                                                                @project.loclat,@project.loclon)/1000),
+                                                         :precision => 1) + ' km' %>
+                <% elsif criterionparam.criterion.name == 'costrate' %>
+                    <% critvalue = Margin.get_margin(@project.hourlyrate,employee.costrate) %>
+                <% else %>
+                  <% critvalue = Criterionvalue.where(:employee_id => employee.id,
                                                     :criterion_id => criterionparam.criterion.id).first %>
-                <td><%= critvalue ? critvalue.value : 0 %></td>
+                  <% critvalue = critvalue ? critvalue.value : 0 %>
+                <% end %>
+                <td><%= critvalue %></td>
             <% end %>
           </tr>
         <% end %>
@@ -128,6 +143,19 @@
   // hide error messages
   $("#notEqual").hide();
   $("#noParams").hide();
+
+  // if no sensitivity params saved, set sensitivity input fields with criterionparams
+  <% if Sensitivity.where(:project_id => @project.id).length == 0 %>
+    <% @project.criterionparams.each do |criterionparam| %>
+      $("#weight<%=criterionparam.criterion_id%>").val("<%= criterionparam.weight.nil? ? 'none' : criterionparam.weight %>");
+      $("#inthresslo<%=criterionparam.criterion_id%>").val("<%= criterionparam.inthresslo.nil? ? 'none' : criterionparam.inthresslo %>");
+      $("#inthresint<%=criterionparam.criterion_id%>").val("<%= criterionparam.inthresint.nil? ? 'none' : criterionparam.inthresint %>");
+      $("#prefthresslo<%=criterionparam.criterion_id%>").val("<%= criterionparam.prefthresslo.nil? ? 'none' : criterionparam.prefthresslo %>");
+      $("#prefthresint<%=criterionparam.criterion_id%>").val("<%= criterionparam.prefthresint.nil? ? 'none' : criterionparam.prefthresint %>");
+      $("#vetothresslo<%=criterionparam.criterion_id%>").val("<%= criterionparam.vetothresslo.nil? ? 'none' : criterionparam.vetothresslo %>");
+      $("#vetothresint<%=criterionparam.criterion_id%>").val("<%= criterionparam.vetothresint.nil? ? 'none' : criterionparam.vetothresint %>");
+    <% end %>
+  <% end %>
 
   // fill the sensitivity input fields with values from database
   <% Sensitivity.where(:project_id => @project.id).each do |sensparam| %>
@@ -368,7 +396,7 @@
       $("#notEqual").show();
     }
     // check whether any parameter is given
-    else if (numberOfParams < 2 ) {
+    else if (numberOfParams < 1 ) {
       $("#noParams").show();
     }
     else{
