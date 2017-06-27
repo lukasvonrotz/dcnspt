@@ -47,7 +47,7 @@ Criterionparam.create(project_id: '1', criterion_id: '4', weight: '0.3', directi
                       filterlow: '0', filterhigh: '1000')
 Criterionparam.create(project_id: '1', criterion_id: '5', weight: '0.2', direction: 'true',
                       inthresslo: '0', inthresint: '100', prefthresslo: '0', prefthresint: '200',
-                      filterlow: '0', filterhigh: '1000000')
+                      filterlow: '0', filterhigh: '1000')
 
 Criterionvalue.create(employee_id: '1', criterion_id: '4', value: '206')
 Criterionvalue.create(employee_id: '1', criterion_id: '5', value: '203')
