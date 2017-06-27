@@ -4,8 +4,8 @@
 
 User.create(id: '1', email: 'admin@dcnspt.com', password: "electre", password_confirmation: "electre")
 
-p = Project.create(name: 'Example Project', loclat: '46.8483', loclon: '9.5209', startdate: '01.02.2017', enddate: '15.01.2017',
-               effort: '60', hourlyrate: '200', user_id: '1')
+p = Project.create(name: 'Example Project', loclat: '46.8483', loclon: '9.5209', startdate: '01.01.2017',
+                   enddate: '15.01.2017', effort: '60', hourlyrate: '200', user_id: '1')
 
 Criterioncontext.create(name: 'location')
 Criterioncontext.create(name: 'costrate')
