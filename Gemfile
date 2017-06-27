@@ -58,7 +58,7 @@ gem 'devise'
 gem 'chosen-rails'
 gem 'jquery-ui-rails'
 gem 'rails_12factor', group: :production
-gem 'nokogiri'
+gem 'nokogiri', '~> 1.7.2'
 gem 'acts-as-taggable-on'
 gem 'bootstrap_tokenfield_rails'
 gem 'will_paginate-bootstrap'
