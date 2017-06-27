@@ -59,7 +59,7 @@
     </div>
 
     <div class="field form-group">
-      <%= employee.label :criterion_ids, 'Relevant criteria' %></br>
+      <%= employee.label :criterion_ids, 'Criteria of employee' %></br>
       <%= employee.select :criterion_ids, Criterion.all.map { |c| [c.name, c.id] },
                           { include_blank: true }, { class: 'chosen-select', multiple: 'true' } %>
     </div>
