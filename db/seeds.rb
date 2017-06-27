@@ -41,7 +41,7 @@ Employee.all.each { |employee| p.employees << employee }
 
 Criterionparam.create(project_id: '1', criterion_id: '1', weight: '0.5', direction: 'false',
                       inthresslo: '0.05', inthresint: '-2000', prefthresslo: '0.15', prefthresint: '-3000',
-                      vetothresslo: '0.9', vetothresint: '50000', filterlow: '0', filterhigh: '110000')
+                      vetothresslo: '0.9', vetothresint: '50000', filterlow: '0', filterhigh: '1000000')
 Criterionparam.create(project_id: '1', criterion_id: '4', weight: '0.3', direction: 'true',
                       inthresslo: '0.02', inthresint: '0', prefthresslo: '0.05', prefthresint: '0',
                       filterlow: '0', filterhigh: '1000')
