@@ -1,11 +1,16 @@
 = README
+This web application based on Ruby on Rails is a decision support system based on the ELECTRE III algorithm.
+It is possible to create projects and to define decision alternatives (employees), decision criteria,
+to set the criterion parameters (e.g. weights, thresholds) and to get a ranking based on the given parameters.
+Moreover, a sensitivity analysis can be performed which provides a final ranking of all decision alternatives at the end.
 
 == Installation on Windows
 
 * Download RubyInstaller for Windows (http://railsinstaller.org/en), including:
 * Ruby 2.3.3
   * Rails 5.0
-  * If Ruby is already installed on your machine, try to install the software with your current version, or use a version management tool such as rbenv or rvm.
+  * If Ruby is already installed on your machine, try to install the software with your current version,
+  or use a version management tool such as rbenv or rvm.
 * run 'git clone https://github.com/lukasvonrotz/dcnspt.git'
 * Open the installed git bash (console) and type in the following commands:
   * cd dcnspt
