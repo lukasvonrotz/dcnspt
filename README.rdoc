@@ -6,11 +6,7 @@
 * Ruby 2.3.3
   * Rails 5.0
   * If Ruby is already installed on your machine, try to install the software with your current version, or use a version management tool such as rbenv or rvm.
-* Install RubyDevKit (in git bash)
-  * change to location /RailsInstaller/DevKit
-  * run 'ruby dk.rb init'
-  * run 'ruby dk.rb install'
-* git clone https://github.com/lukasvonrotz/dcnspt.git
+* run 'git clone https://github.com/lukasvonrotz/dcnspt.git'
 * Open the installed git bash (console) and type in the following commands:
   * cd dcnspt
   * gem install bundler
