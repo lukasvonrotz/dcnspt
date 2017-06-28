@@ -21,6 +21,12 @@ Moreover, a sensitivity analysis can be performed which provides a final ranking
 == Installation on Ubuntu
 
 * Follow instructions on https://gorails.com, depending on your operating system
+* run 'git clone https://github.com/lukasvonrotz/dcnspt.git'
+* Run the following commands:
+  * cd dcnspt
+  * gem install bundler
+  * bundle install
+  * bundle update
 
 == Setup database
 
@@ -49,6 +55,7 @@ Moreover, a sensitivity analysis can be performed which provides a final ranking
 
 == Start application
 * Start application by running 'rails server'
+* Navigate to http://localhost:3000/ with a browser.
 * If you have loaded example data with 'rake db:seed', you can login into the application with the following credentials:
   * username: admin@dcnspt.com
   * password: electre
