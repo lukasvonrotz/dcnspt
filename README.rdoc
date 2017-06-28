@@ -19,7 +19,7 @@
 
 == Installation on Ubuntu
 
-* Follow instructions on, https://gorails.com, depending on your operating system
+* Follow instructions on https://gorails.com, depending on your operating system
 
 == Setup database
 
