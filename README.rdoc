@@ -39,7 +39,7 @@ encoding: unicode
 host: localhost
 database: <name of the database>
 username: <username for database>
-password: <password>
+password: <password>  
 
 
 * Database initialization (run commands in git bash)
