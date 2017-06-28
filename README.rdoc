@@ -25,21 +25,20 @@
 
 * Check /config/database.yml and set database you want to use
 * SQLite3 Example:
-
-adapter: sqlite3<br>
-pool: 5<br>
-timeout: 5000<br>
-database: db/development.sqlite3<br>
+  * adapter: sqlite3
+  * pool: 5
+  * timeout: 5000
+  * database: db/development.sqlite3
 
 * Postgresql Example:
-adapter: postgresql<br>
-pool: 5<br>
-timeout: 5000<br>
-encoding: unicode<br>
-host: localhost<br>
-database: <name of the database><br>
-username: <username for database><br>
-password: <password><br>
+  * adapter: postgresql
+  * pool: 5
+  * timeout: 5000
+  * encoding: unicode
+  * host: localhost
+  * database: <name of the database>
+  * username: <username for database>
+  * password: <password>
 
 
 * Database initialization (run commands in git bash)
