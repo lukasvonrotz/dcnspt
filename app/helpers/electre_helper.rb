@@ -38,17 +38,20 @@ module ElectreHelper
       criteriaHash[hashkey]['name'] = criterionparam.criterion.name
       criteriaHash[hashkey]['direction'] = (criterionparam.direction ? 'max' : 'min')
 
-      criteriaHash[hashkey]['indslo'] = params['inthresslo' + criterionparam.criterion.id.to_s][iteration].to_f ?
+
+
+      criteriaHash[hashkey]['indslo'] = params['inthresslo' + criterionparam.criterion.id.to_s][iteration] != 'NaN' ?
           params['inthresslo' + criterionparam.criterion.id.to_s][iteration].to_f : nil
-      criteriaHash[hashkey]['indint'] = params['inthresint' + criterionparam.criterion.id.to_s][iteration].to_f ?
+      criteriaHash[hashkey]['indint'] = params['inthresint' + criterionparam.criterion.id.to_s][iteration] != 'NaN' ?
           params['inthresint' + criterionparam.criterion.id.to_s][iteration].to_f : nil
-      criteriaHash[hashkey]['preslo'] = params['prefthresslo' + criterionparam.criterion.id.to_s][iteration].to_f ?
+      criteriaHash[hashkey]['preslo'] = params['prefthresslo' + criterionparam.criterion.id.to_s][iteration] != 'NaN' ?
           params['prefthresslo' + criterionparam.criterion.id.to_s][iteration].to_f : nil
-      criteriaHash[hashkey]['preint'] = params['prefthresint' + criterionparam.criterion.id.to_s][iteration].to_f ?
+      criteriaHash[hashkey]['preint'] = params['prefthresint' + criterionparam.criterion.id.to_s][iteration] != 'NaN' ?
           params['prefthresint' + criterionparam.criterion.id.to_s][iteration].to_f : nil
-      criteriaHash[hashkey]['vetslo'] = params['vetothresslo' + criterionparam.criterion.id.to_s][iteration].to_f ?
+
+      criteriaHash[hashkey]['vetslo'] = params['vetothresslo' + criterionparam.criterion.id.to_s][iteration] != 'NaN' ?
           params['vetothresslo' + criterionparam.criterion.id.to_s][iteration].to_f : nil
-      criteriaHash[hashkey]['vetint'] = params['vetothresint' + criterionparam.criterion.id.to_s][iteration].to_f ?
+      criteriaHash[hashkey]['vetint'] = params['vetothresint' + criterionparam.criterion.id.to_s][iteration] != 'NaN' ?
           params['vetothresint' + criterionparam.criterion.id.to_s][iteration].to_f : nil
     end
     return criteriaHash
