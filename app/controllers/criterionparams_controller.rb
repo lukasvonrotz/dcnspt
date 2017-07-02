@@ -29,7 +29,7 @@ class CriterionparamsController < ApplicationController
   def update
     @criterionparam = Criterionparam.find(params[:id])
     if @criterionparam.update(criterionparam_params)
-      redirect_to project_criterionparams_path, :notice => 'Criterion Parameters successfully updated'
+      redirect_to project_criterionparams_path, :notice => 'Criteria Parameters successfully updated'
     else
       render 'edit'
     end

@@ -1,4 +1,4 @@
-<h1>Criterion Parameters of <%= @project.name %></h1>
+<h1>Criteria Parameters of <%= @project.name %></h1>
 </br>
 
 <% if @criterionparams.nil? %>
@@ -34,7 +34,7 @@
 </br>
 <%= link_to "Back to project", project_path(@project.id) %>
 
-<%= render 'layouts/loading', :message => "Loading criterion parameters..." %>
+<%= render 'layouts/loading', :message => "Loading criteria parameters..." %>
 
 <input type="hidden" id="refresh" value="no">
 
