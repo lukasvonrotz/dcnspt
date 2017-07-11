@@ -99,7 +99,8 @@ module ElectreHelper
     concordanceOutput2 = Soapcreator.getSoapTicket(concordanceOutput1.xpath("//ticket/text()").to_s)
     concordanceOutput = Nokogiri::XML(postXmlToWebservice(concordanceOutput2, "http://webservices.decision-deck.org/soap/ElectreConcordance-PUT.py"))
     xml = concordanceOutput.to_s.gsub! '&lt;', '<'
-    return xml.gsub! '&gt;', '>'
+    xml = xml.to_s.gsub! '&gt;', '>'
+    return xml
   end
 
   # call 'ElectreDiscordance' web service from decision deck and return an xml with the web service answer
@@ -109,7 +110,8 @@ module ElectreHelper
     discordanceOutput2 = Soapcreator.getSoapTicket(discordanceOutput1.xpath("//ticket/text()").to_s)
     discordanceOutput = Nokogiri::XML(postXmlToWebservice(discordanceOutput2, "http://webservices.decision-deck.org/soap/ElectreDiscordance-PUT.py"))
     xml = discordanceOutput.to_s.gsub! '&lt;', '<'
-    return xml.gsub! '&gt;', '>'
+    xml = xml.to_s.gsub! '&gt;', '>'
+    return xml
   end
 
   # call 'ElectreCredibility' web service from decision deck and return an xml with the web service answer
@@ -119,7 +121,8 @@ module ElectreHelper
     credibilityOutput2 = Soapcreator.getSoapTicket(credibilityOutput1.xpath("//ticket/text()").to_s)
     credibilityOutput = Nokogiri::XML(postXmlToWebservice(credibilityOutput2,"http://webservices.decision-deck.org/soap/ElectreCredibility-PUT.py"))
     xml = credibilityOutput.to_s.gsub! '&lt;', '<'
-    return xml.gsub! '&gt;', '>'
+    xml = xml.to_s.gsub! '&gt;', '>'
+    return xml
   end
 
   # call 'ElectreDistillation' web service from decision deck and return an xml with the web service answer
@@ -129,7 +132,8 @@ module ElectreHelper
     distillationOutput2 = Soapcreator.getSoapTicket(distillationOutput1.xpath("//ticket/text()").to_s)
     distillationOutput = Nokogiri::XML(postXmlToWebservice(distillationOutput2,"http://webservices.decision-deck.org/soap/ElectreDistillation-PUT.py"))
     xml = distillationOutput.to_s.gsub! '&lt;', '<'
-    return xml.gsub! '&gt;', '>'
+    xml = xml.to_s.gsub! '&gt;', '>'
+    return xml
   end
 
   # call 'ElectreDistillationRank' web service from decision deck and return an xml with the web service answer
@@ -139,7 +143,8 @@ module ElectreHelper
     rankingOutput2 = Soapcreator.getSoapTicket(rankingOutput1.xpath("//ticket/text()").to_s)
     rankingOutput = Nokogiri::XML(postXmlToWebservice(rankingOutput2,"http://webservices.decision-deck.org/soap/ElectreDistillationRank-PUT.py"))
     xml = rankingOutput.to_s.gsub! '&lt;', '<'
-    return xml.gsub! '&gt;', '>'
+    xml = xml.to_s.gsub! '&gt;', '>'
+    return xml
   end
 
   # prepare XML for further processing
