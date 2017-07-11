@@ -150,7 +150,9 @@ module ElectreHelper
   # prepare XML for further processing
   # extract only the part of the XML which is in between the two makerstrings
   def convertXML(xml,markerstring1,markerstring2)
-    return xml[/#{markerstring1}(.*?)#{markerstring2}/m, 1]
+    puts xml
+    newXML = xml[/#{markerstring1}(.*?)#{markerstring2}/m, 1]
+    return newXML
   end
 
   # perform web service call (with SOAP)
