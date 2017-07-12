@@ -18,7 +18,7 @@ class ElectreController < ApplicationController
     @alpha = params[:alpha]
     @beta = params[:beta]
 
-    numberOfServiceTries = 5
+    numberOfServiceTries = 10
 
     # Create hash with all project alternatives (with employee id's)
     @alternatives = Hash.new()
@@ -158,7 +158,7 @@ class ElectreController < ApplicationController
     @beta = params[:beta]
     @iteration = params['iteration'].to_i
 
-    numberOfServiceTries = 5
+    numberOfServiceTries = 10
 
     # Create hash with all project alternatives (with employee codes)
     @alternatives = Hash.new()
