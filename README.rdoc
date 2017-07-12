@@ -7,7 +7,7 @@ Moreover, a sensitivity analysis can be performed which provides a final ranking
 == Installation on Windows
 
 * Download RubyInstaller for Windows (http://railsinstaller.org/en), including:
-* Ruby 2.3.3
+  * Ruby 2.3.3
   * Rails 5.0
   * If Ruby is already installed on your machine, try to install the software with your current version,
   or use a version management tool such as rbenv or rvm.
