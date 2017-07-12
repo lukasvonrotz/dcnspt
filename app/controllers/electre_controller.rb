@@ -18,6 +18,8 @@ class ElectreController < ApplicationController
     @alpha = params[:alpha]
     @beta = params[:beta]
 
+    numberOfServiceTries = 5
+
     # Create hash with all project alternatives (with employee id's)
     @alternatives = Hash.new()
     @alternatives = getProjectAlternatives(@alternatives, @project, true)
@@ -36,17 +38,53 @@ class ElectreController < ApplicationController
 
     ####buildSoapRequestConcordance#####
     concordanceInput = soapInstance.getSoapConcordance(criteria,weights)
+    puts 'concordance: try nr. 1'
     xml = buildSoapRequestConcordance(concordanceInput)
+    i = 2
+    while xml.nil? && i <= numberOfServiceTries
+      puts 'concordance: try nr. ' + i.to_s
+      xml = buildSoapRequestConcordance(concordanceInput)
+      i += 1
+    end
+    if xml.nil?
+      puts 'ERROR: could not perform concordance web service!'
+    else
+      puts 'SUCCESS: successfully performed concordance web service!'
+    end
     xmlConcordance = convertXML(xml,'<alternativesComparisons>','</alternativesComparisons>')
 
     ####buildSoapRequestDiscordance#####
     discordanceInput = soapInstance.getSoapDiscordance(criteria,weights)
+    puts 'discordance: try nr. 1'
     xml = buildSoapRequestDiscordance(discordanceInput)
+    i = 2
+    while xml.nil? && i <= numberOfServiceTries
+      puts 'discordance: try nr. ' + i.to_s
+      xml = buildSoapRequestDiscordance(discordanceInput)
+      i += 1
+    end
+    if xml.nil?
+      puts 'ERROR: could not perform discordance web service!'
+    else
+      puts 'SUCCESS: successfully performed discordance web service!'
+    end
     xmlDiscordance = convertXML(xml,'<alternativesComparisons>','</alternativesComparisons>')
 
     ####buildSoapRequestDistillations#####
     credibilityInput = soapInstance.getSoapCredibility(xmlConcordance, xmlDiscordance)
+    puts 'credibility: try nr. 1'
     xml = buildSoapRequestCredibility(credibilityInput)
+    i = 2
+    while xml.nil? && i <= numberOfServiceTries
+      puts 'credibility: try nr. ' + i.to_s
+      xml = buildSoapRequestCredibility(credibilityInput)
+      i += 1
+    end
+    if xml.nil?
+      puts 'ERROR: could not perform credibility web service!'
+    else
+      puts 'SUCCESS: successfully performed credibility web service!'
+    end
     credibilityXML = convertXML(xml,'<alternativesComparisons>','</alternativesComparisons>')
 
 
@@ -55,17 +93,53 @@ class ElectreController < ApplicationController
     ######downwards#######################
     distillationInput = soapInstance.getSoapDistillation(credibilityXML,'downwards', @alpha, @beta)
     xml = buildSoapRequestDistillation(distillationInput)
+    puts 'distillation downwards: try nr. 1'
+    i = 2
+    while xml.nil? && i <= numberOfServiceTries
+      puts 'distillation downwards: try nr. ' + i.to_s
+      xml = buildSoapRequestDistillation(distillationInput)
+      i += 1
+    end
+    if xml.nil?
+      puts 'ERROR: could not perform distillation downwards web service!'
+    else
+      puts 'SUCCESS: successfully performed distillation downwards web service!'
+    end
     downwardsXML = convertXML(xml,'<alternativesValues>','</alternativesValues>')
 
     ######upwards#######################
     distillationInput = soapInstance.getSoapDistillation(credibilityXML,'upwards', @alpha, @beta)
+    puts 'distillation upwards: try nr. 1'
     xml = buildSoapRequestDistillation(distillationInput)
+    i = 2
+    while xml.nil? && i <= numberOfServiceTries
+      puts 'distillation upwards: try nr. ' + i.to_s
+      xml = buildSoapRequestDistillation(distillationInput)
+      i += 1
+    end
+    if xml.nil?
+      puts 'ERROR: could not perform distillation upwards web service!'
+    else
+      puts 'SUCCESS: successfully performed distillation upwards web service!'
+    end
     upwardsXML = convertXML(xml,'<alternativesValues>','</alternativesValues>')
 
 
     ####buildSoapRequestRanking#####
     rankingInput = soapInstance.getSoapRanking(downwardsXML, upwardsXML)
+    puts 'ranking: try nr. 1'
     xml = buildSoapRequestRanking(rankingInput)
+    i = 2
+    while xml.nil? && i <= numberOfServiceTries
+      puts 'ranking: try nr. ' + i.to_s
+      xml = buildSoapRequestRanking(rankingInput)
+      i += 1
+    end
+    if xml.nil?
+      puts 'ERROR: could not perform ranking web service!'
+    else
+      puts 'SUCCESS: successfully performed ranking web service!'
+    end
     hashRanking = Hash.from_xml(xml.gsub("\n", ""))
     @alternatives = rankAlternatives(@alternatives, hashRanking)
 
@@ -83,6 +157,8 @@ class ElectreController < ApplicationController
     @alpha = params[:alpha]
     @beta = params[:beta]
     @iteration = params['iteration'].to_i
+
+    numberOfServiceTries = 5
 
     # Create hash with all project alternatives (with employee codes)
     @alternatives = Hash.new()
@@ -102,17 +178,53 @@ class ElectreController < ApplicationController
 
     ###buildSoapRequestConcordance#####
     concordanceInput = soapInstance.getSoapConcordance(criteria,weights)
+    puts 'concordance: try nr. 1'
     xml = buildSoapRequestConcordance(concordanceInput)
+    i = 2
+    while xml.nil? && i <= numberOfServiceTries
+      puts 'concordance: try nr. ' + i.to_s
+      xml = buildSoapRequestConcordance(concordanceInput)
+      i += 1
+    end
+    if xml.nil?
+      puts 'ERROR: could not perform concordance web service!'
+    else
+      puts 'SUCCESS: successfully performed concordance web service!'
+    end
     xmlConcordance = convertXML(xml,'<alternativesComparisons>','</alternativesComparisons>')
 
     ###buildSoapRequestDiscordance#####
     discordanceInput = soapInstance.getSoapDiscordance(criteria,weights)
+    puts 'discordance: try nr. 1'
     xml = buildSoapRequestDiscordance(discordanceInput)
+    i = 2
+    while xml.nil? && i <= numberOfServiceTries
+      puts 'discordance: try nr. ' + i.to_s
+      xml = buildSoapRequestDiscordance(discordanceInput)
+      i += 1
+    end
+    if xml.nil?
+      puts 'ERROR: could not perform discordance web service!'
+    else
+      puts 'SUCCESS: successfully performed discordance web service!'
+    end
     xmlDiscordance = convertXML(xml,'<alternativesComparisons>','</alternativesComparisons>')
 
     ####buildSoapRequestDistillations#####
     credibilityInput = soapInstance.getSoapCredibility(xmlConcordance, xmlDiscordance)
+    puts 'credibility: try nr. 1'
     xml = buildSoapRequestCredibility(credibilityInput)
+    i = 2
+    while xml.nil? && i <= numberOfServiceTries
+      puts 'credibility: try nr. ' + i.to_s
+      xml = buildSoapRequestCredibility(credibilityInput)
+      i += 1
+    end
+    if xml.nil?
+      puts 'ERROR: could not perform credibility web service!'
+    else
+      puts 'SUCCESS: successfully performed credibility web service!'
+    end
     credibilityXML = convertXML(xml,'<alternativesComparisons>','</alternativesComparisons>')
 
 
@@ -120,18 +232,54 @@ class ElectreController < ApplicationController
 
     ######downwards#######################
     distillationInput = soapInstance.getSoapDistillation(credibilityXML,'downwards', @alpha, @beta)
+    puts 'distillation downwards: try nr. 1'
     xml = buildSoapRequestDistillation(distillationInput)
+    i = 2
+    while xml.nil? && i <= numberOfServiceTries
+      puts 'distillation downwards: try nr. ' + i.to_s
+      xml = buildSoapRequestDistillation(distillationInput)
+      i += 1
+    end
+    if xml.nil?
+      puts 'ERROR: could not perform distillation downwards web service!'
+    else
+      puts 'SUCCESS: successfully performed distillation downwards web service!'
+    end
     downwardsXML = convertXML(xml,'<alternativesValues>','</alternativesValues>')
 
     ######upwards#######################
     distillationInput = soapInstance.getSoapDistillation(credibilityXML,'upwards', @alpha, @beta)
+    puts 'distillation upwards: try nr. 1'
     xml = buildSoapRequestDistillation(distillationInput)
+    i = 2
+    while xml.nil? && i <= numberOfServiceTries
+      puts 'distillation upwards: try nr. ' + i.to_s
+      xml = buildSoapRequestDistillation(distillationInput)
+      i += 1
+    end
+    if xml.nil?
+      puts 'ERROR: could not perform distillation upwards web service!'
+    else
+      puts 'SUCCESS: successfully performed distillation upwards web service!'
+    end
     upwardsXML = convertXML(xml,'<alternativesValues>','</alternativesValues>')
 
 
     ####buildSoapRequestRanking#####
     rankingInput = soapInstance.getSoapRanking(downwardsXML, upwardsXML)
+    puts 'ranking: try nr. 1'
     xml = buildSoapRequestRanking(rankingInput)
+    i = 2
+    while xml.nil? && i <= numberOfServiceTries
+      puts 'ranking: try nr. ' + i.to_s
+      xml = buildSoapRequestRanking(rankingInput)
+      i += 1
+    end
+    if xml.nil?
+      puts 'ERROR: could not perform ranking web service!'
+    else
+      puts 'SUCCESS: successfully performed ranking web service!'
+    end
     hashRanking = Hash.from_xml(xml.gsub("\n", ""))
     @alternatives = rankAlternatives(@alternatives, hashRanking)
 
